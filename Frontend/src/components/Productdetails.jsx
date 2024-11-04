@@ -18,11 +18,11 @@ const Productdetails = () => {
   const cartItems = useSelector((store) => store.cartItems);
 
   const [currentProduct, setCurrentProduct] = useState({});
-  const url = "http://localhost:8000/api/v1/product";
+  const url = `${BACKEND_URL}/api/v1/product`;
 
   const handleOnsubmit = async (event) => {
     event.preventDefault();
-    const url = "http://localhost:8000/api/v1/review";
+    const url = `${BACKEND_URL}/api/v1/review`;
     const responce = await fetch(url, {
       method: "PUT",
       credentials: "include",
@@ -47,7 +47,7 @@ const Productdetails = () => {
   };
 
   const createOrder = async (price) => {
-    const key = await fetch("http://localhost:8000/api/v1/order/new/getkey", {
+    const key = await fetch(`${BACKEND_URL}/api/v1/order/new/getkey`, {
       method: "GET",
       credentials: "include",
     });
@@ -55,7 +55,7 @@ const Productdetails = () => {
 
     console.log("KeyValue", keyValue);
 
-    const responce = await fetch("http://localhost:8000/api/v1/order/new", {
+    const responce = await fetch(`${BACKEND_URL}/api/v1/order/new`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +77,7 @@ const Productdetails = () => {
       image:
         "https://t3.ftcdn.net/jpg/03/14/85/06/360_F_314850659_2aQLerz30kWj78tqpaGSbzYD6sAUmuDf.jpg",
       order_id: value.data.id,
-      callback_url: "http://localhost:8000/api/v1/order/new/verified",
+      callback_url: `${BACKEND_URL}/api/v1/order/new/verified`,
       prefill: {
         name: keyValue.user.name,
         email: keyValue.user.email,

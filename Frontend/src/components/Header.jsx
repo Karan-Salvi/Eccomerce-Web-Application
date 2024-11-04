@@ -14,7 +14,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const handleLogOut = async () => {
-    const responce = await fetch("http://localhost:8000/api/v1/logout", {
+    const responce = await fetch(`${BACKEND_URL}/api/v1/logout`, {
       method: "Get",
       credentials: "include",
     });

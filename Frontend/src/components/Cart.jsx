@@ -5,6 +5,7 @@ import { cartItemsActions } from "../store/cartSlice";
 import Address from "./Address";
 import PaymentInfo from "./PaymentInfo";
 import { stepSliceActions } from "../store/stepSlice";
+import { BACKEND_URL } from "../constants";
 
 const Cart = () => {
   const cartItems = useSelector((store) => store.cartItems);
@@ -23,7 +24,7 @@ const Cart = () => {
   }, []);
 
   const createOrder = async (price) => {
-    const key = await fetch("http://localhost:8000/api/v1/order/new/getkey", {
+    const key = await fetch(`${BACKEND_URL}/api/v1/order/new/getkey`, {
       method: "GET",
       credentials: "include",
     });
@@ -31,7 +32,7 @@ const Cart = () => {
 
     console.log("KeyValue", keyValue);
 
-    const responce = await fetch("http://localhost:8000/api/v1/order/new", {
+    const responce = await fetch(`${BACKEND_URL}/api/v1/order/new`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,7 +54,7 @@ const Cart = () => {
       image:
         "https://t3.ftcdn.net/jpg/03/14/85/06/360_F_314850659_2aQLerz30kWj78tqpaGSbzYD6sAUmuDf.jpg",
       order_id: value.data.id,
-      callback_url: "http://localhost:8000/api/v1/order/new/verified",
+      callback_url: `${BACKEND_URL}/api/v1/order/new/verified`,
       prefill: {
         name: keyValue.user.name,
         email: keyValue.user.email,

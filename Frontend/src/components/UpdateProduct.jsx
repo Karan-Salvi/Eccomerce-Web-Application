@@ -10,7 +10,7 @@ const UpdateProduct = () => {
 
   const handleOnUpdate = async (event) => {
     event.preventDefault();
-    const url = "http://localhost:8000/api/v1/product";
+    const url = `${BACKEND_URL}/api/v1/product`;
     const responce = await fetch(`${url}/${productCodeElement.current.value}`, {
       method: "PUT",
       headers: {

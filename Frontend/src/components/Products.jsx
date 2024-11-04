@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 
 const Products = () => {
-  let url = "http://localhost:8000/api/v1/products";
+  let url = `${BACKEND_URL}/api/v1/products`;
   const [productList, setProductList] = useState([]);
 
   useEffect(() => {

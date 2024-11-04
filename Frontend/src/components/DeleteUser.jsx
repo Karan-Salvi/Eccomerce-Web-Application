@@ -8,7 +8,7 @@ const DeleteUser = () => {
   const dispatch = useDispatch();
   const handleOnDelete = async (event) => {
     event.preventDefault();
-    const url = "http://localhost:8000/api/v1/user/delete";
+    const url = `${BACKEND_URL}/api/v1/user/delete`;
     const responce = await fetch(`${url}/${productCodeElement.current.value}`, {
       method: "DELETE",
       credentials: "include",

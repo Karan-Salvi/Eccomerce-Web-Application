@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { messageActions } from "../store/messageSlice";
+import { BACKEND_URL } from "../constants";
 
 const Signup = () => {
   const firstNameElement = useRef();
@@ -18,7 +19,7 @@ const Signup = () => {
   const handleOnSignUp = async (event) => {
     event.preventDefault();
 
-    const responce = await fetch("http://localhost:8000/api/v1/register", {
+    const responce = await fetch(`${BACKEND_URL}/api/v1/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

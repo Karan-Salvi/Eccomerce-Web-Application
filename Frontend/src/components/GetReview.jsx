@@ -11,7 +11,7 @@ const GetReview = () => {
 
   const handleOnSubmit = async (event) => {
     event.preventDefault();
-    const url = "http://localhost:8000/api/v1/reviews";
+    const url = `${BACKEND_URL}/api/v1/reviews`;
     const responce = await fetch(`${url}/${productCodeElement.current.value}`, {
       method: "GET",
 
@@ -30,7 +30,7 @@ const GetReview = () => {
   };
 
   const handleDelete = async (productId) => {
-    const url = "http://localhost:8000/api/v1/review/delete";
+    const url = `${BACKEND_URL}/api/v1/review/delete`;
     const responce = await fetch(`${url}/${productId}`, {
       method: "DELETE",
       headers: {

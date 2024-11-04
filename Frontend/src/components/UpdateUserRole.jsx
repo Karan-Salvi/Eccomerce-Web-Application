@@ -12,7 +12,7 @@ const UpdateUserRole = () => {
   const dispatch = useDispatch();
   const handleOnUpdate = async (event) => {
     event.preventDefault();
-    const url = "http://localhost:8000/api/v1/user/updateRole";
+    const url = `${BACKEND_URL}/api/v1/user/updateRole`;
     const responce = await fetch(`${url}/${userIdElement.current.value}`, {
       method: "PUT",
       headers: {
