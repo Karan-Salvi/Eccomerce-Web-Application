@@ -7,6 +7,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { cartItemsActions } from "../store/cartSlice";
 import Container from "./Container";
+import { BACKEND_URL } from "../constants";
 
 const Productdetails = () => {
   const reviewElement = useRef();

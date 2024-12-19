@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { messageActions } from "../store/messageSlice";
+import { BACKEND_URL } from "../constants";
 
 const CreateProduct = () => {
   const message = useSelector((store) => store.message);

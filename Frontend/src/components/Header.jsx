@@ -7,6 +7,7 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logActions } from "../store/logSlice";
+import { BACKEND_URL } from "../constants";
 
 const Header = () => {
   const logStatus = useSelector((store) => store.logStatus);

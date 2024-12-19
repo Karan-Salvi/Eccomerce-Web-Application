@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { GrDocumentUpdate } from "react-icons/gr";
+import { BACKEND_URL } from "../constants";
 
 const UpdateProduct = () => {
   const productCodeElement = useRef();

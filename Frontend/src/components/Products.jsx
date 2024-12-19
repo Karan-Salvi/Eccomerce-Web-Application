@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
+import { BACKEND_URL } from "../constants";
 
 const Products = () => {
   let url = `${BACKEND_URL}/api/v1/products`;

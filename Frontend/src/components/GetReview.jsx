@@ -3,6 +3,7 @@ import { MdOutlinePreview } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { messageActions } from "../store/messageSlice";
 import { MdDelete } from "react-icons/md";
+import { BACKEND_URL } from "../constants";
 
 const GetReview = () => {
   const [reviews, setReviews] = useState([]);
