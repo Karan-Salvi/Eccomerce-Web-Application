@@ -4,6 +4,7 @@ import currentProductSlice from "./currentProductSlice";
 import messageSlice from "./messageSlice";
 import cartItemsSlice from "./cartSlice";
 import stepSlice from "./stepSlice";
+import userSlice from "./userSlice";
 
 const TrendyCartStore = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const TrendyCartStore = configureStore({
     message: messageSlice.reducer,
     cartItems: cartItemsSlice.reducer,
     stepList: stepSlice.reducer,
+    user: userSlice.reducer,
   },
 });
 

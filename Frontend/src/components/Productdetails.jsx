@@ -7,6 +7,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { cartItemsActions } from "../store/cartSlice";
 import Container from "./Container";
+import { BACKEND_URL } from "../constants";
 
 const Productdetails = () => {
   const reviewElement = useRef();
@@ -53,7 +54,7 @@ const Productdetails = () => {
     });
     const keyValue = await key.json();
 
-    console.log("KeyValue", keyValue);
+    //console.log("KeyValue", keyValue);
 
     const responce = await fetch(`${BACKEND_URL}/api/v1/order/new`, {
       method: "POST",
@@ -67,7 +68,7 @@ const Productdetails = () => {
     });
     const value = await responce.json();
 
-    console.log(value);
+    //console.log(value);
     var options = {
       key: keyValue.key,
       amount: value.data.amount,
@@ -91,7 +92,7 @@ const Productdetails = () => {
       },
     };
 
-    console.log(window);
+    //console.log(window);
 
     const razor = new window.Razorpay(options);
     razor.open();

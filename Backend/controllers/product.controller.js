@@ -21,7 +21,7 @@ const createProduct = catchAsyncErrors(async (req, res) => {
 
   const { name, description, price, ratings, category, stock } = req.body;
 
-  console.log("my images are", images);
+ // console.log("my images are", images);
 
   const product = await Product.create({
     name,
@@ -32,8 +32,8 @@ const createProduct = catchAsyncErrors(async (req, res) => {
     stock,
     images,
   });
-  console.log("Our body is ", req.body);
-  console.log("Our files are : ", req.files["image"]);
+ // console.log("Our body is ", req.body);
+ // console.log("Our files are : ", req.files["image"]);
   res.status(201).json({
     success: true,
     message: "Product is created successfully",
@@ -134,7 +134,7 @@ const createProductReview = catchAsyncErrors(async (req, res) => {
     }
   });
 
-  console.log("Is reviewed is ::: ", isReviewed);
+  //console.log("Is reviewed is ::: ", isReviewed);
 
   if (isReviewed) {
     product.reviews.forEach((review) => {

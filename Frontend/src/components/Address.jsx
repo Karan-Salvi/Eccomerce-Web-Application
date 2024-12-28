@@ -7,7 +7,7 @@ const Address = ({ selectedStep, setSelectedStep }) => {
   const stepList = useSelector((store) => store.stepList);
   const handleAddAddres = async () => {
     setSelectedStep(3);
-    console.log(stepList);
+    //console.log(stepList);
 
     if (!stepList.includes(2)) {
       dispatch(stepSliceActions.AddStep(2));

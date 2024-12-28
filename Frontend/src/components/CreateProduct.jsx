@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { messageActions } from "../store/messageSlice";
+import { BACKEND_URL } from "../constants";
 
 const CreateProduct = () => {
   const message = useSelector((store) => store.message);
@@ -38,7 +39,7 @@ const CreateProduct = () => {
     formData.append("image", image4);
     formData.append("image", image5);
 
-    console.log("FormData is : ", formData);
+    //console.log("FormData is : ", formData);
     const responce = await fetch(`${BACKEND_URL}/api/v1/product/new`, {
       method: "POST",
       body: formData,
@@ -46,7 +47,7 @@ const CreateProduct = () => {
     });
     const data = await responce.json();
 
-    console.log("Data is after  :", data);
+    //console.log("Data is after  :", data);
 
     if (data.success === true) {
       dispatch(
@@ -70,7 +71,7 @@ const CreateProduct = () => {
 
   return (
     <>
-      <form className="w-10/12 mx-auto md:w-4/6 my-5" onSubmit={UploadProduct}>
+      <form className="w-full mx-auto md:w-4/6 my-5" onSubmit={UploadProduct}>
         <div className="mb-5">
           <label
             htmlFor="name"

@@ -7,6 +7,7 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logActions } from "../store/logSlice";
+import { BACKEND_URL } from "../constants";
 
 const Header = () => {
   const logStatus = useSelector((store) => store.logStatus);
@@ -14,12 +15,15 @@ const Header = () => {
   const navigate = useNavigate();
 
   const handleLogOut = async () => {
+    alert("HandleLogout");
     const responce = await fetch(`${BACKEND_URL}/api/v1/logout`, {
       method: "Get",
       credentials: "include",
     });
 
     const data = await responce.json();
+
+    //console.log(data);
 
     if (data.success == true) {
       dispatch(logActions.changeStatus());

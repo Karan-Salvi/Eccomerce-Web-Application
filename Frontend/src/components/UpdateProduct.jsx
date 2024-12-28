@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { GrDocumentUpdate } from "react-icons/gr";
+import { BACKEND_URL } from "../constants";
 
 const UpdateProduct = () => {
   const productCodeElement = useRef();
@@ -38,7 +39,7 @@ const UpdateProduct = () => {
 
   return (
     <>
-      <form className="w-10/12 mx-auto md:w-4/6 my-5" onSubmit={handleOnUpdate}>
+      <form className="w-full mx-auto md:w-4/6 my-5" onSubmit={handleOnUpdate}>
         <div className="mb-5">
           <label
             htmlFor="ProductCode"

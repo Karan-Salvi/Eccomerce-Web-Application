@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { FaUserAltSlash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { messageActions } from "../store/messageSlice";
+import { BACKEND_URL } from "../constants";
 
 const DeleteUser = () => {
   const productCodeElement = useRef();

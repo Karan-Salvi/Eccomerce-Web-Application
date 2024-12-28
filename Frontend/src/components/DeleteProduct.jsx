@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { MdDelete } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { messageActions } from "../store/messageSlice";
+import { BACKEND_URL } from "../constants";
 
 const DeleteProduct = () => {
   const productCodeElement = useRef();
@@ -27,7 +28,7 @@ const DeleteProduct = () => {
 
   return (
     <>
-      <form className="w-10/12 mx-auto md:w-4/6 my-5" onSubmit={handleOnDelete}>
+      <form className="w-full mx-auto md:w-4/6 my-5" onSubmit={handleOnDelete}>
         <div className="mb-5">
           <label
             htmlFor="name"

@@ -10,8 +10,7 @@ const Admin = () => {
     <>
       <Header />
       <Outlet />
-      <Popup/>
-      <Footer />
+      <Popup />
     </>
   );
 };

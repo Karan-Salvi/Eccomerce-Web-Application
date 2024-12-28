@@ -22,7 +22,7 @@ const createNewOrder = catchAsyncErrors(async (req, res) => {
 
   const order = await instance.orders.create(options);
 
-  console.log(order);
+  //console.log(order);
   // const order = await Order.create({
   //   shippingInfo,
   //   orderItems,
@@ -43,7 +43,7 @@ const createNewOrder = catchAsyncErrors(async (req, res) => {
 });
 
 const paymentVerified = catchAsyncErrors(async (req, res) => {
-  console.log(req.body);
+ // console.log(req.body);
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
     req.body;
 
@@ -72,7 +72,7 @@ const paymentVerified = catchAsyncErrors(async (req, res) => {
 });
 
 const getKey = catchAsyncErrors(async (req, res) => {
-  console.log(req.user);
+  // console.log(req.user);
   return res.status(200).json({
     success: true,
     key: process.env.RAZORPAY_KEY_ID,

@@ -5,7 +5,7 @@ const PaymentDone = () => {
   const searchQuery = useSearchParams()[0];
   const reference = searchQuery.get("reference");
 
-  console.log(reference);
+  //console.log(reference);
   return (
     <div>
       <div className="w-full h-[85vh] flex flex-col justify-center items-center">

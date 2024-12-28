@@ -3,6 +3,7 @@ import { MdOutlinePreview } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { messageActions } from "../store/messageSlice";
 import { MdDelete } from "react-icons/md";
+import { BACKEND_URL } from "../constants";
 
 const GetReview = () => {
   const [reviews, setReviews] = useState([]);
@@ -40,8 +41,8 @@ const GetReview = () => {
       body: JSON.stringify({ productId: productCodeElement.current.value }),
     });
     const value = await responce.json();
-    console.log(productCodeElement.current.value);
-    console.log(value);
+    //console.log(productCodeElement.current.value);
+    //console.log(value);
     if (value.success === true) {
       dispatch(
         messageActions.setMessage({ success: true, message: value.message })
@@ -50,7 +51,7 @@ const GetReview = () => {
   };
   return (
     <>
-      <form className="w-10/12 mx-auto md:w-4/6 my-5" onSubmit={handleOnSubmit}>
+      <form className="w-full mx-auto md:w-4/6 my-5" onSubmit={handleOnSubmit}>
         <div className="mb-5">
           <label
             htmlFor="name"

@@ -8,8 +8,7 @@ const cartItemsSlice = createSlice({
       return [action.payload, ...state];
     },
     deleteItem: (state, action) => {
-      console.log(action.payload);
-      console.log();
+     
       return state.filter((item) => item._id !== action.payload);
     },
     addInitialItems: (state, action) => {
