@@ -17,13 +17,13 @@ router.route("/order/new").post(checkAuthenticated(), createNewOrder);
 
 router.route("/order/:id").get(getSingleOrder);
 
-router.route("/orders/me").get(checkAuthenticated(), myOrders);
+router.route("/orders/me").get(myOrders);
 
-router.route("/orders").get(checkAuthenticated(), getAllOrders);
+router.route("/orders").get(getAllOrders);
 
-router.route("/order/update/:id").put(checkAuthenticated(), updateOrderStatus);
+router.route("/order/update/:id").put(updateOrderStatus);
 
-router.route("/order/delete/:id").delete(checkAuthenticated(), deleteOrder);
+router.route("/order/delete/:id").delete(deleteOrder);
 
 router.route("/order/new/verified").post(paymentVerified);
 

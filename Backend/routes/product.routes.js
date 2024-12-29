@@ -25,16 +25,14 @@ router
 
 router
   .route("/product/:id")
-  .put(checkAuthenticated(), updateProduct)
-  .delete(checkAuthenticated(), deleteProduct)
-  .get(checkAuthenticated(), getProductDetails);
+  .put(updateProduct)
+  .delete(deleteProduct)
+  .get(getProductDetails);
 
-router.route("/review").put(checkAuthenticated(), createProductReview);
+router.route("/review").put(createProductReview);
 
-router.route("/reviews/:id").get(checkAuthenticated(), getAllReviews);
+router.route("/reviews/:id").get(getAllReviews);
 
-router
-  .route("/review/delete/:id")
-  .delete(checkAuthenticated(), deleteProductReview);
+router.route("/review/delete/:id").delete(deleteProductReview);
 
 module.exports = router;
