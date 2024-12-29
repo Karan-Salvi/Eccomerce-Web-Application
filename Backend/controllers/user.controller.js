@@ -1,3 +1,4 @@
+const exp = require("constants");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors.js");
 const User = require("../models/user.model.js");
 const sendEmail = require("../utils/sendmail.js");
@@ -66,6 +67,7 @@ const loginUser = catchAsyncErrors(async (req, res) => {
       sameSite: "None",
       secure: true,
       httpOnly: true,
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
     .json({
       success: true,
