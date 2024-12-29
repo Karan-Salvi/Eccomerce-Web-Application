@@ -80,10 +80,19 @@ const loginUser = catchAsyncErrors(async (req, res) => {
 
 // Logout user in our web app
 const logoutUser = catchAsyncErrors(async (req, res) => {
-  return res.clearCookie(process.env.TOKEN_NAME).status(201).json({
-    success: true,
-    message: "User is logged out successfully",
-  });
+  return res
+    .clearCookie(process.env.TOKEN_NAME, {
+      path: "/",
+      sameSite: "None",
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    })
+    .status(201)
+    .json({
+      success: true,
+      message: "User is logged out successfully",
+    });
 });
 
 // Update user deatails -- ADMIN
