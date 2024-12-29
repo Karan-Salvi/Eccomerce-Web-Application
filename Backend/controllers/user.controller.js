@@ -65,7 +65,7 @@ const loginUser = catchAsyncErrors(async (req, res) => {
       domain: ".vercel.app",
       path: "/",
       sameSite: "None",
-      secure: true,
+
       httpOnly: true,
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
