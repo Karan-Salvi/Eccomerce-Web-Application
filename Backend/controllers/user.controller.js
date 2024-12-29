@@ -61,12 +61,9 @@ const loginUser = catchAsyncErrors(async (req, res) => {
   return res
     .status(200)
     .cookie(process.env.TOKEN_NAME, token, {
-      domain: ".vercel.app",
-      path: "/",
       sameSite: "None",
       secure: true,
       expires: process.env.REFRESH_TOKEN_EXPIRY,
-      httpOnly: true,
     })
     .json({
       success: true,
