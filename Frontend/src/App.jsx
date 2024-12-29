@@ -24,9 +24,6 @@ function App() {
           return data.json();
         })
         .then((data) => {
-          if (!data.success) {
-            navigate("/user/login");
-          }
           dispatch(userSliceActions.initializeUser(data.data));
         })
         .catch((err) => {
