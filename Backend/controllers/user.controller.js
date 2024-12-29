@@ -59,13 +59,16 @@ const loginUser = catchAsyncErrors(async (req, res) => {
     });
   }
 
+  const domain =
+    process.env.NODE_ENV === "production" ? ".vercel.app" : undefined;
+
   return res
     .status(200)
     .cookie(process.env.TOKEN_NAME, token, {
-      domain: ".vercel.app",
+      domain: domain,
       path: "/",
       sameSite: "None",
-
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
