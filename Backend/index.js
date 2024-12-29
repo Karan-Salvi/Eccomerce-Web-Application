@@ -23,6 +23,8 @@ const corsOptions = {
   credentials: true,
 };
 
+console.log("Frontend Url is : " + process.env.FRONTEND_URI);
+
 app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "16kb" }));
@@ -47,6 +49,10 @@ cloudinary.config({
 });
 
 const PORT = process.env.PORT;
+
+app.get("/", (req, res) => {
+  res.send("Server is ready to listen");
+});
 
 app.use("/api/v1", productRoute);
 app.use("/api/v1", userRoute);

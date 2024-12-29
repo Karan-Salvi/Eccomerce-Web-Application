@@ -105,6 +105,10 @@ const router = createBrowserRouter([
         element: <CreateProduct />,
       },
       {
+        path: "/admin/dashboard",
+        element: <CreateProduct />,
+      },
+      {
         path: "/admin/create-product",
         element: <CreateProduct />,
       },

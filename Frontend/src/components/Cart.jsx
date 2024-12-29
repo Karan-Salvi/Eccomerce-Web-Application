@@ -8,7 +8,7 @@ import { stepSliceActions } from "../store/stepSlice";
 import { BACKEND_URL } from "../constants";
 
 const Cart = () => {
-  const cartItems = useSelector((store) => store.cartItems);
+  let cartItems = useSelector((store) => store.cartItems);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -16,8 +16,6 @@ const Cart = () => {
       const localItems = JSON.parse(localStorage.getItem("cartItems"));
       if (cartItems.length === 0 && localItems !== undefined) {
         dispatch(cartItemsActions.addInitialItems(localItems));
-      } else if (localItems === null) {
-        cartItems = cartItems;
       }
     }
     use();
@@ -29,8 +27,6 @@ const Cart = () => {
       credentials: "include",
     });
     const keyValue = await key.json();
-
-    //console.log("KeyValue", keyValue);
 
     const responce = await fetch(`${BACKEND_URL}/api/v1/order/new`, {
       method: "POST",
