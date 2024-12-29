@@ -21,6 +21,7 @@ const corsOptions = {
   origin: process.env.FRONTEND_URI,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
