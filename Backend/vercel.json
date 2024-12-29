@@ -9,11 +9,23 @@
   "routes": [
     {
       "src": "/api/v1/(.*)",
-      "dest": "index.js"
+      "dest": "index.js",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        }
+      ]
     },
     {
       "src": "/(.*)",
-      "dest": "index.js"
+      "dest": "index.js",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        }
+      ]
     }
   ]
 }

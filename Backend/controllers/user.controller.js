@@ -58,11 +58,21 @@ const loginUser = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  return res.status(200).cookie(process.env.TOKEN_NAME, token).json({
-    success: true,
-    message: "User is successfully logged in.",
-    data: user,
-  });
+  return res
+    .status(200)
+    .cookie(process.env.TOKEN_NAME, token, {
+      domain: ".vercel.app",
+      path: "/",
+      sameSite: "None",
+      secure: true,
+      expires: process.env.REFRESH_TOKEN_EXPIRY,
+      httpOnly: true,
+    })
+    .json({
+      success: true,
+      message: "User is successfully logged in.",
+      data: user,
+    });
 });
 
 // Logout user in our web app

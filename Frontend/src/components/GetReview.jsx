@@ -15,7 +15,6 @@ const GetReview = () => {
     const url = `${BACKEND_URL}/api/v1/reviews`;
     const responce = await fetch(`${url}/${productCodeElement.current.value}`, {
       method: "GET",
-
       credentials: "include",
     });
 
