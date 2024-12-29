@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { logActions } from "../store/logSlice";
 import { messageActions } from "../store/messageSlice";
 import { BACKEND_URL } from "../constants";
+import { userSliceActions } from "../store/userSlice";
 
 const LoginCard = () => {
   const logStatus = useSelector((store) => store.logStatus);
@@ -37,6 +38,7 @@ const LoginCard = () => {
 
     if (data.success == true) {
       dispatch(logActions.changeStatus());
+      dispatch(userSliceActions.initializeUser(data.data));
       dispatch(
         messageActions.setMessage({
           success: data.success,
