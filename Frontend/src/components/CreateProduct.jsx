@@ -39,7 +39,7 @@ const CreateProduct = () => {
     formData.append("image", image4);
     formData.append("image", image5);
 
-    //console.log("FormData is : ", formData);
+  
     const responce = await fetch(`${BACKEND_URL}/api/v1/product/new`, {
       method: "POST",
       body: formData,
@@ -47,7 +47,7 @@ const CreateProduct = () => {
     });
     const data = await responce.json();
 
-    //console.log("Data is after  :", data);
+
 
     if (data.success === true) {
       dispatch(

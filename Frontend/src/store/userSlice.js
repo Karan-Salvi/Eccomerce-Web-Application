@@ -13,6 +13,15 @@ const userSlice = createSlice({
       state = action.payload;
       return state;
     },
+    logoutUser: (state) => {
+      state = {
+        name: "unloggedin User",
+        email: "undefined",
+        avatar: "/images/product4.jpg",
+        role: "UnloggedUser",
+      };
+      return state;
+    },
   },
 });
 

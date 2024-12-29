@@ -41,8 +41,7 @@ const GetReview = () => {
       body: JSON.stringify({ productId: productCodeElement.current.value }),
     });
     const value = await responce.json();
-    //console.log(productCodeElement.current.value);
-    //console.log(value);
+
     if (value.success === true) {
       dispatch(
         messageActions.setMessage({ success: true, message: value.message })

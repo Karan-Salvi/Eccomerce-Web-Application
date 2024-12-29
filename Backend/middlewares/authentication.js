@@ -6,7 +6,10 @@ function checkAuthenticated() {
     const tokenValue = req.cookies[process.env.TOKEN_NAME];
 
     if (!tokenValue) {
-      return next();
+      return res.status(400).json({
+        success: false,
+        message: "Bad request!!",
+      });
     }
     try {
       const payload = await jwt.verify(
@@ -15,16 +18,21 @@ function checkAuthenticated() {
       );
 
       if (!payload) {
-        return next();
+        return res.status(400).json({
+          success: false,
+          message: "Bad request!!",
+        });
       }
 
-      req.user = await User.findById(payload._id).select("-password");
+      req.user = payload;
 
       return next();
     } catch (error) {
-      return next();
+      return res.status(500).json({
+        success: true,
+        message: "Something went wrong..",
+      });
     }
-    return next();
   };
 }
 

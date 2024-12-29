@@ -12,6 +12,7 @@ const {
   DeleteUser,
   updateUserRole,
 } = require("../controllers/user.controller.js");
+const { checkAuthenticated } = require("../middlewares/authentication.js");
 
 const router = express.Router();
 
@@ -23,18 +24,18 @@ router.route("/password/forgot").post(forgetPassword);
 
 router.route("/password/reset/:token").put(resetPassword);
 
-router.route("/logout").get(logoutUser);
+router.route("/logout").get(checkAuthenticated(), logoutUser);
 
-router.route("/update/:id").put(updateUserDetails);
+router.route("/update/:id").put(checkAuthenticated(), updateUserDetails);
 
-router.route("/me").get(getUserDetails);
+router.route("/me").get(checkAuthenticated(), getUserDetails);
 
-router.route("/password/update").put(updatePassword);
+router.route("/password/update").put(checkAuthenticated(), updatePassword);
 
-router.route("/me/update").put(updatePersonalDetails);
+router.route("/me/update").put(checkAuthenticated(), updatePersonalDetails);
 
-router.route("/user/delete/:id").delete(DeleteUser);
+router.route("/user/delete/:id").delete(checkAuthenticated(), DeleteUser);
 
-router.route("/user/updateRole/:id").put(updateUserRole);
+router.route("/user/updateRole/:id").put(checkAuthenticated(), updateUserRole);
 
 module.exports = router;

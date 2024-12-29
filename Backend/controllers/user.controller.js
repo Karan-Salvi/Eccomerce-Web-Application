@@ -151,9 +151,6 @@ const resetPassword = catchAsyncErrors(async (req, res) => {
 
   const { password, confirmPassword } = req.body;
 
-  //console.log("My password is :", password);
- // console.log("My confirmPassword is :", confirmPassword);
-  //console.log("My token is :", token);
   const resetPasswordToken = await crypto
     .createHash("sha256")
     .update(token)
@@ -249,12 +246,16 @@ const updatePassword = catchAsyncErrors(async (req, res) => {
 // update personal details
 const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
   const { name, email } = req.body;
-  const user = await User.findByIdAndUpdate(req.user._id, {
-    $set: {
-      name,
-      email,
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        name,
+        email,
+      },
     },
-  });
+    { new: true }
+  );
 
   if (!user) {
     return res.status(500).json({

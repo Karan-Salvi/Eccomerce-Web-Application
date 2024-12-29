@@ -90,9 +90,9 @@ const Product = () => {
 
   return (
     <>
-      <section className="w-full h-auto">
+      <section className="w-full md:w-11/12 h-auto mx-auto">
         <div className="h-full flex flex-col items-center">
-          <h2 className="text-xl font-bold poppins"> Our Popular Products</h2>
+          <h2 className="text-xl font-bold poppins">Our Popular Products</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-2 gap-2">
             {productList.map((product) => (
               <Brandcard product={product} key={product.id} />

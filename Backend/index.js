@@ -23,8 +23,6 @@ const corsOptions = {
   credentials: true,
 };
 
-console.log("Frontend Url is : " + process.env.FRONTEND_URI);
-
 app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "16kb" }));
@@ -40,7 +38,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
-app.use(checkAuthenticated());
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -56,7 +53,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1", productRoute);
 app.use("/api/v1", userRoute);
-app.use("/api/v1", checkAuthenticated(), orderRoute);
+app.use("/api/v1", orderRoute);
 
 app.listen(PORT, () => {
   console.log("Server is running on port:", PORT);

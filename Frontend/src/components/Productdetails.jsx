@@ -54,7 +54,7 @@ const Productdetails = () => {
     });
     const keyValue = await key.json();
 
-    //console.log("KeyValue", keyValue);
+
 
     const responce = await fetch(`${BACKEND_URL}/api/v1/order/new`, {
       method: "POST",
@@ -68,7 +68,6 @@ const Productdetails = () => {
     });
     const value = await responce.json();
 
-    //console.log(value);
     var options = {
       key: keyValue.key,
       amount: value.data.amount,
@@ -92,7 +91,7 @@ const Productdetails = () => {
       },
     };
 
-    //console.log(window);
+    console.log(window);
 
     const razor = new window.Razorpay(options);
     razor.open();

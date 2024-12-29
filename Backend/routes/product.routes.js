@@ -9,7 +9,10 @@ const {
   getAllReviews,
   deleteProductReview,
 } = require("../controllers/product.controller.js");
-const { authorizeRoles } = require("../middlewares/authentication.js");
+const {
+  authorizeRoles,
+  checkAuthenticated,
+} = require("../middlewares/authentication.js");
 const upload = require("../middlewares/multer.js");
 
 const router = express.Router();
@@ -22,14 +25,16 @@ router
 
 router
   .route("/product/:id")
-  .put(updateProduct)
-  .delete(deleteProduct)
-  .get(getProductDetails);
+  .put(checkAuthenticated(), updateProduct)
+  .delete(checkAuthenticated(), deleteProduct)
+  .get(checkAuthenticated(), getProductDetails);
 
-router.route("/review").put(createProductReview);
+router.route("/review").put(checkAuthenticated(), createProductReview);
 
-router.route("/reviews/:id").get(getAllReviews);
+router.route("/reviews/:id").get(checkAuthenticated(), getAllReviews);
 
-router.route("/review/delete/:id").delete(deleteProductReview);
+router
+  .route("/review/delete/:id")
+  .delete(checkAuthenticated(), deleteProductReview);
 
 module.exports = router;
