@@ -1,6 +1,16 @@
-<h1>TrendyCart</h1>
+# TrendyCart - E-Commerce Platform
 
-<h2>User Section</h2>
+TrendyCart is an e-commerce platform built using the MERN stack (MongoDB, Express, React, Node.js). It allows users to browse products, add them to their cart, and make purchases. Vendors can list their products and manage their inventory. The platform aims to offer a seamless shopping experience for customers and an intuitive interface for sellers.
+
+## Technologies Used
+- **Frontend:** React.js, React Router, Axios
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB
+- **Authentication:** JWT (JSON Web Tokens)
+- **Hosting:** Deployed on Vercel
+
+
+<h2>Customer Section</h2>
 
 <br/>
 
@@ -41,7 +51,7 @@
 <br/>
 
 
-<h2>Admin Panel</h2>
+<h2>Vendor Section</h2>
 
 <br/>
 
@@ -61,5 +71,91 @@
 
 <br/>
 
+
+
+<h2>Customer Section</h2>
+
+- Browse through a wide range of products.
+- Add products to the cart.
+- Manage the cart (add, update, remove items).
+- Checkout and make payments.
+- Track orders.
+
+<h2>Vendor Section</h2>
+
+- Register as a vendor and manage your store.
+- Add, edit, or remove products from your catalog.
+- View orders placed by customers and manage inventory.
+
+## Features
+- **Customer:**
+  - Register and log in to the platform
+  - Browse and filter products
+  - Add products to cart and checkout
+  - Save favorite products
+  - View order history and track shipments
+- **Vendor:**
+  - Register as a vendor and manage store
+  - Add, edit, or remove products
+  - View customer orders and manage inventory
+  - Set product prices and promotions
+
+## Setup Instructions
+
+### Prerequisites
+- Node.js (v14 or higher)
+- MongoDB (local or Atlas for cloud database)
+
+### Steps to Set Up
+
+1. Clone the repository:
+
+```
+git clone https://github.com/Karan-Salvi/Eccomerce-Web-Application.git
+cd Eccomerce-Web-Application
+```
+
+2. Install Dependencies:
+
+```
+cd Backend
+npm install
+
+cd Frontend
+npm install
+```
+
+3. Create `.env` file in Backend Folder and copy-paste the following template, filling in your values:
+
+```
+PORT =
+MONGODB_URL = 
+DATABASE_NAME=
+REFRESH_TOKEN_SECRET = 
+REFRESH_TOKEN_EXPIRY = 
+TOKEN_NAME  = 
+SMPT_SERVICE = 
+SMPT_MAIL = 
+SMPT_PASSWORD = 
+HOST = 
+EMAIL_PORT =
+CLOUDINARY_CLOUD_NAME = 
+CLOUDINARY_API_KEY = 
+CLOUDINARY_API_SECRET =
+RAZORPAY_KEY_SECRET = 
+RAZORPAY_KEY_ID = 
+```
+
+4. Run the code:
+
+```
+cd Frontend
+npm run dev
+
+cd Backend
+npm run dev
+```
+
+---
 
 
