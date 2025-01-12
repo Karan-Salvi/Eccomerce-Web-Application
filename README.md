@@ -2,6 +2,10 @@
 
 TrendyCart is an e-commerce platform built using the MERN stack (MongoDB, Express, React, Node.js). It allows users to browse products, add them to their cart, and make purchases. Vendors can list their products and manage their inventory. The platform aims to offer a seamless shopping experience for customers and an intuitive interface for sellers.
 
+## Demo
+Check out the live demo of the project here: [View Demo](https://trendycart-ten.vercel.app/)
+
+
 ## Technologies Used
 - **Frontend:** React.js, React Router, Axios
 - **Backend:** Node.js, Express.js
