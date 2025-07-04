@@ -494,8 +494,6 @@ const updateAddress = catchAsyncErrors(async (req, res) => {
   });
 });
 
-
-
 module.exports = {
   registerUser,
   loginUser,
@@ -508,4 +506,7 @@ module.exports = {
   updatePersonalDetails,
   updateUserRole,
   DeleteUser,
+  addAddress,
+  updateAddress,
+  deleteAddress,
 };

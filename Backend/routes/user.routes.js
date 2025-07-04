@@ -16,26 +16,26 @@ const { checkAuthenticated } = require("../middlewares/authentication.js");
 
 const router = express.Router();
 
-router.route("/register").post(registerUser);
+router.route("/register").post(registerUser); // done 
 
-router.route("/login").post(loginUser);
+router.route("/login").post(loginUser); // done 
 
-router.route("/password/forgot").post(forgetPassword);
+router.route("/password/forgot").post(forgetPassword); // done 
 
-router.route("/password/reset/:token").put(resetPassword);
+router.route("/password/reset/:token").put(resetPassword); // done 
 
-router.route("/logout").get(checkAuthenticated(), logoutUser);
+router.route("/logout").get(checkAuthenticated(), logoutUser); // done 
 
-router.route("/update/:id").put(checkAuthenticated(), updateUserDetails);
+router.route("/update/:id").put(checkAuthenticated(), updateUserDetails); // done 
 
-router.route("/me").get(checkAuthenticated(), getUserDetails);
+router.route("/me").get(checkAuthenticated(), getUserDetails); // done 
 
-router.route("/password/update").put(checkAuthenticated(), updatePassword);
+router.route("/password/update").put(checkAuthenticated(), updatePassword); // done 
 
 router.route("/me/update").put(checkAuthenticated(), updatePersonalDetails);
 
-router.route("/user/delete/:id").delete(checkAuthenticated(), DeleteUser);
+router.route("/user/delete/:id").delete(checkAuthenticated(), DeleteUser); // done 
 
-router.route("/user/updateRole/:id").put(checkAuthenticated(), updateUserRole);
+router.route("/user/updateRole/:id").put(checkAuthenticated(), updateUserRole); // done 
 
 module.exports = router;
