@@ -7,6 +7,7 @@ import Cart from "./pages/Cart/Cart";
 import { appStore } from "./store/store";
 import { Provider } from "react-redux";
 import LoginPage from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/products" element={<Products />}></Route>
           <Route path="/vendor" element={<Vendor />} />
           <Route path="/cart" element={<Cart />} />

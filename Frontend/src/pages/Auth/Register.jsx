@@ -176,7 +176,7 @@ const Logo = (props) => (
   </svg>
 );
 
-export default function LoginPage() {
+export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -186,8 +186,8 @@ export default function LoginPage() {
             className="mx-auto h-10 w-10 text-foreground dark:text-foreground"
             aria-hidden={true}
           />
-          <h3 className="mt-2 text-center text-lg font-bold text-foreground dark:text-foreground">
-            Welcome Back to TrendyCart
+          <h3 className="mt-2 text-center text-xl font-bold text-foreground dark:text-foreground">
+            Create Account
           </h3>
           <p className="text-center text-sm p-2">
             Start your shopping at TrendyCart and get 5% off on your first
@@ -198,7 +198,7 @@ export default function LoginPage() {
         <Card className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
           <CardContent>
             <form action="#" method="post" className="space-y-4">
-              {/* <div>
+              <div>
                 <Label
                   htmlFor="name-login-05"
                   className="text-sm font-medium text-foreground dark:text-foreground"
@@ -213,9 +213,9 @@ export default function LoginPage() {
                   placeholder="Name"
                   className="mt-2"
                 />
-              </div> */}
+              </div>
 
-              <div className="my-5">
+              <div>
                 <Label
                   htmlFor="email-login-05"
                   className="text-sm font-medium text-foreground dark:text-foreground"
@@ -227,12 +227,12 @@ export default function LoginPage() {
                   id="email-login-05"
                   name="email-login-05"
                   autoComplete="email-login-05"
-                  placeholder="karan@trendycart.com"
+                  placeholder="ephraim@blocks.so"
                   className="mt-2"
                 />
               </div>
 
-              <div className="my-5">
+              <div>
                 <Label
                   htmlFor="password-login-05"
                   className="text-sm font-medium text-foreground dark:text-foreground"
@@ -303,7 +303,7 @@ export default function LoginPage() {
                 type="submit"
                 className="mt-4 w-full py-2 font-medium cursor-pointer"
               >
-                Login
+                Create account
               </Button>
 
               <p className="text-center text-xs text-muted-foreground dark:text-muted-foreground">
@@ -327,12 +327,12 @@ export default function LoginPage() {
         </Card>
 
         <p className="mt-6 text-center text-sm text-muted-foreground dark:text-muted-foreground">
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <Link
-            to="/register"
+            to={"/login"}
             className="font-medium text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90"
           >
-            Sign Up
+            Sign in
           </Link>
         </p>
       </div>
