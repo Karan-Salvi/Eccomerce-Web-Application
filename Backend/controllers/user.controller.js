@@ -26,7 +26,6 @@ const registerUser = catchAsyncErrors(async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "User is registered successfully",
-    data: user,
   });
 });
 
@@ -64,15 +63,14 @@ const loginUser = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  const domain =
-    process.env.NODE_ENV === "production" ? ".vercel.app" : undefined;
+  const isProduction = process.env.NODE_ENV === "production";
 
   return res
     .status(200)
     .cookie(process.env.TOKEN_NAME, token, {
       path: "/",
-      sameSite: "None",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: isProduction ? "None" : "Lax",
+      secure: isProduction,
       httpOnly: true,
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
@@ -85,14 +83,14 @@ const loginUser = catchAsyncErrors(async (req, res) => {
 
 // Logout user in our web app
 const logoutUser = catchAsyncErrors(async (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
   logger.info("User is logged out successfully");
   return res
     .clearCookie(process.env.TOKEN_NAME, {
       path: "/",
-      sameSite: "None",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: isProduction ? "None" : "Lax",
+      secure: isProduction,
       httpOnly: true,
-      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
     .status(201)
     .json({

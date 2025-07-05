@@ -12,7 +12,9 @@ import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import { CheckIcon } from "lucide-react";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useLoginUserMutation } from "../../store/api/authApi";
+import { useRef } from "react";
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -178,6 +180,21 @@ const Logo = (props) => (
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [loginUser, { isLoading, error }] = useLoginUserMutation();
+  const emailElement = useRef();
+  const passwordElement = useRef();
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const respoce = await loginUser({
+      email: emailElement.current.value,
+      password: passwordElement.current.value,
+    });
+    console.log(" User Logged in : ", respoce);
+    navigate("/");
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="flex flex-1 flex-col justify-center px-4 py-10 lg:px-6">
@@ -197,7 +214,7 @@ export default function LoginPage() {
 
         <Card className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
           <CardContent>
-            <form action="#" method="post" className="space-y-4">
+            <form className="space-y-4" onSubmit={handleLogin}>
               {/* <div>
                 <Label
                   htmlFor="name-login-05"
@@ -229,6 +246,7 @@ export default function LoginPage() {
                   autoComplete="email-login-05"
                   placeholder="karan@trendycart.com"
                   className="mt-2"
+                  ref={emailElement}
                 />
               </div>
 
@@ -248,6 +266,7 @@ export default function LoginPage() {
                     autoComplete="password-login-05"
                     placeholder="password@123"
                     required="true"
+                    ref={passwordElement}
                   />
                   <span
                     onClick={() => setShowPassword(!showPassword)}

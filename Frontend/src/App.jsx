@@ -8,6 +8,7 @@ import { appStore } from "./store/store";
 import { Provider } from "react-redux";
 import LoginPage from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
+import Profile from "./pages/User/Profile";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="/products" element={<Products />}></Route>
           <Route path="/vendor" element={<Vendor />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>
     </Provider>

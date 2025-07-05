@@ -12,7 +12,8 @@ import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import { CheckIcon } from "lucide-react";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useRegisterUserMutation } from "../../store/api/authApi";
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -178,6 +179,19 @@ const Logo = (props) => (
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
+  const [registerUser, { isLoading, error }] = useRegisterUserMutation();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleRegistration = async (e) => {
+    e.preventDefault();
+    const respoce = await registerUser({ name, email, password });
+    console.log(" User Registered : ", respoce);
+    navigate("/login");
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="flex flex-1 flex-col justify-center px-4 py-10 lg:px-6">
@@ -197,7 +211,7 @@ export default function Register() {
 
         <Card className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
           <CardContent>
-            <form action="#" method="post" className="space-y-4">
+            <form className="space-y-4" onSubmit={handleRegistration}>
               <div>
                 <Label
                   htmlFor="name-login-05"
@@ -212,6 +226,7 @@ export default function Register() {
                   autoComplete="name-login-05"
                   placeholder="Name"
                   className="mt-2"
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
 
@@ -229,6 +244,7 @@ export default function Register() {
                   autoComplete="email-login-05"
                   placeholder="ephraim@blocks.so"
                   className="mt-2"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -248,6 +264,7 @@ export default function Register() {
                     autoComplete="password-login-05"
                     placeholder="password@123"
                     required="true"
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                   <span
                     onClick={() => setShowPassword(!showPassword)}
