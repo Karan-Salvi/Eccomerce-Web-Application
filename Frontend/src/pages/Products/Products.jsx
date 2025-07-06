@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Menu,
   Grid,
@@ -14,12 +14,15 @@ import { SearchBar } from "../../components/Products/SearchBar";
 import { FilterSidebar } from "../../components/Products/FilterSidebar";
 import { ProductGrid } from "../../components/Products/ProductGrid";
 import { Pagination } from "../../components/Products/Pagination";
-import { products } from "../../data/products";
+
 import { Link } from "react-router-dom";
+import { useGetAllProductsQuery } from "../../store/api/productApi";
 
 const PRODUCTS_PER_PAGE = 12;
 
 function Products() {
+  const { data: productsData, isLoading, isError } = useGetAllProductsQuery();
+  // console.log("All the product data is : ", productsData);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("featured");
@@ -31,10 +34,17 @@ function Products() {
     minRating: 0,
     inStockOnly: false,
   });
+  const [products, setProducts] = useState([]);
+
+  console.log(products);
+
+  useEffect(() => {
+    setProducts(productsData?.data);
+  }, [productsData]);
 
   // Filter and search products
   const filteredProducts = useMemo(() => {
-    let filtered = products.filter((product) => {
+    let filtered = products?.filter((product) => {
       // Search filter
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -87,7 +97,7 @@ function Products() {
         break;
       case "featured":
       default:
-        filtered.sort((a, b) => {
+        filtered?.sort((a, b) => {
           if (a.featured && !b.featured) return -1;
           if (!a.featured && b.featured) return 1;
           return b.rating - a.rating;
@@ -95,11 +105,11 @@ function Products() {
     }
 
     return filtered;
-  }, [searchTerm, filters, sortBy]);
+  }, [searchTerm, filters, sortBy, products]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
-  const paginatedProducts = filteredProducts.slice(
+  const totalPages = Math.ceil(filteredProducts?.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = filteredProducts?.slice(
     (currentPage - 1) * PRODUCTS_PER_PAGE,
     currentPage * PRODUCTS_PER_PAGE
   );
@@ -180,8 +190,8 @@ function Products() {
                   Products
                 </h2>
                 <p className="text-gray-600">
-                  Showing {paginatedProducts.length} of{" "}
-                  {filteredProducts.length} products
+                  Showing {paginatedProducts?.length} of{" "}
+                  {filteredProducts?.length} products
                 </p>
               </div>
 

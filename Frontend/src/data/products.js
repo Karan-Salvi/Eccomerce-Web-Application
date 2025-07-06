@@ -6,13 +6,14 @@ export const products = [
       "High-quality noise-cancelling wireless headphones with 30-hour battery life",
     price: 299.99,
     originalPrice: 399.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Electronics",
     brand: "AudioTech",
     rating: 4.8,
-    reviews: 256,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: true,
     colors: ["Black", "White", "Blue"],
   },
@@ -21,13 +22,14 @@ export const products = [
     name: "Smart Fitness Watch",
     description: "Advanced fitness tracking with heart rate monitor and GPS",
     price: 249.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Electronics",
     brand: "FitTrack",
     rating: 4.6,
-    reviews: 189,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: false,
     colors: ["Black", "Silver", "Rose Gold"],
   },
@@ -37,13 +39,14 @@ export const products = [
     description: "Genuine leather handbag with premium craftsmanship",
     price: 189.99,
     originalPrice: 249.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Fashion",
     brand: "LuxeBags",
     rating: 4.9,
-    reviews: 342,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: true,
     colors: ["Brown", "Black", "Tan"],
   },
@@ -52,13 +55,14 @@ export const products = [
     name: "Professional Camera",
     description: "DSLR camera perfect for professional photography",
     price: 899.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Electronics",
     brand: "PhotoPro",
     rating: 4.7,
-    reviews: 124,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: false,
   },
   {
@@ -67,12 +71,13 @@ export const products = [
     description: "UV protection sunglasses with premium frames",
     price: 159.99,
     originalPrice: 199.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/46710/pexels-photo-46710.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Fashion",
     brand: "StyleVision",
     rating: 4.5,
-    reviews: 278,
+    reviews: [],
     inStock: true,
     featured: false,
     colors: ["Black", "Tortoise", "Gold"],
@@ -82,13 +87,14 @@ export const products = [
     name: "Ergonomic Office Chair",
     description: "Professional ergonomic chair for maximum comfort",
     price: 449.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/586344/pexels-photo-586344.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Furniture",
     brand: "ComfortSeating",
     rating: 4.4,
-    reviews: 156,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: false,
     colors: ["Black", "Gray", "White"],
   },
@@ -98,13 +104,14 @@ export const products = [
     description: "High-end espresso machine for coffee enthusiasts",
     price: 599.99,
     originalPrice: 749.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Home & Kitchen",
     brand: "BrewMaster",
     rating: 4.8,
-    reviews: 203,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: true,
   },
   {
@@ -112,13 +119,14 @@ export const products = [
     name: "Wireless Gaming Mouse",
     description: "High-precision gaming mouse with customizable buttons",
     price: 79.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/2115257/pexels-photo-2115257.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Electronics",
     brand: "GameTech",
     rating: 4.6,
-    reviews: 445,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: false,
     colors: ["Black", "White", "RGB"],
   },
@@ -128,13 +136,14 @@ export const products = [
     description: "Comfortable everyday sneakers with modern design",
     price: 89.99,
     originalPrice: 119.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Fashion",
     brand: "WalkComfort",
     rating: 4.3,
-    reviews: 512,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: false,
     colors: ["White", "Black", "Gray", "Blue"],
     sizes: ["7", "8", "9", "10", "11", "12"],
@@ -144,13 +153,14 @@ export const products = [
     name: "Bluetooth Speaker",
     description: "Portable speaker with rich sound and long battery life",
     price: 129.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/1631677/pexels-photo-1631677.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Electronics",
     brand: "SoundWave",
     rating: 4.5,
-    reviews: 334,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: false,
     colors: ["Black", "Blue", "Red"],
   },
@@ -159,13 +169,14 @@ export const products = [
     name: "Modern Table Lamp",
     description: "Stylish LED table lamp with adjustable brightness",
     price: 69.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/1112598/pexels-photo-1112598.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Home & Kitchen",
     brand: "LightCraft",
     rating: 4.4,
-    reviews: 167,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: false,
   },
   {
@@ -174,93 +185,103 @@ export const products = [
     description: "Complete home workout set with resistance bands and weights",
     price: 199.99,
     originalPrice: 279.99,
-    image:
+    image: [
       "https://images.pexels.com/photos/416717/pexels-photo-416717.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
     category: "Sports",
     brand: "FitHome",
     rating: 4.7,
-    reviews: 289,
-    inStock: true,
+    reviews: [],
+    inStock: 100,
     featured: true,
   },
 
   {
-  id: 13,
-  name: "4K Ultra HD Smart TV",
-  description: "55-inch Smart LED TV with 4K resolution and built-in apps",
-  price: 57989.17, // 699.99 USD
-  originalPrice: 74769.17, // 899.99 USD
-  image: "https://images.pexels.com/photos/887751/pexels-photo-887751.jpeg?auto=compress&cs=tinysrgb&w=500",
-  category: "Electronics",
-  brand: "VisionX",
-  rating: 4.6,
-  reviews: 198,
-  inStock: true,
-  featured: true,
-  colors: ["Black"],
-},
+    id: 13,
+    name: "4K Ultra HD Smart TV",
+    description: "55-inch Smart LED TV with 4K resolution and built-in apps",
+    price: 57989.17, // 699.99 USD
+    originalPrice: 74769.17, // 899.99 USD
+    image: [
+      "https://images.pexels.com/photos/887751/pexels-photo-887751.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
+    category: "Electronics",
+    brand: "VisionX",
+    rating: 4.6,
+    reviews: 198,
+    inStock: 100,
+    featured: true,
+    colors: ["Black"],
+  },
 
-{
-  id: 14,
-  name: "Stainless Steel Cookware Set",
-  description: "10-piece premium cookware set for all your cooking needs",
-  price: 12359.17, // 148.99 USD
-  image: "https://images.pexels.com/photos/2766335/pexels-photo-2766335.jpeg?auto=compress&cs=tinysrgb&w=500",
-  category: "Home & Kitchen",
-  brand: "ChefWare",
-  rating: 4.5,
-  reviews: 89,
-  inStock: true,
-  featured: false,
-  colors: ["Silver"],
-},
+  {
+    id: 14,
+    name: "Stainless Steel Cookware Set",
+    description: "10-piece premium cookware set for all your cooking needs",
+    price: 12359.17, // 148.99 USD
+    image: [
+      "https://images.pexels.com/photos/2766335/pexels-photo-2766335.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
+    category: "Home & Kitchen",
+    brand: "ChefWare",
+    rating: 4.5,
+    reviews: [],
+    inStock: 100,
+    featured: false,
+    colors: ["Silver"],
+  },
 
-{
-  id: 15,
-  name: "Noise Cancelling Earbuds",
-  description: "True wireless earbuds with ANC and fast charging case",
-  price: 8309.17, // 99.99 USD
-  originalPrice: 10739.17, // 129.99 USD
-  image: "https://images.pexels.com/photos/373945/pexels-photo-373945.jpeg?auto=compress&cs=tinysrgb&w=500",
-  category: "Electronics",
-  brand: "SoundBeats",
-  rating: 4.4,
-  reviews: 320,
-  inStock: true,
-  featured: false,
-  colors: ["Black", "White"],
-},
+  {
+    id: 15,
+    name: "Noise Cancelling Earbuds",
+    description: "True wireless earbuds with ANC and fast charging case",
+    price: 8309.17, // 99.99 USD
+    originalPrice: 10739.17, // 129.99 USD
+    image: [
+      "https://images.pexels.com/photos/373945/pexels-photo-373945.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
+    category: "Electronics",
+    brand: "SoundBeats",
+    rating: 4.4,
+    reviews: [],
+    inStock: 100,
+    featured: false,
+    colors: ["Black", "White"],
+  },
 
-{
-  id: 16,
-  name: "Men's Leather Wallet",
-  description: "Compact RFID-blocking genuine leather wallet",
-  price: 2489.17, // 29.99 USD
-  image: "https://images.pexels.com/photos/1089937/pexels-photo-1089937.jpeg?auto=compress&cs=tinysrgb&w=500",
-  category: "Fashion",
-  brand: "UrbanStyle",
-  rating: 4.3,
-  reviews: 150,
-  inStock: true,
-  featured: false,
-  colors: ["Brown", "Black"],
-},
+  {
+    id: 16,
+    name: "Men's Leather Wallet",
+    description: "Compact RFID-blocking genuine leather wallet",
+    price: 2489.17, // 29.99 USD
+    image: [
+      "https://images.pexels.com/photos/1089937/pexels-photo-1089937.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
+    category: "Fashion",
+    brand: "UrbanStyle",
+    rating: 4.3,
+    reviews: [],
+    inStock: 100,
+    featured: false,
+    colors: ["Brown", "Black"],
+  },
 
-{
-  id: 17,
-  name: "Portable Projector",
-  description: "Mini projector with 1080p support for home entertainment",
-  price: 12489.17, // 149.99 USD
-  image: "https://images.pexels.com/photos/63703/projector-presentation-technology-lecture-63703.jpeg?auto=compress&cs=tinysrgb&w=500",
-  category: "Electronics",
-  brand: "ViewCast",
-  rating: 4.2,
-  reviews: 98,
-  inStock: true,
-  featured: true,
-  colors: ["White"],
-}
-
+  {
+    id: 17,
+    name: "Portable Projector",
+    description: "Mini projector with 1080p support for home entertainment",
+    price: 12489.17, // 149.99 USD
+    image: [
+      "https://images.pexels.com/photos/63703/projector-presentation-technology-lecture-63703.jpeg?auto=compress&cs=tinysrgb&w=500",
+    ],
+    category: "Electronics",
+    brand: "ViewCast",
+    rating: 4.2,
+    reviews: [],
+    inStock: 100,
+    featured: true,
+    colors: ["White"],
+  },
 ];
 
 export const categories = [...new Set(products.map((p) => p.category))];

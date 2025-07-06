@@ -8,6 +8,7 @@ const {
   createProductReview,
   getAllReviews,
   deleteProductReview,
+  getPaginatedProducts,
 } = require("../controllers/product.controller.js");
 const {
   authorizeRoles,
@@ -18,6 +19,8 @@ const upload = require("../middlewares/multer.js");
 const router = express.Router();
 
 router.route("/products").get(getAllProducts);
+
+router.route("/product").get(getPaginatedProducts);
 
 router
   .route("/product/new")

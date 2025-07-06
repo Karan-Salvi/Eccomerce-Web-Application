@@ -23,7 +23,7 @@ export const ProductGrid = ({ products, loading }) => {
     );
   }
 
-  if (products.length === 0) {
+  if (products?.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 mb-4">
@@ -65,9 +65,9 @@ export const ProductGrid = ({ products, loading }) => {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3  gap-6">
-      {products.map((product) => (
+      {products?.map((product) => (
         <ProductCard
-          key={product.id}
+          key={product._id}
           product={product}
           setSelectedProduct={setSelectedProduct}
         />

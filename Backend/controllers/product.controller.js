@@ -62,6 +62,40 @@ const getAllProducts = catchAsyncErrors(async (req, res) => {
   });
 });
 
+const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
+  // Parse query params
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 12;
+  const skip = (page - 1) * limit;
+
+  // Create unique cache key based on page and limit
+  const cacheKey = `all_products_page_${page}_limit_${limit}`;
+
+  // Try fetching from Redis cache
+  const cachedData = await redisClient.get(cacheKey);
+  if (cachedData) {
+    logger.info(`Products served from Redis: ${cacheKey}`);
+    return res.json({
+      success: true,
+      message: "Fetched from cache",
+      data: JSON.parse(cachedData),
+    });
+  }
+
+  // Fetch from MongoDB with pagination
+  const products = await Product.find().skip(skip).limit(limit);
+
+  // Cache the paginated results
+  await redisClient.set(cacheKey, JSON.stringify(products), "EX", 3600);
+
+  logger.info(`Products served from DB: ${cacheKey}`);
+  return res.json({
+    success: true,
+    message: "Fetched from DB",
+    data: products,
+  });
+});
+
 // Update Product -- Admin
 const updateProduct = catchAsyncErrors(async (req, res) => {
   const productId = req.params.id;
@@ -244,4 +278,5 @@ module.exports = {
   createProductReview,
   getAllReviews,
   deleteProductReview,
+  getPaginatedProducts,
 };

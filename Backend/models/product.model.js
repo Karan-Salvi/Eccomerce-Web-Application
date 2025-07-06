@@ -16,9 +16,22 @@ const productSchema = new mongoose.Schema(
       required: [true, "Please Enter product price"],
       maxLength: [8, "Price cannot exceed 8 characters"],
     },
+    originalPrice: {
+      type: Number,
+      required: [true, "Please Enter product original price"],
+      maxLength: [8, "Price cannot exceed 8 characters"],
+    },
     ratings: {
       type: Number,
-      default: 0,
+      default: 5,
+    },
+    sizes: [
+      {
+        type: String,
+      },
+    ],
+    brand: {
+      type: String,
     },
     images: [
       {
@@ -28,11 +41,16 @@ const productSchema = new mongoose.Schema(
         },
       },
     ],
+    featured: {
+      type: Boolean,
+      default: true,
+    },
+
     category: {
       type: String,
       required: [true, "Please Enter product category"],
     },
-    stock: {
+    inStock: {
       type: Number,
       required: true,
       maxLength: [4, "Stock can not exceed 4 characters"],
@@ -42,6 +60,11 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    colors: [
+      {
+        type: String,
+      },
+    ],
     reviews: [
       {
         name: {
