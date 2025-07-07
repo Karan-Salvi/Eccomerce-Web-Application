@@ -35,7 +35,7 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
-          src={product.images[0]}
+          src={product?.images[0]?.url}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
@@ -107,7 +107,7 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
                     <Star
                       key={i}
                       className={`h-4 w-4 ${
-                        i < Math.floor(product.rating)
+                        i < Math.floor(product?.ratings)
                           ? "text-yellow-400 fill-current"
                           : "text-gray-300"
                       }`}

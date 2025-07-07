@@ -45,8 +45,6 @@ function Products() {
   } = useGetAllProductsByPageQuery({ page: currentPage, limit: 12 });
   const [products, setProducts] = useState([]);
 
-  console.log(products);
-
   useEffect(() => {
     console.log("current page changed ", currentPage);
     setProducts(productsData?.data);
@@ -76,10 +74,12 @@ function Products() {
         product.price <= filters.priceRange[1];
 
       // Rating filter
-      const matchesRating = product.rating >= filters.minRating;
+      const matchesRating = product.ratings >= filters.minRating;
 
       // Stock filter
-      const matchesStock = !filters.inStockOnly || product.inStock;
+      // const matchesStock = !filters.inStockOnly || product.inStock;
+      const matchesStock = !filters.inStockOnly || product.inStock > 0;
+      //   //matchesStock
 
       return (
         matchesSearch &&
@@ -103,7 +103,7 @@ function Products() {
         filtered.sort((a, b) => b.rating - a.rating);
         break;
       case "newest":
-        filtered.sort((a, b) => b.id - a.id);
+        filtered.sort((a, b) => b._id - a._id);
         break;
       case "featured":
       default:
@@ -122,9 +122,9 @@ function Products() {
   // const paginatedProducts = filteredProducts;
 
   // Reset to first page when filters change
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filters, sortBy]);
+  // React.useEffect(() => {
+  //   setCurrentPage(1);
+  // }, [searchTerm, filters, sortBy]);
 
   return (
     <div className="min-h-screen bg-gray-50">

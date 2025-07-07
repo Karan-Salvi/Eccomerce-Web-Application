@@ -4,6 +4,8 @@ const { uploadOnCloudinary } = require("../utils/cloudinary.js");
 const redisClient = require("../config/redis.js");
 const logger = require("../utils/logger.js");
 
+
+
 // Create Product -- Admin
 const createProduct = catchAsyncErrors(async (req, res) => {
   const files = req.files["image"];
