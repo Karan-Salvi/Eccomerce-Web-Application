@@ -16,12 +16,16 @@ import { ProductGrid } from "../../components/Products/ProductGrid";
 import { Pagination } from "../../components/Products/Pagination";
 
 import { Link } from "react-router-dom";
-import { useGetAllProductsQuery } from "../../store/api/productApi";
+import {
+  useGetAllProductsByPageQuery,
+  useGetAllProductsQuery,
+} from "../../store/api/productApi";
 
 const PRODUCTS_PER_PAGE = 12;
 
 function Products() {
-  const { data: productsData, isLoading, isError } = useGetAllProductsQuery();
+  //const { data: productsData, isLoading, isError } = useGetAllProductsQuery();
+
   // console.log("All the product data is : ", productsData);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,17 +34,23 @@ function Products() {
   const [filters, setFilters] = useState({
     categories: [],
     brands: [],
-    priceRange: [0, 1000],
+    priceRange: [0, 100000],
     minRating: 0,
     inStockOnly: false,
   });
+  const {
+    data: productsData,
+    isLoading,
+    isError,
+  } = useGetAllProductsByPageQuery({ page: currentPage, limit: 12 });
   const [products, setProducts] = useState([]);
 
   console.log(products);
 
   useEffect(() => {
+    console.log("current page changed ", currentPage);
     setProducts(productsData?.data);
-  }, [productsData]);
+  }, [productsData, currentPage]);
 
   // Filter and search products
   const filteredProducts = useMemo(() => {
@@ -105,14 +115,11 @@ function Products() {
     }
 
     return filtered;
-  }, [searchTerm, filters, sortBy, products]);
+  }, [searchTerm, filters, sortBy, products, currentPage]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredProducts?.length / PRODUCTS_PER_PAGE);
-  const paginatedProducts = filteredProducts?.slice(
-    (currentPage - 1) * PRODUCTS_PER_PAGE,
-    currentPage * PRODUCTS_PER_PAGE
-  );
+  // const totalPages = Math.ceil(filteredProducts?.length / PRODUCTS_PER_PAGE);
+  // const paginatedProducts = filteredProducts;
 
   // Reset to first page when filters change
   React.useEffect(() => {
@@ -190,7 +197,7 @@ function Products() {
                   Products
                 </h2>
                 <p className="text-gray-600">
-                  Showing {paginatedProducts?.length} of{" "}
+                  Showing {filteredProducts?.length} of{" "}
                   {filteredProducts?.length} products
                 </p>
               </div>
@@ -231,13 +238,13 @@ function Products() {
             </div>
 
             {/* Products Grid */}
-            <ProductGrid products={paginatedProducts} />
+            <ProductGrid products={filteredProducts} loading={isLoading} />
 
             {/* Pagination */}
             <Pagination
               currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
+              totalPages={5}
+              setCurrentPage={setCurrentPage}
             />
           </div>
         </div>

@@ -19,6 +19,12 @@ export const productApi = createApi({
       providesTags: ["Product"],
     }),
 
+    // Get all products by pages
+    getAllProductsByPage: builder.query({
+      query: ({ page, limit }) => `product?page=${page}&limit=${limit}`,
+      providesTags: ["Product"],
+    }),
+
     //  Create a product (with images)
     createProduct: builder.mutation({
       query: (formData) => ({
@@ -83,6 +89,7 @@ export const productApi = createApi({
 
 export const {
   useGetAllProductsQuery,
+  useGetAllProductsByPageQuery,
   useCreateProductMutation,
   useGetProductDetailsQuery,
   useUpdateProductMutation,

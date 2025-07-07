@@ -24,6 +24,8 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
       )
     : 0;
 
+  // console.log("Product individual", product);
+
   return (
     <div
       className="group relative bg-white rounded-sm shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
@@ -33,7 +35,7 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
-          src={product.image}
+          src={product.images[0]}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
@@ -112,9 +114,9 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
                     />
                   ))}
                 </div>
-                <span className="text-sm text-gray-600">
-                  {product.rating} ({product.reviews})
-                </span>
+                {/* <span className="text-sm text-gray-600">
+                  {product.rating} ({product.reviews[0]})
+                </span> */}
               </div>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ProductCard } from "./ProductCard";
 import ProductDetail from "../../components/Product/ProductDetail";
+import { Pagination } from "./Pagination";
 
 export const ProductGrid = ({ products, loading }) => {
   if (loading) {
@@ -63,15 +64,19 @@ export const ProductGrid = ({ products, loading }) => {
     );
   }
 
+  console.log("Products in the grid :", products);
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3  gap-6">
-      {products?.map((product) => (
-        <ProductCard
-          key={product._id}
-          product={product}
-          setSelectedProduct={setSelectedProduct}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3  gap-6">
+        {products?.map((product) => (
+          <ProductCard
+            key={product._id}
+            product={product}
+            setSelectedProduct={setSelectedProduct}
+          />
+        ))}
+      </div>
+    </>
   );
 };

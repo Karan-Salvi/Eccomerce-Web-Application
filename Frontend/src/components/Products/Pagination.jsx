@@ -1,16 +1,27 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { useGetAllProductsByPageQuery } from "../../store/api/productApi";
 
+// { currentPage, totalPages, onPageChange }
 
-export const Pagination = ({
-  currentPage,
-  totalPages,
-  onPageChange
-}) => {
+export const Pagination = ({ currentPage, totalPages, setCurrentPage }) => {
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [totalPages, setTotalPages] = useState(5);
+
+  const onPageChange = (page) => {
+    console.log("Page no is : ", page);
+    const { data, isLoading } = useGetAllProductsByPageQuery({
+      page,
+      limit: 12,
+    });
+
+    console.log("Page in the pagination", data);
+  };
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -30,22 +41,22 @@ export const Pagination = ({
         }
       }
     }
-    
+
     return pages;
   };
 
-  if (totalPages <= 1) return null;
+  // if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center space-x-2 mt-8">
+    <div className="flex items-center justify-center space-x-2 mt-10">
       {/* Previous Button */}
       <button
-        onClick={() => onPageChange(currentPage - 1)}
+        onClick={() => setCurrentPage(currentPage - 1)}
         disabled={currentPage === 1}
         className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
           currentPage === 1
-            ? 'text-gray-400 cursor-not-allowed'
-            : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
         }`}
       >
         <ChevronLeft className="h-4 w-4 mr-1" />
@@ -57,11 +68,11 @@ export const Pagination = ({
         {getPageNumbers().map((page) => (
           <button
             key={page}
-            onClick={() => onPageChange(page)}
+            onClick={() => setCurrentPage(page)}
             className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
               currentPage === page
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                ? "bg-blue-600 text-white"
+                : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
             }`}
           >
             {page}
@@ -71,12 +82,12 @@ export const Pagination = ({
 
       {/* Next Button */}
       <button
-        onClick={() => onPageChange(currentPage + 1)}
+        onClick={() => setCurrentPage(currentPage + 1)}
         disabled={currentPage === totalPages}
         className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
           currentPage === totalPages
-            ? 'text-gray-400 cursor-not-allowed'
-            : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
         }`}
       >
         Next

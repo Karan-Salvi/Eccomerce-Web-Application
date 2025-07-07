@@ -40,6 +40,7 @@ const createProduct = catchAsyncErrors(async (req, res) => {
 // Get All Products -- User
 const getAllProducts = catchAsyncErrors(async (req, res) => {
   const cachedData = await redisClient.get("all_products");
+  console.log("products called here");
   if (cachedData) {
     logger.info("Products served from Redis");
     return res.json({
@@ -70,6 +71,8 @@ const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
 
   // Create unique cache key based on page and limit
   const cacheKey = `all_products_page_${page}_limit_${limit}`;
+
+  console.log("Paginated products called here");
 
   // Try fetching from Redis cache
   const cachedData = await redisClient.get(cacheKey);
