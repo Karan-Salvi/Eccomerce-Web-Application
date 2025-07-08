@@ -17,8 +17,10 @@ import {
 } from "lucide-react";
 
 import { reviews } from "../../data/reviews";
+import { useNavigate } from "react-router-dom";
 
-const ProductDetail = ({ product, onBack }) => {
+const ProductDetail = ({ product }) => {
+  console.log("Product individual detail : ", product);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState("orange"); // useState(product.colors?.[0] || "");
   const [selectedSize, setSelectedSize] = useState("sm"); //useState(product.sizes?.[0] || "");
@@ -27,7 +29,9 @@ const ProductDetail = ({ product, onBack }) => {
   const [activeTab, setActiveTab] = useState("description");
   const [showAllReviews, setShowAllReviews] = useState(false);
 
-  const productReviews = reviews[product.id] || [];
+  const navigate = useNavigate();
+
+  const productReviews = [];
   const discount = product.originalPrice
     ? Math.round(
         ((product.originalPrice - product.price) / product.originalPrice) * 100
@@ -79,7 +83,9 @@ const ProductDetail = ({ product, onBack }) => {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <button
-            onClick={onBack}
+            onClick={() => {
+              navigate("/products");
+            }}
             className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -94,7 +100,7 @@ const ProductDetail = ({ product, onBack }) => {
           <div className="space-y-4">
             <div className="aspect-square bg-white rounded-2xl overflow-hidden shadow-lg">
               <img
-                src={images[selectedImage]}
+                src={images[selectedImage].url}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -113,7 +119,7 @@ const ProductDetail = ({ product, onBack }) => {
                     }`}
                   >
                     <img
-                      src={image}
+                      src={image.url}
                       alt={`${product.name} ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
@@ -143,7 +149,7 @@ const ProductDetail = ({ product, onBack }) => {
               <div className="flex items-center gap-4 mb-4">
                 {renderStars(product.rating)}
                 <span className="text-sm text-gray-600">
-                  {product.rating} ({product.reviews} reviews)
+                  {product.rating} ({product.reviews?.length} reviews)
                 </span>
               </div>
 
@@ -346,15 +352,15 @@ const ProductDetail = ({ product, onBack }) => {
             {activeTab === "description" && (
               <div className="prose max-w-none">
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  {product.description}
+                  {product?.description}
                 </p>
-                {product.features && (
+                {product?.features && (
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">
                       Key Features
                     </h3>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {product.features.map((feature, index) => (
+                      {product?.features?.map((feature, index) => (
                         <li key={index} className="flex items-center gap-2">
                           <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
                           <span className="text-gray-700">{feature}</span>
@@ -366,7 +372,7 @@ const ProductDetail = ({ product, onBack }) => {
               </div>
             )}
 
-            {activeTab === "specifications" && product.specifications && (
+            {activeTab === "specifications" && product?.specifications && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {Object.entries(product.specifications).map(([key, value]) => (
                   <div
@@ -388,9 +394,9 @@ const ProductDetail = ({ product, onBack }) => {
                       Customer Reviews
                     </h3>
                     <div className="flex items-center gap-4 mt-2">
-                      {renderStars(product.rating)}
+                      {renderStars(product.ratings)}
                       <span className="text-sm text-gray-600">
-                        Based on {product.reviews} reviews
+                        Based on {product.reviews?.length || 0} reviews
                       </span>
                     </div>
                   </div>
@@ -400,32 +406,66 @@ const ProductDetail = ({ product, onBack }) => {
                 </div>
 
                 <div className="space-y-6">
-                  {productReviews
-                    .slice(0, showAllReviews ? productReviews.length : 3)
-                    .map((review) => (
+                  {product?.reviews &&
+                    product?.reviews?.map((review, index) => (
+                      // <div
+                      //   key={index}
+                      //   className="bg-white rounded-lg p-6 shadow-sm border"
+                      // >
+                      //   <div className="flex items-start gap-4">
+                      //     <img
+                      //       src={`/images/profile.png`}
+                      //       alt={review?.name?.name || "User"}
+                      //       className="w-12 h-12 rounded-full object-cover"
+                      //     />
+                      //     <div className="flex-1">
+                      //       <div className="flex items-center justify-between mb-2">
+                      //         <div>
+                      //           <h4 className="font-medium text-gray-900">
+                      //             {review?.name?.name || "User Name"}
+                      //           </h4>
+                      //           <div className="flex items-center gap-2 mt-1">
+                      //             {renderStars(review?.rating || 0, "sm")}
+                      //           </div>
+                      //         </div>
+                      //       </div>
+                      //       <p className="text-gray-600 mb-4">
+                      //         {review.comment}
+                      //       </p>
+                      //       <div className="flex items-center gap-4 text-sm">
+                      //         <button className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer">
+                      //           <ThumbsUp className="h-4 w-4" />
+                      //           Helpful
+                      //         </button>
+                      //         <button className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer">
+                      //           <MessageCircle className="h-4 w-4" />
+                      //           Reply
+                      //         </button>
+                      //       </div>
+                      //     </div>
+                      //   </div>
+                      // </div>
+
                       <div
-                        key={review.id}
-                        className="bg-white rounded-lg p-6 shadow-sm border"
+                        key={index}
+                        className="bg-white rounded-md p-5 shadow-sm border"
                       >
                         <div className="flex items-start gap-4">
                           <img
-                            src={
-                              review.userAvatar ||
-                              `https://ui-avatars.com/api/?name=${review.userName}&background=random`
-                            }
-                            alt={review.userName}
+                            src={`/images/profile.png`}
+                            alt={review?.user?.name}
                             className="w-12 h-12 rounded-full object-cover"
                           />
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-2">
                               <div>
                                 <h4 className="font-medium text-gray-900">
-                                  {review.userName}
+                                  {review?.user?.name || "User Name"}
                                 </h4>
                                 <div className="flex items-center gap-2 mt-1">
-                                  {renderStars(review.rating, "sm")}
+                                  {renderStars(review?.rating, "sm")}
                                   <span className="text-sm text-gray-500">
-                                    {review.date}
+                                    {/* {review.date || "Date"} */}
                                   </span>
                                   {review.verified && (
                                     <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
@@ -453,23 +493,23 @@ const ProductDetail = ({ product, onBack }) => {
                                 ))}
                               </div>
                             )}
-                            <div className="flex items-center gap-4 text-sm">
+                            {/* <div className="flex items-center gap-4 text-sm">
                               <button className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer">
                                 <ThumbsUp className="h-4 w-4" />
-                                Helpful ({review.helpful})
+                                Helpful ({review.helpful || 0})
                               </button>
                               <button className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer">
                                 <MessageCircle className="h-4 w-4" />
                                 Reply
                               </button>
-                            </div>
+                            </div> */}
                           </div>
                         </div>
                       </div>
                     ))}
                 </div>
 
-                {productReviews.length > 3 && (
+                {/* {productReviews.length > 3 && (
                   <div className="text-center">
                     <button
                       onClick={() => setShowAllReviews(!showAllReviews)}
@@ -480,7 +520,7 @@ const ProductDetail = ({ product, onBack }) => {
                         : `Show All ${productReviews.length} Reviews`}
                     </button>
                   </div>
-                )}
+                )} */}
               </div>
             )}
           </div>

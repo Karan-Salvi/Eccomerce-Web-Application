@@ -3,8 +3,7 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors.js");
 const { uploadOnCloudinary } = require("../utils/cloudinary.js");
 const redisClient = require("../config/redis.js");
 const logger = require("../utils/logger.js");
-
-
+const updateUserPreferences = require("../utils/updateUserPreferences.js");
 
 // Create Product -- Admin
 const createProduct = catchAsyncErrors(async (req, res) => {
@@ -25,6 +24,7 @@ const createProduct = catchAsyncErrors(async (req, res) => {
     category,
     stock,
     images,
+    createdBy: req.user._id,
   });
 
   logger.info(`Product created: ${product._id}`);
@@ -152,35 +152,114 @@ const deleteProduct = catchAsyncErrors(async (req, res) => {
 });
 
 // Get Single Product
+// const getProductDetails = catchAsyncErrors(async (req, res) => {
+//   console.log("Product details called here");
+//   const productId = req.params.id;
+//   const cacheKey = `product_${productId}`;
+
+//   const cachedProduct = await redisClient.get(cacheKey);
+//   if (cachedProduct) {
+//     logger.info(`Product ${productId} served from Redis`);
+//     return res.status(200).json({
+//       success: true,
+//       message: "Fetched from cache",
+//       data: JSON.parse(cachedProduct),
+//     });
+//   }
+
+//   const product = await Product.findById(productId);
+//   if (!product) {
+//     return res
+//       .status(404)
+//       .json({ success: false, message: "Product not found" });
+//   }
+
+//   updateUserPreferences(req.user._id, {
+//     productId: product?._id,
+//     category: product?.category,
+//     brand: product?.brand,
+//     tags: product?.tags,
+//   });
+
+//   // await redisClient.setEx(cacheKey, 3600, JSON.stringify(product));
+//   await redisClient.set(cacheKey, JSON.stringify(product), "EX", 3600);
+//   logger.info(`Product ${productId} served from DB`);
+
+//   return res.status(200).json({
+//     success: true,
+//     message: "Product fetched successfully",
+//     data: product,
+//   });
+// });
+
 const getProductDetails = catchAsyncErrors(async (req, res) => {
   const productId = req.params.id;
   const cacheKey = `product_${productId}`;
 
-  const cachedProduct = await redisClient.get(cacheKey);
-  if (cachedProduct) {
-    logger.info(`Product ${productId} served from Redis`);
-    return res.status(200).json({
-      success: true,
-      message: "Fetched from cache",
-      data: JSON.parse(cachedProduct),
-    });
+  // Check Redis cache
+  try {
+    const cachedProduct = await redisClient.get(cacheKey);
+    if (cachedProduct) {
+      logger.info(`Product ${productId} served from Redis`);
+      return res.status(200).json({
+        success: true,
+        message: "Fetched from cache",
+        data: JSON.parse(cachedProduct),
+      });
+    }
+  } catch (err) {
+    logger.error(`Redis GET failed: ${err.message}`);
   }
 
-  const product = await Product.findById(productId);
+  // Fetch product from DB and populate review names
+  const product = await Product.findById(productId).populate(
+    "reviews.name",
+    "name email"
+  );
+
   if (!product) {
     return res
       .status(404)
       .json({ success: false, message: "Product not found" });
   }
 
-  // await redisClient.setEx(cacheKey, 3600, JSON.stringify(product));
-  await redisClient.set(cacheKey, JSON.stringify(product), "EX", 3600);
+  // Spread user details inside each review
+  const productWithSpreadReviews = {
+    ...product.toObject(),
+    reviews: product.reviews.map((review) => ({
+      ...review.toObject(),
+      user: review.name, // renamed for clarity
+    })),
+  };
+
+  // Cache it
+  try {
+    await redisClient.set(
+      cacheKey,
+      JSON.stringify(productWithSpreadReviews),
+      "EX",
+      3600
+    );
+  } catch (err) {
+    logger.error(`Redis SET failed: ${err.message}`);
+  }
+
+  // Update preferences
+  if (req.user && req.user._id) {
+    updateUserPreferences(req.user._id, {
+      productId: product._id,
+      category: product.category,
+      brand: product.brand,
+      tags: product.tags,
+    });
+  }
+
   logger.info(`Product ${productId} served from DB`);
 
   return res.status(200).json({
     success: true,
     message: "Product fetched successfully",
-    data: product,
+    data: productWithSpreadReviews,
   });
 });
 

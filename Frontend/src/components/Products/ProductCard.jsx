@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Star, Heart, ShoppingCart, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 // import ProductDetail from "../../components/Product";
 
 export const ProductCard = ({ product, setSelectedProduct }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
 
   // const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -83,7 +85,7 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
           </button>
           <button
             onClick={() => {
-              setSelectedProduct(product);
+              navigate(`/product/${product._id}`);
             }}
             className="bg-white/90 hover:bg-white text-gray-700 p-2 rounded-lg transition-colors cursor-pointer"
           >

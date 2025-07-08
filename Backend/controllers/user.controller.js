@@ -4,6 +4,7 @@ const User = require("../models/user.model.js");
 const sendEmail = require("../utils/sendmail.js");
 const crypto = require("crypto");
 const logger = require("../utils/logger.js");
+const { add } = require("winston");
 
 // Register or Sign up new User
 const registerUser = catchAsyncErrors(async (req, res) => {
@@ -489,6 +490,144 @@ const updateAddress = catchAsyncErrors(async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "Address deleted successfully",
+  });
+});
+
+const addtoWishlist = catchAsyncErrors(async (req, res) => {
+  const { productId } = req.body;
+  const userId = req?.user?._id;
+
+  if (!userId) {
+    logger.warn("User not found");
+    return res.status(400).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    logger.error("User not found");
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  user.wishlist.push_back(productId);
+
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Product added to wishlist successfully",
+  });
+});
+
+const removeFromWishlist = catchAsyncErrors(async (req, res) => {
+  const { productId } = req.body;
+  const userId = req?.user?._id;
+
+  if (!userId) {
+    logger.warn("User not found");
+    return res.status(400).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    logger.error("User not found");
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  user.wishlist = user.wishlist.filter((id) => id !== productId);
+
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Product removed from wishlist successfully",
+  });
+});
+
+const addToCart = catchAsyncErrors(async (req, res) => {
+  const { productId, quantity, size, color } = req.body;
+  const userId = req?.user?._id;
+
+  if (!userId) {
+    logger.warn("User not found");
+    return res.status(400).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    logger.error("User not found");
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  const cartItem = {
+    productId,
+    quantity,
+    variant: {
+      size,
+      color,
+    },
+    addedAt: Date.now(),
+  };
+
+  user.cart.push_back(cartItem);
+
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Product added to cart successfully",
+  });
+});
+
+const removeFromCart = catchAsyncErrors(async (req, res) => {
+  const { productId } = req.body;
+  const userId = req?.user?._id;
+
+  if (!userId) {
+    logger.warn("User not found");
+    return res.status(400).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    logger.error("User not found");
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  user.cart = user.cart.filter((item) => item.productId !== productId);
+
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Product removed from cart successfully",
   });
 });
 

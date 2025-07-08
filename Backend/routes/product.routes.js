@@ -15,6 +15,7 @@ const {
   checkAuthenticated,
 } = require("../middlewares/authentication.js");
 const upload = require("../middlewares/multer.js");
+const preferenceAuth = require("../middlewares/preferenceAuth.js");
 
 const router = express.Router();
 
@@ -30,9 +31,9 @@ router
   .route("/product/:id")
   .put(updateProduct)
   .delete(deleteProduct)
-  .get(getProductDetails);
+  .get(preferenceAuth(), getProductDetails);
 
-router.route("/review").put(createProductReview);
+router.route("/review").put(checkAuthenticated(), createProductReview);
 
 router.route("/reviews/:id").get(getAllReviews);
 
