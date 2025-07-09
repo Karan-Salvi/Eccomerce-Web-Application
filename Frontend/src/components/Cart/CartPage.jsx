@@ -1,12 +1,15 @@
 import React from "react";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { useEcommerce } from "../../contexts/EcommerceContext";
+import { useSelector } from "react-redux";
 
 const CartPage = () => {
-  const { cartItems, updateQuantity, removeFromCart, getCartTotal } =
-    useEcommerce();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  if (cartItems.length === 0) {
+  console.log("user : ", user?.data?.cart);
+
+  const cartItems = [];
+
+  if (user?.data?.cart?.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="text-center">
@@ -29,31 +32,31 @@ const CartPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className="bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden">
-            {cartItems.map((item, index) => (
+            {user?.data?.cart?.map((item, index) => (
               <div
-                key={item.id}
+                key={index}
                 className={`p-6 ${
-                  index !== cartItems.length - 1
+                  index !== user?.data?.cart?.length - 1
                     ? "border-b border-gray-200"
                     : ""
                 }`}
               >
                 <div className="flex items-center space-x-4">
                   <img
-                    src={item.image}
-                    alt={item.name}
+                    src={item?.productId?.images[0]?.url}
+                    alt={item?.productId?.name}
                     className="w-20 h-20 object-cover rounded-lg"
                   />
 
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800 mb-1">
-                      {item.name}
+                      {item?.productId?.name}
                     </h3>
                     <p className="text-gray-600 text-sm mb-2">
-                      {item.category}
+                      {item?.productId?.category}
                     </p>
                     <p className="text-2xl font-bold text-blue-600">
-                      ${item.price.toFixed(2)}
+                      ₹{item?.productId?.price.toFixed(2)}
                     </p>
                   </div>
 
@@ -103,7 +106,7 @@ const CartPage = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-semibold">
-                  ${getCartTotal().toFixed(2)}
+                  {/* ₹{getCartTotal().toFixed(2)} */}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -113,14 +116,14 @@ const CartPage = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Tax</span>
                 <span className="font-semibold">
-                  ${(getCartTotal() * 0.08).toFixed(2)}
+                  {/* ₹{(getCartTotal() * 0.08).toFixed(2)} */}
                 </span>
               </div>
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between">
                   <span className="text-lg font-bold">Total</span>
                   <span className="text-lg font-bold text-blue-600">
-                    ${(getCartTotal() * 1.08).toFixed(2)}
+                    {/* ₹{(getCartTotal() * 1.08).toFixed(2)} */}
                   </span>
                 </div>
               </div>

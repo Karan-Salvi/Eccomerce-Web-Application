@@ -55,6 +55,7 @@ export const authApi = createApi({
         url: "me",
         method: "GET",
       }),
+      providesTags: ["User"],
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const result = await queryFulfilled;
@@ -122,6 +123,45 @@ export const authApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+
+    // wishlist
+
+    addToWishlist: builder.mutation({
+      query: (productId) => ({
+        url: "user/wishlist",
+        method: "POST",
+        body: productId,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    removeFromWishlist: builder.mutation({
+      query: (productId) => ({
+        url: "user/wishlist",
+        method: "DELETE",
+        body: { productId },
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    // Cart Section
+    addToCart: builder.mutation({
+      query: (product) => ({
+        url: "user/cart",
+        method: "POST",
+        body: product,
+      }),
+      invalidatesTags: ["User"], // or use "Cart"
+    }),
+
+    removeFromCart: builder.mutation({
+      query: (product) => ({
+        url: "user/cart",
+        method: "DELETE",
+        body: product,
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -137,4 +177,9 @@ export const {
   useUpdateUserDetailsMutation,
   useDeleteUserMutation,
   useUpdateUserRoleMutation,
+
+  useAddToWishlistMutation,
+  useRemoveFromWishlistMutation,
+  useAddToCartMutation,
+  useRemoveFromCartMutation,
 } = authApi;

@@ -215,7 +215,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <Label htmlFor="price" className="mb-2">Price ($)</Label>
+                      <Label htmlFor="price" className="mb-2">Price (₹)</Label>
                       <Input
                         id="price"
                         type="number"
@@ -414,7 +414,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
 
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-primary">
-                      ${formData.price || "0.00"}
+                      ₹{formData.price || "0.00"}
                     </span>
                     {formData.category && (
                       <Badge variant="outline">{formData.category}</Badge>

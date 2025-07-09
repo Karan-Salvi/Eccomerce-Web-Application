@@ -15,24 +15,24 @@ import {
 import { useEcommerce } from "../../contexts/EcommerceContext";
 
 const Navigation = () => {
-  const { currentPage, setCurrentPage, getCartItemsCount, wishlistItems } =
-    useEcommerce();
+  // const { currentPage, setCurrentPage, getCartItemsCount, wishlistItems } =
+  //   useEcommerce();
 
   const navItems = [
     {
       id: "cart",
       label: "Cart",
       icon: ShoppingCart,
-      badge: getCartItemsCount(),
+      badge: 2,
     },
     {
       id: "wishlist",
       label: "Wishlist",
       icon: Heart,
-      badge: wishlistItems.length,
+      badge: 2,
     },
-    { id: "addresses", label: "Addresses", icon: MapPin },
-    { id: "payment", label: "Payment", icon: CreditCard },
+    // { id: "addresses", label: "Addresses", icon: MapPin },
+    // { id: "payment", label: "Payment", icon: CreditCard },
   ];
 
   return (
@@ -87,12 +87,12 @@ const Navigation = () => {
             <div className="flex items-center space-x-4">
               {navItems.map((item) => {
                 const IconComponent = item.icon;
-                const isActive = currentPage === item.id;
+                // const isActive = currentPage === item.id;
 
                 return (
                   <button
                     key={item.id}
-                    onClick={() => setCurrentPage(item.id)}
+                    // onClick={() => setCurrentPage(item.id)}
                     className="text-gray-700 hover:text-amber-600 transition-colors duration-200 flex flex-col gap-0 items-center cursor-pointer"
                     // className={`relative flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${
                     //   isActive

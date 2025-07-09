@@ -61,7 +61,7 @@ export const ProductCard = ({ product, onEdit, onView, onDelete }) => {
 
           <div className="flex items-center justify-between">
             <span className="text-2xl font-bold text-primary">
-              ${product.price.toFixed(2)}
+              ₹{product.price.toFixed(2)}
             </span>
             <Badge variant="outline" className="text-xs">
               {product.category}
@@ -81,7 +81,7 @@ export const ProductCard = ({ product, onEdit, onView, onDelete }) => {
           <div className="text-sm text-muted-foreground">
             Revenue:{" "}
             <span className="font-semibold text-green-600">
-              ${product.revenue.toFixed(2)}
+              {product.revenue.toFixed(2)}
             </span>
           </div>
         </div>

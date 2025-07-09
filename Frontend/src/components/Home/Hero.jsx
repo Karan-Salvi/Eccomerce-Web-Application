@@ -122,10 +122,10 @@ const Hero = () => {
                     </div>
                     <div className="flex items-center justify-center gap-3">
                       <span className="text-2xl font-bold text-slate-900">
-                        $159.99
+                        ₹159.99
                       </span>
                       <span className="text-lg text-gray-500 line-through">
-                        $199.99
+                        ₹199.99
                       </span>
                       <span className="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded-full">
                         20% OFF
@@ -146,7 +146,7 @@ const Hero = () => {
                   <h4 className="font-semibold text-slate-900 text-sm mb-1">
                     Smart Watch
                   </h4>
-                  <p className="text-amber-600 font-bold">$249.99</p>
+                  <p className="text-amber-600 font-bold">₹249.99</p>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-lg p-4 transform hover:scale-105 transition-all duration-300">
@@ -160,7 +160,7 @@ const Hero = () => {
                   <h4 className="font-semibold text-slate-900 text-sm mb-1">
                     Premium Backpack
                   </h4>
-                  <p className="text-amber-600 font-bold">$89.99</p>
+                  <p className="text-amber-600 font-bold">89.99</p>
                 </div>
               </div>
             </div>

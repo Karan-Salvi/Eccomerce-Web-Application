@@ -5,6 +5,7 @@ const sendEmail = require("../utils/sendmail.js");
 const crypto = require("crypto");
 const logger = require("../utils/logger.js");
 const { add } = require("winston");
+const mongoose = require("mongoose");
 
 // Register or Sign up new User
 const registerUser = catchAsyncErrors(async (req, res) => {
@@ -225,7 +226,10 @@ const resetPassword = catchAsyncErrors(async (req, res) => {
 
 // get user personal details
 const getUserDetails = catchAsyncErrors(async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
+  const user = await User.findById(req.user._id)
+    .select("-password -resetPasswordToken -resetPasswordExpiry")
+    .populate("wishlist")
+    .populate("cart.productId");
 
   if (!user) {
     return res.status(500).json({
@@ -515,8 +519,16 @@ const addtoWishlist = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  user.wishlist.push_back(productId);
+  // Check if the product is already in the wishlist
+  if (user.wishlist.includes(productId)) {
+    return res.status(200).json({
+      success: true,
+      message: "Product already in wishlist",
+    });
+  }
 
+  // Add product to wishlist
+  user.wishlist.push(productId);
   await user.save();
 
   return res.status(200).json({
@@ -558,6 +570,46 @@ const removeFromWishlist = catchAsyncErrors(async (req, res) => {
 });
 
 const addToCart = catchAsyncErrors(async (req, res) => {
+  // const { productId, quantity, size, color } = req.body;
+  // const userId = req?.user?._id;
+
+  // if (!userId) {
+  //   logger.warn("User not found");
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "User not found",
+  //   });
+  // }
+
+  // const user = await User.findById(userId);
+
+  // if (!user) {
+  //   logger.error("User not found");
+  //   return res.status(404).json({
+  //     success: false,
+  //     message: "User not found",
+  //   });
+  // }
+
+  // const cartItem = {
+  //   productId,
+  //   quantity,
+  //   variant: {
+  //     size,
+  //     color,
+  //   },
+  //   addedAt: Date.now(),
+  // };
+
+  // user.cart.push(cartItem);
+
+  // await user.save();
+
+  // return res.status(200).json({
+  //   success: true,
+  //   message: "Product added to cart successfully",
+  // });
+
   const { productId, quantity, size, color } = req.body;
   const userId = req?.user?._id;
 
@@ -579,17 +631,27 @@ const addToCart = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  const cartItem = {
-    productId,
-    quantity,
-    variant: {
-      size,
-      color,
-    },
-    addedAt: Date.now(),
-  };
+  const productObjectId = new mongoose.Types.ObjectId(productId);
 
-  user.cart.push_back(cartItem);
+  const existingItem = user.cart.find(
+    (item) =>
+      item.productId.equals(productObjectId) &&
+      item.variant.size === size &&
+      item.variant.color === color
+  );
+
+  if (existingItem) {
+    // Overwrite quantity instead of incrementing
+    existingItem.quantity = quantity;
+    existingItem.addedAt = Date.now(); // Optional
+  } else {
+    user.cart.push({
+      productId: productObjectId,
+      quantity,
+      variant: { size, color },
+      addedAt: Date.now(),
+    });
+  }
 
   await user.save();
 
@@ -646,4 +708,9 @@ module.exports = {
   addAddress,
   updateAddress,
   deleteAddress,
+
+  addtoWishlist,
+  removeFromWishlist,
+  addToCart,
+  removeFromCart,
 };

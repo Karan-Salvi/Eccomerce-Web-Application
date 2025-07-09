@@ -99,10 +99,10 @@ const FeatureProducts = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="text-xl font-bold text-gray-900">
-                      ${product.price}
+                      ₹{product.price}
                     </span>
                     <span className="text-sm text-gray-500 line-through">
-                      ${product.originalPrice}
+                      ₹{product.originalPrice}
                     </span>
                   </div>
                   <button className="bg-amber-600 hover:bg-amber-700 text-white p-2 rounded-lg transition-colors duration-200">

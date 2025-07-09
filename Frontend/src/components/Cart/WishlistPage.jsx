@@ -79,7 +79,7 @@ const WishlistPage = () => {
 
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold text-blue-600">
-                  ${item.price.toFixed(2)}
+                  {item.price.toFixed(2)}
                 </span>
                 <button
                   onClick={() => addToCart(item)}

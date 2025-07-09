@@ -158,10 +158,10 @@ export const FilterSidebar = ({
                 </div>
                 <div className="flex gap-2">
                   {[
-                    { label: "Under $50", range: [0, 50] },
-                    { label: "$50-$200", range: [50, 200] },
-                    { label: "$200-$500", range: [200, 500] },
-                    { label: "Over $500", range: [500, 1000] },
+                    { label: "Under ₹50", range: [0, 50] },
+                    { label: "₹50-₹200", range: [50, 200] },
+                    { label: "₹200-₹500", range: [200, 500] },
+                    { label: "Over ₹500", range: [500, 1000] },
                   ].map((preset) => (
                     <button
                       key={preset.label}

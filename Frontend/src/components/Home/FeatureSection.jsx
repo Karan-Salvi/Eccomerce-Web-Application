@@ -19,7 +19,7 @@ const FeatureSection = () => {
             </div>
             <h3 className="text-xl font-bold mb-4">Free Fast Delivery</h3>
             <p className="text-gray-300 leading-relaxed">
-              Free shipping on orders over $50. Express delivery available with
+              Free shipping on orders over ₹50. Express delivery available with
               tracking.
             </p>
           </div>

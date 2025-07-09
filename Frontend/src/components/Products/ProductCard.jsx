@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Star, Heart, ShoppingCart, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAddToWishlistMutation } from "../../store/api/authApi";
+import { useAddToCartMutation } from "../../store/api/authApi";
+import { useSelector } from "react-redux";
 // import ProductDetail from "../../components/Product";
 
 export const ProductCard = ({ product, setSelectedProduct }) => {
@@ -8,17 +11,18 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  // const [selectedProduct, setSelectedProduct] = useState(null);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  // if (selectedProduct) {
-  //   console.log("Selected Product:", selectedProduct);
-  //   return (
-  //     <ProductDetail
-  //       product={selectedProduct}
-  //       onBack={() => setSelectedProduct(null)}
-  //     />
-  //   );
-  // }
+  useEffect(() => {
+    const isInWishlist = user?.data?.wishlist?.some(
+      (item) => item._id.toString() === product._id.toString()
+    );
+    if (isInWishlist) {
+      setIsWishlisted(true);
+    }
+  }, [user, product._id]);
+
+  console.log("user : ", product);
 
   const discount = product.originalPrice
     ? Math.round(
@@ -28,6 +32,17 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
 
   // console.log("Product individual", product);
 
+  const [addToWishlist] = useAddToWishlistMutation();
+  const [addToCart] = useAddToCartMutation();
+
+  console.log(
+    "Product individual detail size : ",
+    Array.isArray(product?.sizes)
+  );
+  console.log(
+    "Product individual detail colors : ",
+    Array.isArray(product?.colors)
+  );
   return (
     <div
       className="group relative bg-white rounded-sm shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
@@ -63,7 +78,12 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
 
         {/* Wishlist Button */}
         <button
-          onClick={() => setIsWishlisted(!isWishlisted)}
+          onClick={() => {
+            setIsWishlisted(!isWishlisted);
+            addToWishlist({
+              productId: product._id,
+            });
+          }}
           className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-200 cursor-pointer ${
             isWishlisted
               ? "bg-red-500 text-white"
@@ -79,7 +99,18 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
             isHovered ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer">
+          <button
+            onClick={() => {
+              console.log("Add to cart is clicked");
+              addToCart({
+                productId: product._id,
+                quantity: 1,
+                size: Array.isArray(product?.sizes) ? product.sizes[0] : "",
+                color: Array.isArray(product?.colors) ? product.colors[0] : "",
+              });
+            }}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          >
             <ShoppingCart className="h-4 w-4" />
             Add to Cart
           </button>
@@ -129,11 +160,11 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
         {/* Price */}
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xl font-bold text-gray-900">
-            ${product.price.toFixed(2)}
+            {product.price.toFixed(2)}
           </span>
           {product.originalPrice && (
             <span className="text-sm text-gray-500 line-through">
-              ${product.originalPrice.toFixed(2)}
+              {product.originalPrice.toFixed(2)}
             </span>
           )}
         </div>
