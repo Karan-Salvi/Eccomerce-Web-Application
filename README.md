@@ -17,7 +17,8 @@ Check out the live demo of the project here: [View Demo](https://trendycart-ten.
 <h2>Customer Section</h2>
 
 
-<img width="832" height="712" alt="Screenshot 2025-07-12 150136" src="https://github.com/user-attachments/assets/775c3330-e5a7-4e61-98b1-29ee40b8e818" />
+<img width="1246" height="1036" alt="Screenshot 2025-07-12 150658" src="https://github.com/user-attachments/assets/a89d7454-434d-4187-9793-265ae185e9b2" />
+
 
 <br/>
 
