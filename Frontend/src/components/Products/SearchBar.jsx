@@ -12,7 +12,7 @@ export const SearchBar = ({ searchTerm, onSearchChange }) => {
         placeholder="Search Products..."
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
-        className="block w-full pl-10 pr-3 p-2 border border-gray-300 rounded-sm leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+        className="block w-full pl-10 pr-3 p-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
       />
     </div>
   );

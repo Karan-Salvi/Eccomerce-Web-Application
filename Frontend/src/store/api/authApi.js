@@ -29,6 +29,8 @@ export const authApi = createApi({
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const result = await queryFulfilled;
+          console.log("User Data after login : ", result.data);
+          localStorage.setItem("user", JSON.stringify(result.data)); // Save to storage
           dispatch(userLoggedIn({ user: result.data }));
         } catch (error) {
           console.log(error);
@@ -43,6 +45,7 @@ export const authApi = createApi({
       }),
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
+          localStorage.removeItem("user");
           dispatch(userLoggedOut());
         } catch (error) {
           console.log(error);
@@ -59,6 +62,8 @@ export const authApi = createApi({
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const result = await queryFulfilled;
+          console.log("User Data after loading : ", result.data);
+          localStorage.setItem("user", JSON.stringify(result.data)); // Save to storage
           dispatch(userLoggedIn({ user: result.data }));
         } catch (error) {
           console.log(error);

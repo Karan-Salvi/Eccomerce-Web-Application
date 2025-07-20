@@ -1,11 +1,19 @@
 import React from "react";
 import "../User/Profile.css";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import LoginPage from "../Auth/Login";
 
 const Profile = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  console.log("User is : ", user);
+  console.log("User is : ", isAuthenticated);
+  const navigate = useNavigate();
+
+  if (!isAuthenticated || !user || isAuthenticated == undefined) {
+    navigate("/login", { replace: true });
+    return <LoginPage />;
+  }
   return (
     <section className="bg-gray-100">
       <div className="container mx-auto p-4 md:p-6 max-w-6xl">

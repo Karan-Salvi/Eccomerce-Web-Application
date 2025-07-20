@@ -1,11 +1,10 @@
-import React from "react";
 import CartPage from "../../components/Cart/CartPage";
-import Navigation from "../../components/Cart/Navigation";
+import Navbar from "../../components/Home/Navbar";
 
 const Cart = () => {
   return (
     <>
-      <Navigation />
+      <Navbar />
       <CartPage />
     </>
   );

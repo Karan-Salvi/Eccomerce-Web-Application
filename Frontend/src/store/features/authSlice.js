@@ -1,8 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const userFromStorage = localStorage.getItem("user")
+  ? JSON.parse(localStorage.getItem("user"))
+  : null;
+
 const initialState = {
-  user: null,
-  orangethenticated: false,
+  user: userFromStorage,
+  isAuthenticated: !!userFromStorage,
 };
 
 const authSlice = createSlice({
@@ -11,11 +15,11 @@ const authSlice = createSlice({
   reducers: {
     userLoggedIn: (state, action) => {
       state.user = action.payload.user;
-      state.orangethenticated = true;
+      state.isAuthenticated = true;
     },
     userLoggedOut: (state) => {
       state.user = null;
-      state.orangethenticated = false;
+      state.isAuthenticated = false;
     },
   },
 });

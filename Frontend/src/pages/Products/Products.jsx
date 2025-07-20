@@ -1,15 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
-import {
-  Menu,
-  Grid,
-  LayoutGrid,
-  SlidersHorizontal,
-  ShoppingBag,
-  ShoppingCart,
-} from "lucide-react";
-import { IoMdHeart } from "react-icons/io";
-import { FaShoppingCart } from "react-icons/fa";
-import { IoCartOutline } from "react-icons/io5";
+import { Grid, LayoutGrid, SlidersHorizontal } from "lucide-react";
+
 import { SearchBar } from "../../components/Products/SearchBar";
 import { FilterSidebar } from "../../components/Products/FilterSidebar";
 import { ProductGrid } from "../../components/Products/ProductGrid";
@@ -20,6 +11,7 @@ import {
   useGetAllProductsByPageQuery,
   useGetAllProductsQuery,
 } from "../../store/api/productApi";
+import Navbar from "../../components/Home/Navbar";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -129,54 +121,7 @@ function Products() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo and Mobile Menu */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-gray-900">TrendyCart</h1>
-              </div>
-            </div>
-
-            {/* Search Bar */}
-
-            {/* User Actions */}
-            <div className="flex items-center gap-1">
-              <div className="hidden md:block flex-1 max-w-lg mx-8">
-                <SearchBar
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                />
-              </div>
-              <button className="hidden  sm:flex items-center gap-2 p-1  text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
-                {/* <Grid className="h-4 w-4" /> */}
-                <IoMdHeart className="text-2xl text-pink-600" />
-              </button>
-              <Link
-                to={"/cart"}
-                className="relative text-gray-700 hover:text-amber-600 transition-colors duration-200"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center cursor-pointer">
-                  3
-                </span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Mobile Search */}
-          <div className="md:hidden pb-4">
-            <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">
@@ -203,6 +148,10 @@ function Products() {
               </div>
 
               <div className="flex items-center gap-4">
+                <SearchBar
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                />
                 {/* Mobile Filter Toggle */}
                 <button
                   onClick={() => setIsSidebarOpen(true)}
@@ -216,7 +165,7 @@ function Products() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                 >
                   <option value="featured">Featured</option>
                   <option value="newest">Newest</option>
@@ -227,7 +176,7 @@ function Products() {
 
                 {/* View Toggle */}
                 <div className="hidden sm:flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                  <button className="p-2 bg-blue-50 text-blue-600">
+                  <button className="p-2 bg-blue-50 text-orange-600">
                     <LayoutGrid className="h-4 w-4" />
                   </button>
                   <button className="p-2 hover:bg-gray-50 text-gray-400">

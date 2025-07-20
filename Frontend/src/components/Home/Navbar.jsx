@@ -1,6 +1,7 @@
-import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import React from "react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,55 +20,64 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <a
-              href="/"
+            <Link
+              to={"/"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
             >
               Home
-            </a>
-            <a
-              href="/products"
+            </Link>
+            <Link
+              to={"/products"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
             >
               Categories
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              to={"/products"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
             >
               Deals
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              to={"/about"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
             >
               About
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              to={"/contact"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
             >
               Contact
-            </a>
+            </Link>
           </nav>
 
           {/* Right side icons */}
           <div className="flex items-center space-x-4">
-            <button className="text-gray-700 hover:text-amber-600 transition-colors duration-200 cursor-pointer">
+            {/* <button className="text-gray-700 hover:text-amber-600 transition-colors duration-200 cursor-pointer">
               <Search className="h-5 w-5" />
-            </button>
-            <a
-              href="/vendor"
+            </button> */}
+            <Link
+              to={"/profile"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200"
             >
               <User className="h-5 w-5" />
-            </a>
-            <button className="relative text-gray-700 hover:text-amber-600 transition-colors duration-200 cursor-pointer">
+            </Link>
+            <Link
+              to={"/wishlist"}
+              className="text-gray-700 hover:text-amber-600 transition-colors duration-200"
+            >
+              <Heart className="h-5 w-5" />
+            </Link>
+            <Link
+              to={"/cart"}
+              className="relative text-gray-700 hover:text-amber-600 transition-colors duration-200 cursor-pointer"
+            >
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                 3
               </span>
-            </button>
+            </Link>
 
             {/* Mobile menu button */}
             <button
@@ -87,36 +97,36 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <nav className="flex flex-col space-y-4">
-              <a
-                href="#"
+              <Link
+                to={"/"}
                 className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
               >
                 Home
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to={"/products"}
                 className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
               >
                 Categories
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to={"/products"}
                 className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
               >
                 Deals
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to={"/about"}
                 className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
               >
                 About
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to={"/contact"}
                 className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
               >
                 Contact
-              </a>
+              </Link>
             </nav>
           </div>
         )}

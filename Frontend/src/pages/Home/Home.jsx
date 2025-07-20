@@ -25,8 +25,12 @@ import FeatureProducts from "../../components/Home/FeatureProducts";
 import Category from "../../components/Home/Category";
 import Hero from "../../components/Home/Hero";
 import Navbar from "../../components/Home/Navbar";
+import { useSelector } from "react-redux";
 
 function Home() {
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  console.log("user : ", user);
+  console.log("isAuthenticated : ", isAuthenticated);
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}

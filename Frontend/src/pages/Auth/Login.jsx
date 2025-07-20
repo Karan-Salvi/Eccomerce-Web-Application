@@ -12,7 +12,7 @@ import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import { CheckIcon } from "lucide-react";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLoginUserMutation } from "../../store/api/authApi";
 import { useRef } from "react";
 
@@ -184,6 +184,8 @@ export default function LoginPage() {
   const emailElement = useRef();
   const passwordElement = useRef();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   const handleLogin = async (e) => {
     e.preventDefault();
