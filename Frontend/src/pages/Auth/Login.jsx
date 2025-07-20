@@ -206,11 +206,10 @@ export default function LoginPage() {
             aria-hidden={true}
           />
           <h3 className="mt-2 text-center text-lg font-bold text-foreground dark:text-foreground">
-            Welcome Back to TrendyCart
+            Welcome Back to <span className="brand_name">CartLoop</span>
           </h3>
           <p className="text-center text-sm p-2">
-            Start your shopping at TrendyCart and get 5% off on your first
-            order!
+            Start your shopping at <span className="brand_name">CartLoop</span> and get 5% off on your first order!
           </p>
         </div>
 
@@ -246,7 +245,7 @@ export default function LoginPage() {
                   id="email-login-05"
                   name="email-login-05"
                   autoComplete="email-login-05"
-                  placeholder="karan@trendycart.com"
+                  placeholder="karan@CartLoop.com"
                   className="mt-2"
                   ref={emailElement}
                 />

@@ -5,6 +5,7 @@ import { RiAdminLine } from "react-icons/ri";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
@@ -15,8 +16,8 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                TrendyCart
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent brand_name">
+                CartLoop
               </h1>
             </div>
           </div>

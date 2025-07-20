@@ -43,8 +43,8 @@ const Navigation = () => {
             {/* Logo */}
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  TrendyCart
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent brand_name">
+                  CartLoop
                 </h1>
               </div>
             </div>
@@ -112,11 +112,8 @@ const Navigation = () => {
                   </button>
                 );
               })}
-             
             </div>
           </div>
-
-        
         </div>
       </header>
       {/* <nav className="bg-white shadow-lg border-b border-gray-200">

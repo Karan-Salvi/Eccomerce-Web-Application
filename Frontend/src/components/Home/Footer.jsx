@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-2xl font-bold mb-4">TrendyCart</h3>
+            <h3 className="text-2xl font-bold mb-4 brand_name">CartLoop</h3>
             <p className="text-gray-400 mb-6 max-w-md leading-relaxed">
               Your trusted online destination for quality products at unbeatable
               prices. Shop with confidence and enjoy exceptional customer
@@ -138,7 +138,7 @@ const Footer = () => {
 
         <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2025 TrendyCart. All rights reserved.
+            © 2025 <span className="brand_name">CartLoop</span>. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 sm:mt-0">
             <a

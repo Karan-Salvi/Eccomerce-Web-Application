@@ -204,8 +204,7 @@ export default function Register() {
             Create Account
           </h3>
           <p className="text-center text-sm p-2">
-            Start your shopping at TrendyCart and get 5% off on your first
-            order!
+            Start your shopping at <span></span> and get 5% off on your first order!
           </p>
         </div>
 

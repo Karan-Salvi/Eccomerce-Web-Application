@@ -10,7 +10,7 @@ const Unauth = () => {
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
               <i class="fas fa-store text-white text-2xl"></i>
-              <span class="text-white font-bold text-xl">TrendyCart</span>
+              <span class="text-white font-bold text-xl brand_name">CartLoop</span>
             </div>
             <div class="text-white text-sm font-medium">Error 403</div>
           </div>

@@ -33,7 +33,7 @@ const Layout = ({ children, currentView, onViewChange }) => {
           {/* Logo */}
           <div className="flex h-16 items-center justify-between px-6 border-b">
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold">TrendyCart</span>
+              <span className="text-xl font-bold brand_name ">CartLoop</span>
             </div>
             <Button
               variant="ghost"

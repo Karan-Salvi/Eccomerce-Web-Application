@@ -39,7 +39,7 @@ const About = () => {
             <div>
               <img
                 src="/images/about.jpg"
-                alt="TrendyCart team celebrating in a modern office space with orange accents"
+                alt="CartLoop team celebrating in a modern office space with orange accents"
                 class="rounded-lg shadow-xl"
               />
             </div>
@@ -160,7 +160,7 @@ const About = () => {
           <div class="text-center mb-12">
             <h2 class="text-3xl font-bold text-gray-900">Meet Our Team</h2>
             <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-              The passionate individuals behind TrendyCart's success
+              The passionate individuals behind <span className="brand_name">CartLoop</span>'s success
             </p>
           </div>
 
@@ -188,7 +188,7 @@ const About = () => {
             <div class="text-center">
               <img
                 src="/images/people4.jpg"
-                alt="Female marketing director holding tablet with TrendyCart app open"
+                alt="Female marketing director holding tablet with CartLoop app open"
                 class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
               />
               <h3 class="text-lg font-semibold text-gray-900">
@@ -227,7 +227,7 @@ const About = () => {
                 <div class="flex-shrink-0 mr-4">
                   <img
                     src="/images/review1.jpg"
-                    alt="Happy female customer smiling in home environment with TrendyCart package"
+                    alt="Happy female customer smiling in home environment with CartLoop package"
                     class="w-12 h-12 rounded-full"
                   />
                 </div>
@@ -239,7 +239,7 @@ const About = () => {
                 </div>
               </div>
               <p class="text-gray-600 italic">
-                "I've been shopping with TrendyCart for over two years now and
+                "I've been shopping with <span className="brand_name">CartLoop</span>  for over two years now and
                 have never been disappointed. The prices are unbeatable and
                 their customer service is truly exceptional. My orders always
                 arrive sooner than expected!"
@@ -288,7 +288,7 @@ const About = () => {
                 <div class="flex-shrink-0 mr-4">
                   <img
                     src="/images/review2.jpg"
-                    alt="Young male customer holding TrendyCart product box with enthusiastic expression"
+                    alt="Young male customer holding CartLoop product box with enthusiastic expression"
                     class="w-12 h-12 rounded-full"
                   />
                 </div>
@@ -298,8 +298,8 @@ const About = () => {
                 </div>
               </div>
               <p class="text-gray-600 italic">
-                "I was hesitant to order online at first, but TrendyCart made
-                the process so simple and secure. When I had a question about my
+                "I was hesitant to order online at first, but <span class="brand_name">CartLoop</span> made the
+                process so simple and secure. When I had a question about my
                 order, their support team responded within minutes. Will
                 definitely be shopping here again!"
               </p>
@@ -372,7 +372,7 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
-              <h3 className="text-2xl font-bold mb-4">TrendyCart</h3>
+              <h3 className="text-2xl font-bold mb-4 brand_name">CartLoop</h3>
               <p className="text-gray-400 mb-6 max-w-md leading-relaxed">
                 Your trusted online destination for quality products at
                 unbeatable prices. Shop with confidence and enjoy exceptional
@@ -504,7 +504,7 @@ const About = () => {
 
           <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2025 TrendyCart. All rights reserved.
+              © 2025 <span >CartLoop</span>. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 sm:mt-0">
               <a

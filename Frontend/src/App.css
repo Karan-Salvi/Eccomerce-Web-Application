@@ -1,4 +1,12 @@
-#root {
+@import url("https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Fjalla+One&display=swap");
+
+.brand_name {
+  font-family: "Alfa Slab One", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -39,4 +47,4 @@
 
 .read-the-docs {
   color: #888;
-}
+} */
