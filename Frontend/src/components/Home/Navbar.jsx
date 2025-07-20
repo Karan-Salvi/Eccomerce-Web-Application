@@ -1,10 +1,13 @@
 import { Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import React from "react";
 import { useState } from "react";
+import { RiAdminLine } from "react-icons/ri";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,6 +66,7 @@ const Navbar = () => {
             >
               <User className="h-5 w-5" />
             </Link>
+
             <Link
               to={"/wishlist"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200"
@@ -78,6 +82,14 @@ const Navbar = () => {
                 3
               </span>
             </Link>
+            {user && isAuthenticated && user.data.role == "vendor" && (
+              <Link
+                to={"/vendor"}
+                className="relative text-gray-700 hover:text-amber-600 transition-colors duration-200 cursor-pointer"
+              >
+                <RiAdminLine className="h-5.25 w-5.25" />
+              </Link>
+            )}
 
             {/* Mobile menu button */}
             <button

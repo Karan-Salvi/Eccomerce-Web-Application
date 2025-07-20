@@ -15,6 +15,7 @@ import Unauth from "./pages/Unauthorized/Unauth";
 import ProtectedRoute from "./pages/Protected/ProtectedRoute";
 import WishPage from "./pages/Wishlist/WishPage";
 import About from "./pages/About/About";
+import NotFound from "./pages/NotFound/NotFound";
 
 const App = () => {
   return (
@@ -46,6 +47,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFound />}></Route>
         </Routes>
       </BrowserRouter>
     </Provider>

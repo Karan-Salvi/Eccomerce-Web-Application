@@ -13,11 +13,22 @@ const About = () => {
                 Our Story
               </h1>
               <p class="mt-4 text-lg text-gray-600">
-                From humble beginnings to becoming the #1 trusted e-commerce
-                platform - our journey to revolutionize online shopping.
+                From a modest start in a small workspace to becoming the most
+                trusted name in e-commerce, our journey has been fueled by
+                passion, persistence, and people. We started with a single goal
+                — to simplify shopping and connect sellers to customers across
+                every corner of the country. What began as a small initiative
+                quickly turned into a platform that serves millions.
+                <br />
+                With cutting-edge technology, a customer-first mindset, and a
+                strong network of partners, we've revolutionized how people shop
+                online. We believe in innovation, transparency, and trust. Every
+                feature we build, every product we deliver, and every story we
+                tell reflects our commitment to making online shopping seamless,
+                reliable, and enjoyable.
               </p>
               <div class="mt-8 flex space-x-4">
-                <button class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-md font-medium">
+                <button class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-md font-medium">
                   Start Shopping
                 </button>
                 <button class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-6 py-3 rounded-md font-medium">
@@ -176,14 +187,14 @@ const About = () => {
 
             <div class="text-center">
               <img
-                src="https://placehold.co/400x400"
+                src="/images/people4.jpg"
                 alt="Female marketing director holding tablet with TrendyCart app open"
                 class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
               />
               <h3 class="text-lg font-semibold text-gray-900">
                 Vedant Jamodakar
               </h3>
-              <p class="text-primary-600">Co Founder</p>
+              <p class="text-primary-600">Co-Founder</p>
             </div>
 
             <div class="text-center">
@@ -215,7 +226,7 @@ const About = () => {
               <div class="flex items-center mb-4">
                 <div class="flex-shrink-0 mr-4">
                   <img
-                    src="https://placehold.co/80x80"
+                    src="/images/review1.jpg"
                     alt="Happy female customer smiling in home environment with TrendyCart package"
                     class="w-12 h-12 rounded-full"
                   />
@@ -276,7 +287,7 @@ const About = () => {
               <div class="flex items-center mb-4">
                 <div class="flex-shrink-0 mr-4">
                   <img
-                    src="https://placehold.co/80x80"
+                    src="/images/review2.jpg"
                     alt="Young male customer holding TrendyCart product box with enthusiastic expression"
                     class="w-12 h-12 rounded-full"
                   />
