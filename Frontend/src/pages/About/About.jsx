@@ -160,7 +160,8 @@ const About = () => {
           <div class="text-center mb-12">
             <h2 class="text-3xl font-bold text-gray-900">Meet Our Team</h2>
             <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-              The passionate individuals behind <span className="brand_name">CartLoop</span>'s success
+              The passionate individuals behind{" "}
+              <span className="brand_name">CartLoop</span>'s success
             </p>
           </div>
 
@@ -177,16 +178,6 @@ const About = () => {
 
             <div class="text-center">
               <img
-                src="/images/people2.jpg"
-                alt="Male tech executive wearing glasses standing against a orange accent wall"
-                class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-              />
-              <h3 class="text-lg font-semibold text-gray-900">Vishwas Gore</h3>
-              <p class="text-primary-600">CTO</p>
-            </div>
-
-            <div class="text-center">
-              <img
                 src="/images/people4.jpg"
                 alt="Female marketing director holding tablet with CartLoop app open"
                 class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
@@ -199,12 +190,24 @@ const About = () => {
 
             <div class="text-center">
               <img
+                src="/images/people2.jpg"
+                alt="Male tech executive wearing glasses standing against a orange accent wall"
+                class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
+              />
+              <h3 class="text-lg font-semibold text-gray-900">Vishwas Gore</h3>
+              <p class="text-primary-600">CTO</p>
+            </div>
+
+            <div class="text-center">
+              <img
                 src="/images/people3.jpg"
                 alt="Customer service manager smiling with headset on in modern office setting"
                 class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
               />
-              <h3 class="text-lg font-semibold text-gray-900">Kshitij</h3>
-              <p class="text-primary-600">Customer Experience</p>
+              <h3 class="text-lg font-semibold text-gray-900">
+                Kshitij Kadlag
+              </h3>
+              <p class="text-primary-600">CFO</p>
             </div>
           </div>
         </div>
@@ -239,10 +242,11 @@ const About = () => {
                 </div>
               </div>
               <p class="text-gray-600 italic">
-                "I've been shopping with <span className="brand_name">CartLoop</span>  for over two years now and
-                have never been disappointed. The prices are unbeatable and
-                their customer service is truly exceptional. My orders always
-                arrive sooner than expected!"
+                "I've been shopping with{" "}
+                <span className="brand_name">CartLoop</span> for over two years
+                now and have never been disappointed. The prices are unbeatable
+                and their customer service is truly exceptional. My orders
+                always arrive sooner than expected!"
               </p>
               <div class="mt-4 flex">
                 <svg
@@ -298,10 +302,11 @@ const About = () => {
                 </div>
               </div>
               <p class="text-gray-600 italic">
-                "I was hesitant to order online at first, but <span class="brand_name">CartLoop</span> made the
-                process so simple and secure. When I had a question about my
-                order, their support team responded within minutes. Will
-                definitely be shopping here again!"
+                "I was hesitant to order online at first, but{" "}
+                <span class="brand_name">CartLoop</span> made the process so
+                simple and secure. When I had a question about my order, their
+                support team responded within minutes. Will definitely be
+                shopping here again!"
               </p>
               <div class="mt-4 flex">
                 <svg
@@ -504,7 +509,7 @@ const About = () => {
 
           <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2025 <span >CartLoop</span>. All rights reserved.
+              © 2025 <span>CartLoop</span>. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 sm:mt-0">
               <a

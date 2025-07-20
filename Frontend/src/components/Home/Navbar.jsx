@@ -1,10 +1,9 @@
 import { Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
-import React from "react";
+import React, { use } from "react";
 import { useState } from "react";
 import { RiAdminLine } from "react-icons/ri";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -80,7 +79,11 @@ const Navbar = () => {
             >
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                3
+                {user
+                  ? user.data.cart.length
+                  : localStorage.getItem("cart")
+                  ? JSON.parse(localStorage.getItem("cart")).length
+                  : 0}
               </span>
             </Link>
             {user && isAuthenticated && user.data.role == "vendor" && (
