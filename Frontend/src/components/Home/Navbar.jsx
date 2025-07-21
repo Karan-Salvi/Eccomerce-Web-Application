@@ -35,12 +35,12 @@ const Navbar = () => {
             >
               Categories
             </Link>
-            <Link
+            {/* <Link
               to={"/products"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
             >
               Deals
-            </Link>
+            </Link> */}
             <Link
               to={"/about"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
@@ -125,12 +125,12 @@ const Navbar = () => {
               >
                 Categories
               </Link>
-              <Link
+              {/* <Link
                 to={"/products"}
                 className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
               >
                 Deals
-              </Link>
+              </Link> */}
               <Link
                 to={"/about"}
                 className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"

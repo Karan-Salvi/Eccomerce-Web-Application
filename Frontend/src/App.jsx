@@ -17,6 +17,7 @@ import WishPage from "./pages/Wishlist/WishPage";
 import About from "./pages/About/About";
 import NotFound from "./pages/NotFound/NotFound";
 import "./App.css";
+import Contact from "./pages/Contact/Contact";
 
 const App = () => {
   return (
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="/unauthorized" element={<Unauth />} />
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/products" element={<Products />}></Route>
           <Route path="/product/:id" element={<Product />}></Route>
           <Route
