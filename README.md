@@ -143,11 +143,14 @@ Clone the repository:
 <img width="100%" alt="Screenshot 2025-07-22 133617" src="https://github.com/user-attachments/assets/021ebd51-44c1-4b81-b764-ae0df11a0455" />
 <img width="100%" alt="Screenshot 2025-07-22 133628" src="https://github.com/user-attachments/assets/2946fe2c-93a1-4456-acc8-dcd4a197df87" />
 
+
 ---
 
 ### 🛒 Product Section
 
 <img width="100%" alt="Screenshot 2025-07-22 133656" src="https://github.com/user-attachments/assets/1b06c1f3-8fef-45ae-b14e-513b3a3a6b71" />
+<img width="1920" height="1200" alt="Screenshot 2025-07-22 154935" src="https://github.com/user-attachments/assets/4d40a96c-00c0-4a38-8d6b-648ae3e32fba" />
+<img width="1920" height="1200" alt="Screenshot 2025-07-22 154947" src="https://github.com/user-attachments/assets/1eee4a64-eb61-46fc-a7a4-7c961af7edd2" />
 <img width="100%" alt="Screenshot 2025-07-22 134314" src="https://github.com/user-attachments/assets/ddf49ad2-77f0-417a-80a0-0bfe4f2c0809" />
 <img width="100%" alt="Screenshot 2025-07-22 134323" src="https://github.com/user-attachments/assets/b9b56d91-9839-4a7e-9ead-3ddb71d8014c" />
 
