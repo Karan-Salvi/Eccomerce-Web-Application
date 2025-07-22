@@ -10,6 +10,8 @@ Checkout the live demo of CartLoop:
 
 👉 [https://cartloop.vercel.app](https://cartloop.vercel.app)
 
+---
+
 ### ⭐ Give a Star
 
 If you found this project helpful or inspiring, please consider giving it a star on GitHub 🌟
@@ -17,7 +19,7 @@ If you found this project helpful or inspiring, please consider giving it a star
 👉 [https://github.com/CartLoop](https://github.com/Karan-Salvi/Eccomerce-Web-Application)
 
 
-
+---
 
 ### 📌 Flow Summary
 
