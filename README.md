@@ -4,6 +4,14 @@ CartLoop is a high-performance, scalable, and secure e-commerce web application 
 
 ---
 
+### 🔗 Demo Link
+
+Checkout the live demo of CartLoop:
+
+👉 [https://cartloop.vercel.app](https://cartloop.vercel.app)
+
+
+
 ### 📌 Flow Summary
 
 1. **Frontend (React)** sends request (e.g., cart update or product fetch).
@@ -190,6 +198,6 @@ For support or collaboration:
 
 - ✉️ Email: karansalviwork@gmail.com  
 - 🌐 Portfolio: [KaranSalvi.com](https://karansalvi.vercel.app/)  
-- 📦 GitHub: [KaranSalvi](https://github.com/Karan-Salvie)  
+- 📦 GitHub: [KaranSalvi](https://github.com/Karan-Salvi)  
 
 
