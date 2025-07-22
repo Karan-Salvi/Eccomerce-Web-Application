@@ -64,22 +64,6 @@ const FAQSection = () => {
 };
 
 const Contact = () => {
-  document.querySelectorAll("button").forEach((button) => {
-    button.addEventListener("click", () => {
-      const content = button.nextElementSibling;
-      const icon = button.querySelector(".trigger");
-
-      if (content.classList.contains("hidden")) {
-        content.classList.remove("hidden");
-        icon.classList.remove("fa-chevron-down");
-        icon.classList.add("fa-chevron-up");
-      } else {
-        content.classList.add("hidden");
-        icon.classList.remove("fa-chevron-up");
-        icon.classList.add("fa-chevron-down");
-      }
-    });
-  });
   return (
     <>
       <Navbar />

@@ -17,15 +17,38 @@ import {
 } from "lucide-react";
 
 import { reviews } from "../../data/reviews";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  useAddToCartMutation,
+  useAddToWishlistMutation,
+} from "../../store/api/authApi";
+import { useSelector } from "react-redux";
+import Share from "../Share/Share";
 
 const ProductDetail = ({ product }) => {
+  const location = useLocation();
+  const fullUrl =
+    window.location.origin +
+    location.pathname +
+    location.search +
+    location.hash;
   console.log("Product individual detail : ", product);
+  const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
+
+  const isInCart = user?.data?.cart?.some(
+    (item) => item.productId._id === product._id
+  );
+
+  const isInWishlist = user?.data?.wishlist?.some(
+    (item) => item._id === product._id
+  );
+
+  console.log("isInCart : ", isInWishlist);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState("orange"); // useState(product.colors?.[0] || "");
   const [selectedSize, setSelectedSize] = useState("sm"); //useState(product.sizes?.[0] || "");
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(isInWishlist || false);
   const [activeTab, setActiveTab] = useState("description");
   const [showAllReviews, setShowAllReviews] = useState(false);
 
@@ -77,16 +100,20 @@ const ProductDetail = ({ product }) => {
     );
   };
 
+  const [addToWishlist] = useAddToWishlistMutation();
+  const [addToCart] = useAddToCartMutation();
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+
+      <div className="">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <button
             onClick={() => {
               navigate("/products");
             }}
-            className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors cursor-pointer"
           >
             <ChevronLeft className="h-5 w-5" />
             <span>Back to Products</span>
@@ -261,14 +288,28 @@ const ProductDetail = ({ product }) => {
             <div className="space-y-4">
               <div className="flex gap-4">
                 <button
-                  disabled={!product.inStock}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  disabled={!product.inStock || isInCart}
+                  onClick={() => {
+                    console.log("Add to cart is clicked");
+                    addToCart({
+                      productId: product._id,
+                      quantity: quantity,
+                      size: selectedSize,
+                      color: selectedColor,
+                    });
+                  }}
+                  className="flex-1 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  Add to Cart
+                  {isInCart ? "Already Added to Cart" : "Add to Cart"}
                 </button>
                 <button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  onClick={() => {
+                    setIsWishlisted(!isWishlisted);
+                    addToWishlist({
+                      productId: product._id,
+                    });
+                  }}
                   className={`p-3 rounded-lg border transition-all cursor-pointer ${
                     isWishlisted
                       ? "border-red-300 bg-red-50 text-red-600"
@@ -280,7 +321,8 @@ const ProductDetail = ({ product }) => {
                   />
                 </button>
                 <button className="p-3 rounded-lg border border-gray-300 hover:border-gray-400 text-gray-600 transition-colors cursor-pointer">
-                  <Share2 className="h-5 w-5" />
+                  <Share url={fullUrl} />
+                  {/* <Share2 className="h-5 w-5" /> */}
                 </button>
               </div>
 
