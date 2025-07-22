@@ -1,3 +1,122 @@
+# 🛒 CartLoop - Modern E-Commerce Platform
+
+CartLoop is a high-performance, scalable, and secure e-commerce web application built with a modern tech stack. It features robust user authentication, advanced rate limiting, efficient caching using Redis, and primary data persistence with MongoDB. The frontend is designed using React, Tailwind CSS, and Redux Toolkit Query for an optimized developer and user experience.
+
+---
+
+### 📌 Flow Summary
+
+1. **Frontend (React)** sends request (e.g., cart update or product fetch).
+2. Request passes to **Authentication Service** which validates the token (JWT).
+3. If authenticated, request is forwarded to the **Rate Limiting Service** to filter high-frequency/abusive requests.
+4. Valid requests go to the **CartLoop Server**.
+5. Server queries **Redis** (cache-first strategy).
+   - If data found in Redis → returned immediately.
+   - If not → fallback query to **MongoDB**, and the response is then cached in Redis for next time.
+6. The processed response is sent back to the frontend.
+
+---
+
+## 🚀 Live Features
+
+- 🔐 User Authentication (JWT)
+- 🛒 Cart Management System
+- 🧾 Order & Product APIs
+- 🚦 Global Rate Limiting Middleware
+- ⚡ Redis Caching for high-speed data access
+- 📈 Optimized global state management using Redux Toolkit & RTK Query
+- 🎨 Responsive UI with Tailwind CSS
+
+---
+
+## 🛠️ Tech Stack
+
+### 🌐 Frontend
+- **React.js** — Component-based UI
+- **Tailwind CSS** — Utility-first styling
+- **Redux Toolkit** — State management
+- **RTK Query** — Efficient data fetching
+- **HTML5 / JSX**
+
+### 🧠 Backend
+- **Node.js** — JavaScript runtime
+- **Express.js** — Web server
+- **express-rate-limit** — Protects routes from excessive use
+- **MongoDB** — Primary document database
+- **Redis** — In-memory data caching
+- **JWT** — Token-based authentication
+- **Mongoose** — ODM for MongoDB
+
+---
+
+
+## ⚙️ Getting Started
+
+### 🔧 Prerequisites
+
+- Node.js v18+
+- MongoDB instance (local or Atlas)
+- Redis Server (local or cloud)
+- npm or yarn
+
+---
+
+Clone the repository:
+   ```bash
+   git clone https://github.com/Karan-Salvi/Eccomerce-Web-Application.git
+   ```
+
+### 🔌 Backend Setup
+
+1. Install Dependancies:
+   ```bash
+   cd CartLoop/Backend
+   npm install
+   ```
+2. Setup Environment Varibles:
+   Create .env in Backend Directory paste given below
+   ```bash
+    PORT = 
+    MONGODB_URL = 
+    DATABASE_NAME=
+    FRONTEND_URI = 
+    REFRESH_TOKEN_SECRET = 
+    REFRESH_TOKEN_EXPIRY =
+    TOKEN_NAME  = 
+    SMPT_SERVICE = 
+    SMPT_MAIL = 
+    SMPT_PASSWORD =
+    HOST = 
+    EMAIL_PORT = 
+    CLOUDINARY_CLOUD_NAME = 
+    CLOUDINARY_API_KEY = 
+    CLOUDINARY_API_SECRET = 
+    REDIS_URL= 
+    STRIPE_SECRET_KEY=
+    WEBHOOK_ENDPOINT_SECRET=
+    NODE_ENV = dev
+   ```
+3. Run the Backend:
+   ```bash
+   npm run dev
+   ```
+
+### 💻 Frontend Setup
+
+1. Install Dependencies:
+   ```bash
+   cd CartLoop/frontend
+   npm install
+2. Setup Environment Varibles:
+   Create .env in Backend Directory paste given below
+   ```bash
+    VITE_API_URL=
+   ```
+3. Run the Frontend:
+   ```bash
+   npm run dev
+   ```
+
 ### 🚀 Landing Page
 
 <img width="100%" alt="Screenshot 2025-07-22 133500" src="https://github.com/user-attachments/assets/74d9f069-cd37-4005-923f-66e681b564b4" />
@@ -33,4 +152,44 @@
 
 ### 🗄️ Database Structure
 <img width="1246" height="1036" alt="Screenshot 2025-07-12 150658" src="https://github.com/user-attachments/assets/07af0be2-cf18-4f17-a01a-161cb04955a6" />
+
+
+---
+
+### 🗄️ System Architecture
+<img width="1919" height="700" alt="Screenshot 2025-07-22 150153" src="https://github.com/user-attachments/assets/f1412ced-40e0-45b7-9204-697cbdea79f1" />
+
+
+## 📦 Future Improvements
+ 
+- 🛠️ Docker support for containerization  
+- 🧪 Unit & integration tests (Jest + Supertest)  
+- 📡 WebSockets for real-time order updates  
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Feel free to:
+
+- Fork this repo  
+- Create a branch  
+- Submit a Pull Request  
+
+---
+
+## 📝 License
+
+Licensed under the [MIT License](LICENSE).
+
+---
+
+## 📧 Contact
+
+For support or collaboration:
+
+- ✉️ Email: karansalviwork@gmail.com  
+- 🌐 Portfolio: [KaranSalvi.com](https://karansalvi.vercel.app/)  
+- 📦 GitHub: [KaranSalvi](https://github.com/Karan-Salvie)  
+
 
