@@ -1,32 +1,83 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useState } from "react";
+import {
+  useAddToCartMutation,
+  useAddToWishlistMutation,
+  useRemoveFromCartMutation,
+} from "../../store/api/authApi";
 
 const CartPage = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-
   const [cart, setCart] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [disPrice, setDisPrice] = useState(0);
+  const [change, setChange] = useState(false);
+
+  const [addToWishlist] = useAddToWishlistMutation();
+  const [addToCart] = useAddToCartMutation();
+  const [removeFromCart] = useRemoveFromCartMutation();
+
+  const updateQuantity = async (productId, quantity, size, color) => {
+    console.log("productId : ", productId);
+    console.log("quantity : ", quantity);
+    if (quantity < 0) {
+      return;
+    }
+    await addToCart({
+      productId,
+      quantity,
+      size,
+      color,
+    });
+    const updatedCart = cart.map((item) => {
+      if (item._id === productId) {
+        return { ...item, quantity };
+      }
+      console.log("Updated item with the quantity : ", item);
+      return item;
+    });
+
+    console.log("updatedCart : ", updatedCart);
+    setCart(updatedCart);
+  };
+
+  const TotalPrice = () => {
+    let total = 0;
+    user.data.cart.forEach((item) => {
+      total += item.productId.originalPrice * (item.quantity || 1);
+    });
+    console.log("total : ", total);
+
+    return total;
+  };
+
+  const discountPrice = () => {
+    let total = 0;
+    user.data.cart.forEach((item) => {
+      total += item.productId.price * (item.quantity || 1);
+    });
+    console.log("total : ", total);
+
+    return total;
+  };
 
   console.log("user : ", user?.data?.cart);
 
   useEffect(() => {
     setCart(user?.data?.cart);
-  }, [user]);
+    setTotalPrice(TotalPrice());
+    setDisPrice(discountPrice());
+  }, [user, user?.data?.cart]);
 
-  const updateQuantity = (productId, quantity) => {
-    console.log("productId : ", productId);
-    console.log("quantity : ", quantity);
-    const updatedCart = cart.map((item) => {
-      if (item._id === productId) {
-        return { ...item, quantity };
-      }
-      return item;
-    });
-    setCart(updatedCart);
-  };
+  useEffect(() => {
+    setTotalPrice(TotalPrice());
+    setDisPrice(discountPrice());
+  }, [user, user?.data?.cart, change]);
 
   console.log("cart : ", cart);
+
   if (user?.data?.cart?.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12">
@@ -79,9 +130,15 @@ const CartPage = () => {
                   <div className="flex items-center space-x-3">
                     <div className="flex items-center bg-gray-100 rounded-lg">
                       <button
-                        onClick={() =>
-                          updateQuantity(item._id, item.quantity - 1)
-                        }
+                        onClick={() => {
+                          // setChange(!change),
+                          updateQuantity(
+                            item.productId._id,
+                            item.quantity - 1,
+                            item.variant.size,
+                            item.variant.color
+                          );
+                        }}
                         className="p-2 hover:bg-gray-200 rounded-l-lg transition-colors cursor-pointer"
                       >
                         <Minus className="w-4 h-4" />
@@ -90,9 +147,15 @@ const CartPage = () => {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() =>
-                          updateQuantity(item._id, item.quantity + 1)
-                        }
+                        onClick={() => {
+                          setChange(!change),
+                            updateQuantity(
+                              item.productId._id,
+                              item.quantity + 1,
+                              item.variant.size,
+                              item.variant.color
+                            );
+                        }}
                         className="p-2 hover:bg-gray-200 rounded-r-lg transition-colors cursor-pointer"
                       >
                         <Plus className="w-4 h-4" />
@@ -100,7 +163,10 @@ const CartPage = () => {
                     </div>
 
                     <button
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => {
+                        setChange(!change),
+                          removeFromCart({ productId: item._id });
+                      }}
                       className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-5 h-5" />
@@ -120,10 +186,14 @@ const CartPage = () => {
 
             <div className="space-y-4 mb-6">
               <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">
-                  {/* ₹{getCartTotal().toFixed(2)} */}
+                <span className="text-gray-600">Total Price</span>
+                <span className="font-semibold line-through">
+                  ₹ {totalPrice.toFixed(2)}
                 </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Discounted Price</span>
+                <span className="font-semibold">₹ {disPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
@@ -132,14 +202,14 @@ const CartPage = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Tax</span>
                 <span className="font-semibold">
-                  {/* ₹{(getCartTotal() * 0.08).toFixed(2)} */}
+                  ₹ {(disPrice * 0.08).toFixed(2)}
                 </span>
               </div>
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between">
                   <span className="text-lg font-bold">Total</span>
                   <span className="text-lg font-bold text-orange-600">
-                    {/* ₹{(getCartTotal() * 1.08).toFixed(2)} */}
+                    ₹{(disPrice + disPrice * 0.08).toFixed(2)}
                   </span>
                 </div>
               </div>

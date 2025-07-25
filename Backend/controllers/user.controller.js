@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const logger = require("../utils/logger.js");
 const { add } = require("winston");
 const mongoose = require("mongoose");
+const Product = require("../models/product.model.js");
 
 // Register or Sign up new User
 const registerUser = catchAsyncErrors(async (req, res) => {
@@ -501,6 +502,8 @@ const addtoWishlist = catchAsyncErrors(async (req, res) => {
   const { productId } = req.body;
   const userId = req?.user?._id;
 
+  console.log("productId : ", productId);
+
   if (!userId) {
     logger.warn("User not found");
     return res.status(400).json({
@@ -569,66 +572,126 @@ const removeFromWishlist = catchAsyncErrors(async (req, res) => {
   });
 });
 
+// const addToCart = catchAsyncErrors(async (req, res) => {
+//   // const { productId, quantity, size, color } = req.body;
+//   // const userId = req?.user?._id;
+
+//   // if (!userId) {
+//   //   logger.warn("User not found");
+//   //   return res.status(400).json({
+//   //     success: false,
+//   //     message: "User not found",
+//   //   });
+//   // }
+
+//   // const user = await User.findById(userId);
+
+//   // if (!user) {
+//   //   logger.error("User not found");
+//   //   return res.status(404).json({
+//   //     success: false,
+//   //     message: "User not found",
+//   //   });
+//   // }
+
+//   // const cartItem = {
+//   //   productId,
+//   //   quantity,
+//   //   variant: {
+//   //     size,
+//   //     color,
+//   //   },
+//   //   addedAt: Date.now(),
+//   // };
+
+//   // user.cart.push(cartItem);
+
+//   // await user.save();
+
+//   // return res.status(200).json({
+//   //   success: true,
+//   //   message: "Product added to cart successfully",
+//   // });
+
+//   const { productId, quantity, size, color } = req.body;
+//   const userId = req?.user?._id;
+
+//   if (!userId) {
+//     logger.warn("User not found");
+//     return res.status(400).json({
+//       success: false,
+//       message: "User not found",
+//     });
+//   }
+
+//   const user = await User.findById(userId);
+
+//   if (!user) {
+//     logger.error("User not found");
+//     return res.status(404).json({
+//       success: false,
+//       message: "User not found",
+//     });
+//   }
+
+//   const productObjectId = new mongoose.Types.ObjectId(productId);
+
+//   const existingItem = user.cart.find(
+//     (item) =>
+//       item.productId.equals(productObjectId) &&
+//       item.variant.size === size &&
+//       item.variant.color === color
+//   );
+
+//   if (existingItem) {
+//     // Overwrite quantity instead of incrementing
+//     existingItem.quantity = quantity;
+//     existingItem.addedAt = Date.now(); // Optional
+//   } else {
+//     user.cart.push({
+//       productId: productObjectId,
+//       quantity,
+//       variant: { size, color },
+//       addedAt: Date.now(),
+//     });
+//   }
+
+//   await user.save();
+
+//   return res.status(200).json({
+//     success: true,
+//     message: "Product added to cart successfully",
+//   });
+// });
+
 const addToCart = catchAsyncErrors(async (req, res) => {
-  // const { productId, quantity, size, color } = req.body;
-  // const userId = req?.user?._id;
-
-  // if (!userId) {
-  //   logger.warn("User not found");
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: "User not found",
-  //   });
-  // }
-
-  // const user = await User.findById(userId);
-
-  // if (!user) {
-  //   logger.error("User not found");
-  //   return res.status(404).json({
-  //     success: false,
-  //     message: "User not found",
-  //   });
-  // }
-
-  // const cartItem = {
-  //   productId,
-  //   quantity,
-  //   variant: {
-  //     size,
-  //     color,
-  //   },
-  //   addedAt: Date.now(),
-  // };
-
-  // user.cart.push(cartItem);
-
-  // await user.save();
-
-  // return res.status(200).json({
-  //   success: true,
-  //   message: "Product added to cart successfully",
-  // });
-
   const { productId, quantity, size, color } = req.body;
   const userId = req?.user?._id;
 
   if (!userId) {
     logger.warn("User not found");
-    return res.status(400).json({
-      success: false,
-      message: "User not found",
-    });
+    return res.status(400).json({ success: false, message: "User not found" });
+  }
+
+  if (!productId || !quantity || quantity <= 0) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid product or quantity" });
   }
 
   const user = await User.findById(userId);
-
   if (!user) {
     logger.error("User not found");
-    return res.status(404).json({
-      success: false,
-      message: "User not found",
-    });
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+
+  console.log("Product ID: ", productId);
+
+  const product = await Product.findById(productId); // optional but good
+  if (!product) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Product not found" });
   }
 
   const productObjectId = new mongoose.Types.ObjectId(productId);
@@ -636,14 +699,13 @@ const addToCart = catchAsyncErrors(async (req, res) => {
   const existingItem = user.cart.find(
     (item) =>
       item.productId.equals(productObjectId) &&
-      item.variant.size === size &&
-      item.variant.color === color
+      item.variant?.size === size &&
+      item.variant?.color === color
   );
 
   if (existingItem) {
-    // Overwrite quantity instead of incrementing
     existingItem.quantity = quantity;
-    existingItem.addedAt = Date.now(); // Optional
+    existingItem.addedAt = Date.now();
   } else {
     user.cart.push({
       productId: productObjectId,
@@ -663,6 +725,8 @@ const addToCart = catchAsyncErrors(async (req, res) => {
 
 const removeFromCart = catchAsyncErrors(async (req, res) => {
   const { productId } = req.body;
+
+  console.log("productId received from frontend : ", productId);
   const userId = req?.user?._id;
 
   if (!userId) {
@@ -683,7 +747,13 @@ const removeFromCart = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  user.cart = user.cart.filter((item) => item.productId !== productId);
+  console.log("Product ID: ", user);
+
+  
+
+  // user.cart = user.cart.filter((item) => item._id !== productId);
+
+  user.cart = user.cart.filter((item) => !item._id.equals(productId));
 
   await user.save();
 
