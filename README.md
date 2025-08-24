@@ -136,12 +136,7 @@ Clone the repository:
 
 ### 🚀 Landing Page
 
-<img width="100%" alt="Screenshot 2025-07-22 133500" src="https://github.com/user-attachments/assets/74d9f069-cd37-4005-923f-66e681b564b4" />
-<img width="100%" alt="Screenshot 2025-07-22 133524" src="https://github.com/user-attachments/assets/3021c9dc-30fe-4564-9ad5-0a9d8b40b67a" />
-<img width="100%" alt="Screenshot 2025-07-22 133537" src="https://github.com/user-attachments/assets/a55bfb54-c216-43d3-9878-06c07d403ee6" />
-<img width="100%" alt="Screenshot 2025-07-22 133556" src="https://github.com/user-attachments/assets/0d315ad9-79b1-4ea8-9791-f991efd5a5ff" />
-<img width="100%" alt="Screenshot 2025-07-22 133617" src="https://github.com/user-attachments/assets/021ebd51-44c1-4b81-b764-ae0df11a0455" />
-<img width="100%" alt="Screenshot 2025-07-22 133628" src="https://github.com/user-attachments/assets/2946fe2c-93a1-4456-acc8-dcd4a197df87" />
+<img width="2576" height="auto" alt="cartloop vercel app_ (1)" src="https://github.com/user-attachments/assets/07f38aa7-e15f-406d-9458-952cebc1d0ee" />
 
 
 ---
