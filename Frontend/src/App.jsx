@@ -18,6 +18,8 @@ import About from "./pages/About/About";
 import NotFound from "./pages/NotFound/NotFound";
 import "./App.css";
 import Contact from "./pages/Contact/Contact";
+import Success from "./pages/Order/Success";
+import Cancel from "./pages/Order/Cancel";
 
 const App = () => {
   return (
@@ -40,6 +42,8 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/products" element={<Products />}></Route>
           <Route path="/product/:id" element={<Product />}></Route>
+          <Route path="/order-success/:id" element={<Success />} />
+          <Route path="/order-cancel/:id" element={<Cancel />} />
           <Route
             path="/vendor"
             element={

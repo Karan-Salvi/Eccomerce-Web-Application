@@ -10,10 +10,11 @@ dotenv.config({
   path: "./.env",
 });
 
+const FRONTEND_URI = process.env.FRONTEND_URI;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // create new order
 const createNewOrder = catchAsyncErrors(async (req, res) => {
-  const {
+  let {
     shippingInfo,
     orderItems,
     itemsPrice,
@@ -53,7 +54,7 @@ const createNewOrder = catchAsyncErrors(async (req, res) => {
       id: "COD",
       status: "pending",
     };
-    const order = await Order.create({
+    let order = await Order.create({
       shippingInfo,
       orderItems,
       user: userId,
@@ -88,7 +89,7 @@ const createNewOrder = catchAsyncErrors(async (req, res) => {
       status: "pending",
     };
 
-    const order = await Order.create({
+    let order = await Order.create({
       shippingInfo,
       orderItems,
       user: userId,
@@ -97,6 +98,7 @@ const createNewOrder = catchAsyncErrors(async (req, res) => {
       taxPrice,
       shippingPrice,
       totalPrice,
+      paymentInfo,
     });
 
     // Ensure order is created before proceeding
@@ -122,6 +124,9 @@ const createNewOrder = catchAsyncErrors(async (req, res) => {
         message: "Order not found",
       });
     }
+
+    console.log("PopulatedOrder : ", PopulatedOrder.orderItems[0].product);
+
     // Create a Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -131,7 +136,7 @@ const createNewOrder = catchAsyncErrors(async (req, res) => {
           currency: "inr",
           product_data: {
             name: item.product.name, // Make sure you populate product details before
-            images: [item.product.image], // Optional: Only if image is public
+            images: [item.product.images[0].url], // Optional: Only if image is public
           },
           unit_amount: item.price * 100, // Price per item in paisa
         },
@@ -140,8 +145,8 @@ const createNewOrder = catchAsyncErrors(async (req, res) => {
 
       mode: "payment",
 
-      success_url: `https://yourfrontend.com/order-success/${order._id}`,
-      cancel_url: `https://yourfrontend.com/order-cancel/${order._id}`,
+      success_url: `${FRONTEND_URI}/order-success/${order._id}`,
+      cancel_url: `${FRONTEND_URI}/order-cancel/${order._id}`,
 
       metadata: {
         orderId: order._id.toString(),
@@ -351,4 +356,5 @@ module.exports = {
   getAllOrders,
   updateOrderStatus,
   deleteOrder,
+  stripeWebhook,
 };

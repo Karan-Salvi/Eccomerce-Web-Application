@@ -196,6 +196,8 @@ const getProductDetails = catchAsyncErrors(async (req, res) => {
   const productId = req.params.id;
   const cacheKey = `product_${productId}`;
 
+  console.log("Product details called here");
+
   // Check Redis cache
   try {
     const cachedProduct = await redisClient.get(cacheKey);
@@ -246,7 +248,7 @@ const getProductDetails = catchAsyncErrors(async (req, res) => {
 
   // Update preferences
   if (req.user && req.user._id) {
-    updateUserPreferences(req.user._id, {
+    await updateUserPreferences(req.user._id, {
       productId: product._id,
       category: product.category,
       brand: product.brand,

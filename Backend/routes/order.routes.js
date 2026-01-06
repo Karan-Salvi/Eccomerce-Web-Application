@@ -6,12 +6,17 @@ const {
   getAllOrders,
   updateOrderStatus,
   deleteOrder,
+  stripeWebhook,
 } = require("../controllers/order.controller.js");
 const { checkAuthenticated } = require("../middlewares/authentication.js");
 
 const router = express.Router();
 
 router.route("/order/new").post(checkAuthenticated(), createNewOrder);
+
+router
+  .route("/webhook")
+  .post(express.raw({ type: "application/json" }), stripeWebhook);
 
 router.route("/order/:id").get(getSingleOrder);
 

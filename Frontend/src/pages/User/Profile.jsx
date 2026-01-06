@@ -3,6 +3,7 @@ import "../User/Profile.css";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import LoginPage from "../Auth/Login";
+import Navbar from "../../components/Home/Navbar";
 
 const Profile = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -16,6 +17,7 @@ const Profile = () => {
   }
   return (
     <section className="bg-gray-100">
+      <Navbar />
       <div className="container mx-auto p-4 md:p-6 max-w-6xl">
         {/* <!-- Header --> */}
         <header className="flex justify-between items-center mb-8">

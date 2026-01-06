@@ -3,6 +3,7 @@ import rootRedcuer from "./rootRedcuer";
 import { authApi } from "./api/authApi";
 import { productApi } from "./api/productApi";
 import { orderApi } from "./api/orderApi";
+import { purchaseApi } from "./api/purchaseApi";
 
 export const appStore = configureStore({
   reducer: rootRedcuer,
@@ -10,7 +11,8 @@ export const appStore = configureStore({
     defaultMiddleware().concat(
       authApi.middleware,
       productApi.middleware,
-      orderApi.middleware
+      orderApi.middleware,
+      purchaseApi.middleware
     ),
 });
 

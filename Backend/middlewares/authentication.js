@@ -7,7 +7,7 @@ function checkAuthenticated() {
     const tokenValue = req.cookies[process.env.TOKEN_NAME];
 
     if (!tokenValue) {
-      logger.error("Token not found");
+      logger.warn("Token not found");
       return res.status(400).json({
         success: false,
         message: "Bad request!!",

@@ -98,7 +98,7 @@ const orderSchema = new mongoose.Schema(
         "cancelled",
       ],
       required: true,
-      default: "processing ",
+      default: "processing",
     },
     deliveredAt: {
       type: Date,

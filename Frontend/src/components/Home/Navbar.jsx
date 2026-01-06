@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,7 +62,7 @@ const Navbar = () => {
               <Search className="h-5 w-5" />
             </button> */}
             <Link
-              to={"/profile"}
+              to={isAuthenticated ? "/profile" : "/login"}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200"
             >
               <User className="h-5 w-5" />
@@ -79,14 +80,11 @@ const Navbar = () => {
             >
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                {user
-                  ? user.data.cart.length
-                  : localStorage.getItem("cart")
-                  ? JSON.parse(localStorage.getItem("cart")).length
-                  : 0}
+                {user?.data?.cart?.length ??
+                  JSON.parse(localStorage.getItem("cart") || "[]").length}
               </span>
             </Link>
-            {user && isAuthenticated && user.data.role == "vendor" && (
+            {user && isAuthenticated && user?.data?.role == "vendor" && (
               <Link
                 to={"/vendor"}
                 className="relative text-gray-700 hover:text-amber-600 transition-colors duration-200 cursor-pointer"

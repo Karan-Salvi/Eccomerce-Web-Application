@@ -24,6 +24,7 @@ import {
 } from "../../store/api/authApi";
 import { useSelector } from "react-redux";
 import Share from "../Share/Share";
+import PlaceOrderButton from "./PlaceOrderButton";
 
 const ProductDetail = ({ product }) => {
   const location = useLocation();
@@ -51,6 +52,33 @@ const ProductDetail = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(isInWishlist || false);
   const [activeTab, setActiveTab] = useState("description");
   const [showAllReviews, setShowAllReviews] = useState(false);
+
+  const order = {
+    shippingInfo: {
+      address: "123 Main Street",
+      city: "Mumbai",
+      state: "Maharashtra",
+      country: "India",
+      pinCode: 400001,
+      phoneNo: 9876543210,
+    },
+    orderItems: [
+      {
+        price: 499,
+        quantity: 2,
+        product: "686b37d27944536702caef38",
+      },
+      {
+        price: 799,
+        quantity: 1,
+        product: "686b37df7944536702caef39",
+      },
+    ],
+    itemsPrice: 1797,
+    taxPrice: 150,
+    shippingPrice: 50,
+    paymentMethod: "stripe",
+  };
 
   const navigate = useNavigate();
 
@@ -325,6 +353,8 @@ const ProductDetail = ({ product }) => {
                   {/* <Share2 className="h-5 w-5" /> */}
                 </button>
               </div>
+
+              <PlaceOrderButton order={order} />
 
               <button className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-lg font-medium transition-colors cursor-pointer">
                 Buy Now
