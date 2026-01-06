@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const logger = require("../utils/logger.js");
+const logger = require("../infra/logger/logger.js");
 const dotenv = require("dotenv");
 // dotenv configuration
 dotenv.config({

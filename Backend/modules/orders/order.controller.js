@@ -1,9 +1,9 @@
-const Order = require("../models/order.model.js");
-const catchAsyncErrors = require("../middlewares/catchAsyncErrors.js");
-const Product = require("../models/product.model.js");
+const Order = require("./order.model.js");
+const catchAsyncErrors = require("../../shared/middlewares/catchAsyncErrors.js");
+const Product = require("../products/product.model.js");
 const crypto = require("crypto");
 const Stripe = require("stripe");
-const logger = require("../utils/logger.js");
+const logger = require("../../infra/logger/logger.js");
 const dotenv = require("dotenv");
 // dotenv configuration
 dotenv.config({

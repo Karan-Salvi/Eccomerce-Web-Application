@@ -1,4 +1,4 @@
-const User = require("../models/user.model");
+const User = require("../../modules/users/user.model.js");
 
 const updateUserPreferences = async (
   userId,

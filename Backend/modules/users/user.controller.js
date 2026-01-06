@@ -1,12 +1,12 @@
 const exp = require("constants");
-const catchAsyncErrors = require("../middlewares/catchAsyncErrors.js");
-const User = require("../models/user.model.js");
-const sendEmail = require("../utils/sendmail.js");
+const catchAsyncErrors = require("../../shared/middlewares/catchAsyncErrors.js");
+const User = require("./user.model.js");
+const sendEmail = require("../../shared/utils/sendmail.js");
 const crypto = require("crypto");
-const logger = require("../utils/logger.js");
+const logger = require("../../infra/logger/logger.js");
 const { add } = require("winston");
 const mongoose = require("mongoose");
-const Product = require("../models/product.model.js");
+const Product = require("../products/product.model.js");
 
 // Register or Sign up new User
 const registerUser = catchAsyncErrors(async (req, res) => {
@@ -748,8 +748,6 @@ const removeFromCart = catchAsyncErrors(async (req, res) => {
   }
 
   console.log("Product ID: ", user);
-
-  
 
   // user.cart = user.cart.filter((item) => item._id !== productId);
 

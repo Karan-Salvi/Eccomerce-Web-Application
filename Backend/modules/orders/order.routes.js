@@ -7,8 +7,10 @@ const {
   updateOrderStatus,
   deleteOrder,
   stripeWebhook,
-} = require("../controllers/order.controller.js");
-const { checkAuthenticated } = require("../middlewares/authentication.js");
+} = require("./order.controller.js");
+const {
+  checkAuthenticated,
+} = require("../../shared/middlewares/authentication.js");
 
 const router = express.Router();
 

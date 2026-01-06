@@ -9,13 +9,13 @@ const {
   getAllReviews,
   deleteProductReview,
   getPaginatedProducts,
-} = require("../controllers/product.controller.js");
+} = require("./product.controller.js");
 const {
   authorizeRoles,
   checkAuthenticated,
-} = require("../middlewares/authentication.js");
-const upload = require("../middlewares/multer.js");
-const preferenceAuth = require("../middlewares/preferenceAuth.js");
+} = require("../../shared/middlewares/authentication.js");
+const upload = require("../../shared/middlewares/multer.js");
+const preferenceAuth = require("../../shared/middlewares/preferenceAuth.js");
 
 const router = express.Router();
 

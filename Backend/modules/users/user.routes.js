@@ -15,8 +15,10 @@ const {
   removeFromWishlist,
   addToCart,
   removeFromCart,
-} = require("../controllers/user.controller.js");
-const { checkAuthenticated } = require("../middlewares/authentication.js");
+} = require("./user.controller.js");
+const {
+  checkAuthenticated,
+} = require("../../shared/middlewares/authentication.js");
 
 const router = express.Router();
 

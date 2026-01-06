@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user.model");
-const logger = require("../utils/logger");
+const User = require("../../modules/users/user.model.js");
+const logger = require("../../infra/logger/logger.js");
 function preferenceAuth() {
   return async (req, res, next) => {
     console.log("Product details called here");

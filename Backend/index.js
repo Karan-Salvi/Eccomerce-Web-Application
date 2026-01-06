@@ -1,20 +1,22 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const logger = require("./utils/logger.js");
+const logger = require("./infra/logger/logger.js");
 // middlewares
-const rateLimit = require("./middlewares/rateLimiter.js");
-const { checkAuthenticated } = require("./middlewares/authentication.js");
+const rateLimit = require("./shared/middlewares/rateLimiter.js");
+const {
+  checkAuthenticated,
+} = require("./shared/middlewares/authentication.js");
 const cookieParser = require("cookie-parser");
 // Database connection
-const DB_connect = require("./Database/DB_connect.js");
+const DB_connect = require("./database/DB_connect.js");
 // cloudinary
 const cloudinary = require("cloudinary").v2;
 // cors
 const cors = require("cors");
 // routes
-const productRoute = require("./routes/product.routes.js");
-const userRoute = require("./routes/user.routes.js");
-const orderRoute = require("./routes/order.routes.js");
+const productRoute = require("./modules/products/product.routes.js");
+const userRoute = require("./modules/users/user.routes.js");
+const orderRoute = require("./modules/orders/order.routes.js");
 
 // dotenv configuration
 dotenv.config({

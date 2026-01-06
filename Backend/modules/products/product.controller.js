@@ -1,9 +1,9 @@
-const Product = require("../models/product.model.js");
-const catchAsyncErrors = require("../middlewares/catchAsyncErrors.js");
-const { uploadOnCloudinary } = require("../utils/cloudinary.js");
-const redisClient = require("../config/redis.js");
-const logger = require("../utils/logger.js");
-const updateUserPreferences = require("../utils/updateUserPreferences.js");
+const Product = require("./product.model.js");
+const catchAsyncErrors = require("../../shared/middlewares/catchAsyncErrors.js");
+const { uploadOnCloudinary } = require("../../shared/utils/cloudinary.js");
+const redisClient = require("../../config/redis.js");
+const logger = require("../../infra/logger/logger.js");
+const updateUserPreferences = require("../../shared/utils/updateUserPreferences.js");
 
 // Create Product -- Admin
 const createProduct = catchAsyncErrors(async (req, res) => {
