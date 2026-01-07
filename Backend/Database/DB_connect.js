@@ -1,10 +1,8 @@
-const mongoose = require("mongoose");
-const logger = require("../infra/logger/logger.js");
-const dotenv = require("dotenv");
-// dotenv configuration
-dotenv.config({
-  path: "./.env",
-});
+import mongoose from "mongoose";
+import logger from "#infra/logger/logger.js";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "./.env" });
 
 const DB_connect = async () => {
   try {
@@ -23,4 +21,4 @@ const DB_connect = async () => {
   }
 };
 
-module.exports = DB_connect;
+export default DB_connect;

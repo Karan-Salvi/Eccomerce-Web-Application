@@ -1,12 +1,26 @@
-const fs = require("fs");
-const path = require("path");
-const { createLogger, format, transports } = require("winston");
+import { createLogger, format, transports } from "winston";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
+/**
+ * Recreate __filename and __dirname for ES Modules
+ */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Logs directory: Backend/logs
+ */
 const logDir = path.join(__dirname, "..", "..", "logs");
+
 if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
+  fs.mkdirSync(logDir, { recursive: true });
 }
 
+/**
+ * Winston Logger Configuration
+ */
 const logger = createLogger({
   level: "info",
   format: format.combine(
@@ -30,11 +44,15 @@ const logger = createLogger({
   exitOnError: false,
 });
 
+/**
+ * Console logging for non-production environments
+ */
 if (process.env.NODE_ENV !== "production") {
   logger.add(
     new transports.Console({
       format: format.combine(
         format.colorize(),
+        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
         format.printf(({ level, message, timestamp, stack }) => {
           return `[${timestamp}] ${level}: ${stack || message}`;
         })
@@ -43,4 +61,4 @@ if (process.env.NODE_ENV !== "production") {
   );
 }
 
-module.exports = logger;
+export default logger;

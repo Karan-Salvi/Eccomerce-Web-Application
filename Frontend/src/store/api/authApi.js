@@ -182,7 +182,6 @@ export const {
   useUpdateUserDetailsMutation,
   useDeleteUserMutation,
   useUpdateUserRoleMutation,
-
   useAddToWishlistMutation,
   useRemoveFromWishlistMutation,
   useAddToCartMutation,

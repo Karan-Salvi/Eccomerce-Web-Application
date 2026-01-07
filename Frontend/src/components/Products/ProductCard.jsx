@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Star, Heart, ShoppingCart, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAddToWishlistMutation } from "../../store/api/authApi";
-import { useAddToCartMutation } from "../../store/api/authApi";
+import {
+  useAddToCartMutation,
+  useAddToWishlistMutation,
+} from "../../store/api/authApi";
 import { useSelector } from "react-redux";
 // import ProductDetail from "../../components/Product";
 

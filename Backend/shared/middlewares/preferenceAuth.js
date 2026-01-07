@@ -1,6 +1,5 @@
-const jwt = require("jsonwebtoken");
-const User = require("../../modules/users/user.model.js");
-const logger = require("../../infra/logger/logger.js");
+import jwt from "jsonwebtoken";
+import logger from "#infra/logger/logger.js";
 function preferenceAuth() {
   return async (req, res, next) => {
     console.log("Product details called here");
@@ -34,4 +33,4 @@ function preferenceAuth() {
   };
 }
 
-module.exports = preferenceAuth;
+export default preferenceAuth;

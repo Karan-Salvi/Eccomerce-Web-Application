@@ -2,6 +2,7 @@ import React from "react";
 import { Filter, X, Star } from "lucide-react";
 
 import { categories, brands } from "../../data/products";
+import { PRODUCT_CATEGORY_OPTIONS } from "../../constants/productCategories.constants";
 
 export const FilterSidebar = ({
   filters,
@@ -89,16 +90,16 @@ export const FilterSidebar = ({
                 Categories
               </h3>
               <div className="space-y-2">
-                {categories.map((category) => (
-                  <label key={category} className="flex items-center">
+                {PRODUCT_CATEGORY_OPTIONS.map((category) => (
+                  <label key={category.value} className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={filters.categories.includes(category)}
-                      onChange={() => handleCategoryChange(category)}
+                      checked={filters.categories.includes(category.value)}
+                      onChange={() => handleCategoryChange(category.value)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span className="ml-2 text-sm text-gray-700">
-                      {category}
+                      {category.label}
                     </span>
                   </label>
                 ))}
@@ -106,7 +107,7 @@ export const FilterSidebar = ({
             </div>
 
             {/* Brands */}
-            <div>
+            {/* <div>
               <h3 className="text-sm font-medium text-gray-900 mb-3">Brands</h3>
               <div className="space-y-2">
                 {brands.map((brand) => (
@@ -121,7 +122,7 @@ export const FilterSidebar = ({
                   </label>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Price Range */}
             <div>

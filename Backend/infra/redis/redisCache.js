@@ -1,4 +1,4 @@
-async function getOrSetCache(key, cb) {
+export const getOrSetCache = async (key, cb) => {
   const cached = await redisClient.get(key);
   if (cached) return JSON.parse(cached);
 
@@ -6,6 +6,4 @@ async function getOrSetCache(key, cb) {
   // await redisClient.setEx(key, 3600, JSON.stringify(freshData));
   await redisClient.set(key, JSON.stringify(freshData), "EX", 3600);
   return freshData;
-}
-
-module.exports = { getOrSetCache };
+};

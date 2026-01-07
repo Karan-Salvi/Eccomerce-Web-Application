@@ -1,22 +1,19 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const logger = require("./infra/logger/logger.js");
+import express from "express";
+import dotenv from "dotenv";
+import logger from "./infra/logger/logger.js";
 // middlewares
-const rateLimit = require("./shared/middlewares/rateLimiter.js");
-const {
-  checkAuthenticated,
-} = require("./shared/middlewares/authentication.js");
-const cookieParser = require("cookie-parser");
+import rateLimit from "./shared/middlewares/rateLimiter.js";
+import cookieParser from "cookie-parser";
 // Database connection
-const DB_connect = require("./database/DB_connect.js");
+import DB_connect from "./database/DB_connect.js";
 // cloudinary
-const cloudinary = require("cloudinary").v2;
+import cloudinary from "cloudinary";
 // cors
-const cors = require("cors");
+import cors from "cors";
 // routes
-const productRoute = require("./modules/products/product.routes.js");
-const userRoute = require("./modules/users/user.routes.js");
-const orderRoute = require("./modules/orders/order.routes.js");
+import productRoute from "./modules/products/product.routes.js";
+import userRoute from "./modules/users/user.routes.js";
+import orderRoute from "./modules/orders/order.routes.js";
 
 // dotenv configuration
 dotenv.config({
@@ -40,9 +37,8 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 // Database connection
-DB_connect();
 
-// middelwares
+// middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
@@ -68,6 +64,17 @@ app.use("/api/v1", productRoute);
 app.use("/api/v1", userRoute);
 app.use("/api/v1", orderRoute);
 
-app.listen(PORT, () => {
-  logger.info("Server started on port " + 3000);
-});
+const startServer = async () => {
+  try {
+    await DB_connect();
+
+    app.listen(PORT, () => {
+      logger.info(`Server started on port ${PORT}`);
+    });
+  } catch (error) {
+    logger.error("Server failed to start:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();

@@ -1,7 +1,16 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
+  "imports": {
+    "#config/*": "./config/*",
+    "#database/*": "./database/*",
+    "#infra/*": "./infra/*",
+    "#modules/*": "./modules/*",
+    "#shared/*": "./shared/*",
+    "#public/*": "./public/*"
+  },
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js"
@@ -27,6 +36,7 @@
     "nodemailer": "^6.9.16",
     "razorpay": "^2.9.5",
     "stripe": "^18.3.0",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^4.3.5"
   }
 }

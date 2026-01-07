@@ -1,4 +1,4 @@
-const User = require("../../modules/users/user.model.js");
+import User from "#modules/users/user.model.js";
 
 const updateUserPreferences = async (
   userId,
@@ -43,4 +43,4 @@ const updateUserPreferences = async (
   }
 };
 
-module.exports = updateUserPreferences;
+export default updateUserPreferences;

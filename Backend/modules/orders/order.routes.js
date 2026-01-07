@@ -1,5 +1,5 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   createNewOrder,
   getSingleOrder,
   myOrders,
@@ -7,10 +7,8 @@ const {
   updateOrderStatus,
   deleteOrder,
   stripeWebhook,
-} = require("./order.controller.js");
-const {
-  checkAuthenticated,
-} = require("../../shared/middlewares/authentication.js");
+} from "#modules/orders/order.controller.js";
+import { checkAuthenticated } from "#shared/middlewares/authentication.js";
 
 const router = express.Router();
 
@@ -30,4 +28,4 @@ router.route("/order/update/:id").put(updateOrderStatus);
 
 router.route("/order/delete/:id").delete(deleteOrder);
 
-module.exports = router;
+export default router;

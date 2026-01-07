@@ -1,10 +1,10 @@
-const Order = require("./order.model.js");
-const catchAsyncErrors = require("../../shared/middlewares/catchAsyncErrors.js");
-const Product = require("../products/product.model.js");
-const crypto = require("crypto");
-const Stripe = require("stripe");
-const logger = require("../../infra/logger/logger.js");
-const dotenv = require("dotenv");
+import Order from "#modules/orders/order.model.js";
+import Product from "#modules/products/product.model.js";
+import catchAsyncErrors from "#shared/middlewares/catchAsyncErrors.js";
+import crypto from "crypto";
+import Stripe from "stripe";
+import logger from "#infra/logger/logger.js";
+import dotenv from "dotenv";
 // dotenv configuration
 dotenv.config({
   path: "./.env",
@@ -13,7 +13,7 @@ dotenv.config({
 const FRONTEND_URI = process.env.FRONTEND_URI;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // create new order
-const createNewOrder = catchAsyncErrors(async (req, res) => {
+export const createNewOrder = catchAsyncErrors(async (req, res) => {
   let {
     shippingInfo,
     orderItems,
@@ -179,7 +179,7 @@ const createNewOrder = catchAsyncErrors(async (req, res) => {
   }
 });
 
-const stripeWebhook = catchAsyncErrors(async (req, res) => {
+export const stripeWebhook = catchAsyncErrors(async (req, res) => {
   let event;
 
   try {
@@ -238,7 +238,7 @@ const stripeWebhook = catchAsyncErrors(async (req, res) => {
 });
 
 // get single order details -- ADMIN
-const getSingleOrder = catchAsyncErrors(async (req, res) => {
+export const getSingleOrder = catchAsyncErrors(async (req, res) => {
   const order = await Order.findById(req.params.id).populate(
     "user",
     "name email"
@@ -259,7 +259,7 @@ const getSingleOrder = catchAsyncErrors(async (req, res) => {
 });
 
 // get my orders
-const myOrders = catchAsyncErrors(async (req, res) => {
+export const myOrders = catchAsyncErrors(async (req, res) => {
   const orders = await Order.find({ user: req.user._id });
   if (!orders) {
     return res.status(404).json({
@@ -276,7 +276,7 @@ const myOrders = catchAsyncErrors(async (req, res) => {
 });
 
 // get all order details -- ADMIN
-const getAllOrders = catchAsyncErrors(async (req, res) => {
+export const getAllOrders = catchAsyncErrors(async (req, res) => {
   const orders = await Order.find();
   if (!orders) {
     return res.status(404).json({
@@ -298,18 +298,18 @@ const getAllOrders = catchAsyncErrors(async (req, res) => {
   });
 });
 
-async function updateStock(id, quantity) {
+export async function updateStock(id, quantity) {
   const product = await Product.findById(id);
   product.stock = product.stock - quantity;
   await product.save();
 }
 
 // update order status - ADMIN
-const updateOrderStatus = catchAsyncErrors(async (req, res) => {
+export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
   const order = await Order.findById(req.params.id);
   if (order.orderStatus === "Delivered") {
     return res.status(400).json({
-      message: "You have allready delivered the product",
+      message: "You have all ready delivered the product",
     });
   }
 
@@ -332,7 +332,7 @@ const updateOrderStatus = catchAsyncErrors(async (req, res) => {
   });
 });
 
-const deleteOrder = catchAsyncErrors(async (req, res) => {
+export const deleteOrder = catchAsyncErrors(async (req, res) => {
   const order = await Order.findByIdAndDelete(req.params.id);
 
   if (!order) {
@@ -348,13 +348,3 @@ const deleteOrder = catchAsyncErrors(async (req, res) => {
     data: order,
   });
 });
-
-module.exports = {
-  createNewOrder,
-  getSingleOrder,
-  myOrders,
-  getAllOrders,
-  updateOrderStatus,
-  deleteOrder,
-  stripeWebhook,
-};

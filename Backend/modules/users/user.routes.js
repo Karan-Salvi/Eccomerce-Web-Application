@@ -1,5 +1,6 @@
-const express = require("express");
-const {
+import express from "express";
+import { checkAuthenticated } from "#shared/middlewares/authentication.js";
+import {
   registerUser,
   loginUser,
   logoutUser,
@@ -11,14 +12,11 @@ const {
   updatePersonalDetails,
   DeleteUser,
   updateUserRole,
-  addtoWishlist,
+  addToWishlist,
   removeFromWishlist,
   addToCart,
   removeFromCart,
-} = require("./user.controller.js");
-const {
-  checkAuthenticated,
-} = require("../../shared/middlewares/authentication.js");
+} from "#modules/users/user.controller.js";
 
 const router = express.Router();
 
@@ -46,7 +44,7 @@ router.route("/user/updateRole/:id").put(checkAuthenticated(), updateUserRole); 
 
 router
   .route("/user/wishlist")
-  .post(checkAuthenticated(), addtoWishlist)
+  .post(checkAuthenticated(), addToWishlist)
   .delete(checkAuthenticated(), removeFromWishlist);
 
 router
@@ -54,4 +52,4 @@ router
   .post(checkAuthenticated(), addToCart)
   .delete(checkAuthenticated(), removeFromCart);
 
-module.exports = router;
+export default router;

@@ -1,8 +1,13 @@
-const jwt = require("jsonwebtoken");
-const User = require("../../modules/users/user.model.js");
-const logger = require("../../infra/logger/logger.js");
+import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import logger from "#infra/logger/logger.js";
 
-function checkAuthenticated() {
+// dotenv configuration
+dotenv.config({
+  path: "./.env",
+});
+
+export function checkAuthenticated() {
   return async (req, res, next) => {
     const tokenValue = req.cookies[process.env.TOKEN_NAME];
 
@@ -40,18 +45,16 @@ function checkAuthenticated() {
   };
 }
 
-function authorizeRoles(...roles) {
+export function authorizeRoles(...roles) {
   return async (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      logger.error("You are unauthorised to access this resource");
+      logger.error("You are unauthorized to access this resource");
       return res.status(401).json({
         success: false,
-        message: "You are unauthorised to access this resource",
+        message: "You are unauthorized to access this resource",
       });
     }
 
     return next();
   };
 }
-
-module.exports = { checkAuthenticated, authorizeRoles };

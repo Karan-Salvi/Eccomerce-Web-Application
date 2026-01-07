@@ -1,7 +1,7 @@
-const nodemailer = require("nodemailer");
+import { createTransport } from "nodemailer";
 
-const sendEmail = async (options) => {
-  const transporter = await nodemailer.createTransport({
+const sendEmail = async ({ email, subject, message }) => {
+  const transporter = await createTransport({
     service: "gmail",
     host: process.env.HOST,
     port: process.env.EMAIL_PORT,
@@ -14,12 +14,12 @@ const sendEmail = async (options) => {
 
   const mailOptions = {
     from: "",
-    to: options.email,
-    subject: options.subject,
-    text: options.message,
+    to: email,
+    subject,
+    text: message,
   };
 
   await transporter.sendMail(mailOptions);
 };
 
-module.exports = sendEmail;
+export default sendEmail;

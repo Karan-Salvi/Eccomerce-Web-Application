@@ -1,15 +1,13 @@
-const exp = require("constants");
-const catchAsyncErrors = require("../../shared/middlewares/catchAsyncErrors.js");
-const User = require("./user.model.js");
-const sendEmail = require("../../shared/utils/sendmail.js");
-const crypto = require("crypto");
-const logger = require("../../infra/logger/logger.js");
-const { add } = require("winston");
-const mongoose = require("mongoose");
-const Product = require("../products/product.model.js");
+import catchAsyncErrors from "#shared/middlewares/catchAsyncErrors.js";
+import User from "#modules/users/user.model.js";
+import sendEmail from "#shared/utils/sendmail.js";
+import crypto from "crypto";
+import logger from "#infra/logger/logger.js";
+import mongoose from "mongoose";
+import Product from "#modules/products/product.model.js";
 
 // Register or Sign up new User
-const registerUser = catchAsyncErrors(async (req, res) => {
+export const registerUser = catchAsyncErrors(async (req, res) => {
   const { name, email, password } = req.body;
 
   const user = await User.create({
@@ -33,7 +31,7 @@ const registerUser = catchAsyncErrors(async (req, res) => {
 });
 
 // Login user in our web app
-const loginUser = catchAsyncErrors(async (req, res) => {
+export const loginUser = catchAsyncErrors(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -85,7 +83,7 @@ const loginUser = catchAsyncErrors(async (req, res) => {
 });
 
 // Logout user in our web app
-const logoutUser = catchAsyncErrors(async (req, res) => {
+export const logoutUser = catchAsyncErrors(async (req, res) => {
   const isProduction = process.env.NODE_ENV === "production";
   logger.info("User is logged out successfully");
   return res
@@ -102,8 +100,8 @@ const logoutUser = catchAsyncErrors(async (req, res) => {
     });
 });
 
-// Update user deatails -- ADMIN
-const updateUserDetails = catchAsyncErrors(async (req, res) => {
+// Update user details -- ADMIN
+export const updateUserDetails = catchAsyncErrors(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) {
     logger.warn("User not found");
@@ -138,7 +136,7 @@ const updateUserDetails = catchAsyncErrors(async (req, res) => {
 });
 
 // forget password
-const forgetPassword = catchAsyncErrors(async (req, res) => {
+export const forgetPassword = catchAsyncErrors(async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
 
@@ -159,7 +157,7 @@ const forgetPassword = catchAsyncErrors(async (req, res) => {
     "host"
   )}/api/v1/password/reset/${resetToken}`;
 
-  const message = `Your password token is :-\n\n${resetPasswordUrl}\n\nIf you are not requested this email then please ingore this mail.`;
+  const message = `Your password token is :-\n\n${resetPasswordUrl}\n\nIf you are not requested this email then please ignore this mail.`;
 
   try {
     await sendEmail({
@@ -184,7 +182,7 @@ const forgetPassword = catchAsyncErrors(async (req, res) => {
 });
 
 // reset users password
-const resetPassword = catchAsyncErrors(async (req, res) => {
+export const resetPassword = catchAsyncErrors(async (req, res) => {
   const token = req.params.token;
 
   const { password, confirmPassword } = req.body;
@@ -226,7 +224,7 @@ const resetPassword = catchAsyncErrors(async (req, res) => {
 });
 
 // get user personal details
-const getUserDetails = catchAsyncErrors(async (req, res) => {
+export const getUserDetails = catchAsyncErrors(async (req, res) => {
   const user = await User.findById(req.user._id)
     .select("-password -resetPasswordToken -resetPasswordExpiry")
     .populate("wishlist")
@@ -247,7 +245,7 @@ const getUserDetails = catchAsyncErrors(async (req, res) => {
 });
 
 // Update users password
-const updatePassword = catchAsyncErrors(async (req, res) => {
+export const updatePassword = catchAsyncErrors(async (req, res) => {
   const { password, oldPassword, confirmPassword } = req.body;
 
   const user = await User.findById(req.user._id);
@@ -280,12 +278,12 @@ const updatePassword = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Password upadated successfully",
+    message: "Password updated successfully",
   });
 });
 
 // update personal details
-const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
+export const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
   const { name, email } = req.body;
   const user = await User.findByIdAndUpdate(
     req.user._id,
@@ -313,7 +311,7 @@ const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
 });
 
 // Get all users details -- ADMIN
-const getAllusersDetail = catchAsyncErrors(async (req, res) => {
+export const getAllUsersDetail = catchAsyncErrors(async (req, res) => {
   const users = await find();
   return res.status(200).json({
     success: true,
@@ -323,7 +321,7 @@ const getAllusersDetail = catchAsyncErrors(async (req, res) => {
 });
 
 // get single user details
-const getSingaluserDetail = catchAsyncErrors(async (req, res) => {
+export const getSingleUserDetail = catchAsyncErrors(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (!user) {
@@ -334,8 +332,8 @@ const getSingaluserDetail = catchAsyncErrors(async (req, res) => {
   }
 });
 
-// upadate user Role -- ADMIN
-const updateUserRole = catchAsyncErrors(async (req, res) => {
+// update user Role -- ADMIN
+export const updateUserRole = catchAsyncErrors(async (req, res) => {
   const { name, email, role } = req.body;
   const user = await User.findByIdAndUpdate(req.params.id, {
     $set: {
@@ -360,7 +358,7 @@ const updateUserRole = catchAsyncErrors(async (req, res) => {
 });
 
 // Delete user
-const DeleteUser = catchAsyncErrors(async (req, res) => {
+export const DeleteUser = catchAsyncErrors(async (req, res) => {
   const user = await User.findByIdAndDelete(req.params.id);
 
   if (!user) {
@@ -377,7 +375,7 @@ const DeleteUser = catchAsyncErrors(async (req, res) => {
   });
 });
 
-const addAddress = catchAsyncErrors(async (req, res) => {
+export const addAddress = catchAsyncErrors(async (req, res) => {
   const { address, city, state, country, pinCode, phoneNo } = req.body;
   const userId = req?.user?._id;
 
@@ -409,7 +407,7 @@ const addAddress = catchAsyncErrors(async (req, res) => {
   });
 });
 
-const deleteAddress = catchAsyncErrors(async (req, res) => {
+export const deleteAddress = catchAsyncErrors(async (req, res) => {
   const { addressId } = req.body;
   const userId = req?.user?._id;
 
@@ -453,7 +451,7 @@ const deleteAddress = catchAsyncErrors(async (req, res) => {
   });
 });
 
-const updateAddress = catchAsyncErrors(async (req, res) => {
+export const updateAddress = catchAsyncErrors(async (req, res) => {
   const { address, city, state, country, pinCode, phoneNo, addressId } =
     req.body;
   const userId = req?.user?._id;
@@ -498,7 +496,7 @@ const updateAddress = catchAsyncErrors(async (req, res) => {
   });
 });
 
-const addtoWishlist = catchAsyncErrors(async (req, res) => {
+export const addToWishlist = catchAsyncErrors(async (req, res) => {
   const { productId } = req.body;
   const userId = req?.user?._id;
 
@@ -540,7 +538,7 @@ const addtoWishlist = catchAsyncErrors(async (req, res) => {
   });
 });
 
-const removeFromWishlist = catchAsyncErrors(async (req, res) => {
+export const removeFromWishlist = catchAsyncErrors(async (req, res) => {
   const { productId } = req.body;
   const userId = req?.user?._id;
 
@@ -664,7 +662,7 @@ const removeFromWishlist = catchAsyncErrors(async (req, res) => {
 //   });
 // });
 
-const addToCart = catchAsyncErrors(async (req, res) => {
+export const addToCart = catchAsyncErrors(async (req, res) => {
   const { productId, quantity, size, color } = req.body;
   const userId = req?.user?._id;
 
@@ -723,7 +721,7 @@ const addToCart = catchAsyncErrors(async (req, res) => {
   });
 });
 
-const removeFromCart = catchAsyncErrors(async (req, res) => {
+export const removeFromCart = catchAsyncErrors(async (req, res) => {
   const { productId } = req.body;
 
   console.log("productId received from frontend : ", productId);
@@ -760,25 +758,3 @@ const removeFromCart = catchAsyncErrors(async (req, res) => {
     message: "Product removed from cart successfully",
   });
 });
-
-module.exports = {
-  registerUser,
-  loginUser,
-  logoutUser,
-  updateUserDetails,
-  forgetPassword,
-  resetPassword,
-  getUserDetails,
-  updatePassword,
-  updatePersonalDetails,
-  updateUserRole,
-  DeleteUser,
-  addAddress,
-  updateAddress,
-  deleteAddress,
-
-  addtoWishlist,
-  removeFromWishlist,
-  addToCart,
-  removeFromCart,
-};

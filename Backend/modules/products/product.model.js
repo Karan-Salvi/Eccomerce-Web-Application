@@ -1,4 +1,22 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+
+export const PRODUCT_CATEGORIES = [
+  "Electronics",
+  "Fashion",
+  "Home & Kitchen",
+  "Beauty & Personal Care",
+  "Books & Stationery",
+  "Sports & Fitness",
+  "Toys & Baby Products",
+  "Automotive",
+  "Grocery & Daily Essentials",
+  "Health & Wellness",
+  "Digital Products",
+  "Gifts & Seasonal Items",
+  "Handmade & Local Products",
+  "Pet Supplies",
+  "Industrial & B2B Products",
+];
 
 const productSchema = new mongoose.Schema(
   {
@@ -49,6 +67,10 @@ const productSchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, "Please Enter product category"],
+      enum: {
+        values: PRODUCT_CATEGORIES,
+        message: "Please select a valid product category",
+      },
     },
     inStock: {
       type: Number,
@@ -96,4 +118,4 @@ const productSchema = new mongoose.Schema(
 
 const Product = mongoose.model("Product", productSchema);
 
-module.exports = Product;
+export default Product;

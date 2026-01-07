@@ -20,6 +20,7 @@ import "./App.css";
 import Contact from "./pages/Contact/Contact";
 import Success from "./pages/Order/Success";
 import Cancel from "./pages/Order/Cancel";
+import { USER_ROLES } from "./constants/roles.constants";
 
 const App = () => {
   return (
@@ -31,7 +32,9 @@ const App = () => {
           <Route
             path="/wishlist"
             element={
-              <ProtectedRoute allowedRoles={["user", "vendor"]}>
+              <ProtectedRoute
+                allowedRoles={[USER_ROLES.USER, USER_ROLES.VENDER]}
+              >
                 <WishPage />
               </ProtectedRoute>
             }
@@ -47,7 +50,7 @@ const App = () => {
           <Route
             path="/vendor"
             element={
-              <ProtectedRoute allowedRoles={["vendor"]}>
+              <ProtectedRoute allowedRoles={[USER_ROLES.VENDER]}>
                 <Vendor />
               </ProtectedRoute>
             }
@@ -55,7 +58,9 @@ const App = () => {
           <Route
             path="/cart"
             element={
-              <ProtectedRoute allowedRoles={["user", "vendor"]}>
+              <ProtectedRoute
+                allowedRoles={[USER_ROLES.USER, USER_ROLES.VENDER]}
+              >
                 <Cart />
               </ProtectedRoute>
             }
@@ -63,7 +68,9 @@ const App = () => {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute allowedRoles={["user", "vendor"]}>
+              <ProtectedRoute
+                allowedRoles={[USER_ROLES.USER, USER_ROLES.VENDER]}
+              >
                 <Profile />
               </ProtectedRoute>
             }

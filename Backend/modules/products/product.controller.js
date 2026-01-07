@@ -1,12 +1,16 @@
-const Product = require("./product.model.js");
-const catchAsyncErrors = require("../../shared/middlewares/catchAsyncErrors.js");
-const { uploadOnCloudinary } = require("../../shared/utils/cloudinary.js");
-const redisClient = require("../../config/redis.js");
-const logger = require("../../infra/logger/logger.js");
-const updateUserPreferences = require("../../shared/utils/updateUserPreferences.js");
+import Product from "#modules/products/product.model.js";
+import catchAsyncErrors from "#shared/middlewares/catchAsyncErrors.js";
+import { uploadOnCloudinary } from "#shared/utils/cloudinary.js";
+import redisClient from "#config/redis.js";
+import logger from "#infra/logger/logger.js";
+import updateUserPreferences from "#shared/utils/updateUserPreferences.js";
+import {
+  PRODUCT_SORT,
+  PRODUCT_SORT_OPTIONS,
+} from "#shared/constants/productSort.constants.js";
 
 // Create Product -- Admin
-const createProduct = catchAsyncErrors(async (req, res) => {
+export const createProduct = catchAsyncErrors(async (req, res) => {
   const files = req.files["image"];
 
   const uploadPromises = files.map((file) => uploadOnCloudinary(file.path));
@@ -40,7 +44,7 @@ const createProduct = catchAsyncErrors(async (req, res) => {
 });
 
 // Get All Products -- User
-const getAllProducts = catchAsyncErrors(async (req, res) => {
+export const getAllProducts = catchAsyncErrors(async (req, res) => {
   const cachedData = await redisClient.get("all_products");
   console.log("products called here");
   if (cachedData) {
@@ -65,44 +69,199 @@ const getAllProducts = catchAsyncErrors(async (req, res) => {
   });
 });
 
-const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
-  // Parse query params
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 12;
+// export const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
+//   // Parse query params
+//   const page = parseInt(req.query.page) || 1;
+//   const limit = parseInt(req.query.limit) || 12;
+//   const category = req.query.category;
+//   const skip = (page - 1) * limit;
+
+//   // Create unique cache key based on page and limit
+//   const cacheKey = `all_products_page_${page}_limit_${limit}`;
+
+//   console.log("Paginated products called here");
+
+//   // Try fetching from Redis cache
+//   const cachedData = await redisClient.get(cacheKey);
+//   if (cachedData) {
+//     logger.info(`Products served from Redis: ${cacheKey}`);
+//     return res.json({
+//       success: true,
+//       message: "Fetched from cache",
+//       data: JSON.parse(cachedData),
+//     });
+//   }
+
+//   // Fetch from MongoDB with pagination
+//   const products = await Product.find({ category }).skip(skip).limit(limit);
+
+//   // Cache the paginated results
+//   await redisClient.set(cacheKey, JSON.stringify(products), "EX", 3600);
+
+//   logger.info(`Products served from DB: ${cacheKey}`);
+//   return res.json({
+//     success: true,
+//     message: "Fetched from DB",
+//     data: products,
+//   });
+// });
+
+// Update Product -- Admin
+
+// export const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
+//   const page = parseInt(req.query.page, 10) || 1;
+//   const limit = parseInt(req.query.limit, 10) || 12;
+//   const category = req.query.category;
+//   const skip = (page - 1) * limit;
+
+//   // Build filter dynamically
+//   const filter = {};
+//   if (category) {
+//     filter.category = category;
+//   }
+
+//   // Unique cache key (includes category)
+//   const cacheKey = `products_page_${page}_limit_${limit}_category_${
+//     category || "all"
+//   }`;
+
+//   console.log("Paginated products called");
+
+//   // Try Redis first
+//   const cachedData = await redisClient.get(cacheKey);
+//   if (cachedData) {
+//     logger.info(`Products served from Redis: ${cacheKey}`);
+//     return res.status(200).json({
+//       success: true,
+//       message: "Fetched from cache",
+//       data: JSON.parse(cachedData).products,
+//     });
+//   }
+
+//   // Fetch from DB
+//   const [products, totalProducts] = await Promise.all([
+//     Product.find(filter)
+//       .sort({ createdAt: -1 }) // newest first
+//       .skip(skip)
+//       .limit(limit),
+//     Product.countDocuments(filter),
+//   ]);
+
+//   const responseData = {
+//     pagination: {
+//       page,
+//       limit,
+//       totalProducts,
+//       totalPages: Math.ceil(totalProducts / limit),
+//     },
+//   };
+
+//   // Cache response
+//   await redisClient.set(
+//     cacheKey,
+//     JSON.stringify(responseData),
+//     "EX",
+//     3600 // 1 hour
+//   );
+
+//   logger.info(`Products served from DB: ${cacheKey}`);
+
+//   return res.status(200).json({
+//     success: true,
+//     message: "Fetched from DB",
+//     data: products,
+//     ...responseData,
+//   });
+// });
+
+export const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 12;
   const skip = (page - 1) * limit;
 
-  // Create unique cache key based on page and limit
-  const cacheKey = `all_products_page_${page}_limit_${limit}`;
+  const {
+    category,
+    sort = PRODUCT_SORT.NEWEST,
+    minPrice,
+    maxPrice,
+    minRating,
+    inStock,
+  } = req.query;
 
-  console.log("Paginated products called here");
+  const filter = {};
 
-  // Try fetching from Redis cache
+  if (category) {
+    filter.category = category;
+  }
+
+  if (minPrice || maxPrice) {
+    filter.price = {};
+    if (minPrice) filter.price.$gte = Number(minPrice);
+    if (maxPrice) filter.price.$lte = Number(maxPrice);
+  }
+
+  if (minRating) {
+    filter.ratings = { $gte: Number(minRating) };
+  }
+
+  if (inStock === "true") {
+    filter.inStock = { $gt: 0 };
+  }
+
+  const sortOption =
+    PRODUCT_SORT_OPTIONS[sort] || PRODUCT_SORT_OPTIONS[PRODUCT_SORT.NEWEST];
+
+  const cacheKey = `products_page_${page}_limit_${limit}_cat_${
+    category || "all"
+  }_sort_${sort}_minP_${minPrice || "na"}_maxP_${maxPrice || "na"}_rating_${
+    minRating || "na"
+  }_stock_${inStock || "all"}`;
+
   const cachedData = await redisClient.get(cacheKey);
   if (cachedData) {
     logger.info(`Products served from Redis: ${cacheKey}`);
-    return res.json({
+    return res.status(200).json({
       success: true,
       message: "Fetched from cache",
-      data: JSON.parse(cachedData),
+      data: JSON.parse(cachedData).products,
+      ...JSON.parse(cachedData),
     });
   }
 
-  // Fetch from MongoDB with pagination
-  const products = await Product.find().skip(skip).limit(limit);
+  const [products, totalProducts] = await Promise.all([
+    Product.find(filter).sort(sortOption).skip(skip).limit(limit),
+    Product.countDocuments(filter),
+  ]);
 
-  // Cache the paginated results
-  await redisClient.set(cacheKey, JSON.stringify(products), "EX", 3600);
+  const responseData = {
+    products,
+    filtersApplied: {
+      category,
+      sort,
+      minPrice,
+      maxPrice,
+      minRating,
+      inStock,
+    },
+    pagination: {
+      page,
+      limit,
+      totalProducts,
+      totalPages: Math.ceil(totalProducts / limit),
+    },
+  };
 
-  logger.info(`Products served from DB: ${cacheKey}`);
-  return res.json({
+  await redisClient.set(cacheKey, JSON.stringify(responseData), "EX", 3600);
+
+  return res.status(200).json({
     success: true,
     message: "Fetched from DB",
     data: products,
+    ...responseData,
   });
 });
 
-// Update Product -- Admin
-const updateProduct = catchAsyncErrors(async (req, res) => {
+export const updateProduct = catchAsyncErrors(async (req, res) => {
   const productId = req.params.id;
 
   let product = await Product.findById(productId);
@@ -130,7 +289,7 @@ const updateProduct = catchAsyncErrors(async (req, res) => {
 });
 
 // delete Product -- Admin
-const deleteProduct = catchAsyncErrors(async (req, res) => {
+export const deleteProduct = catchAsyncErrors(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) {
     return res
@@ -192,7 +351,7 @@ const deleteProduct = catchAsyncErrors(async (req, res) => {
 //   });
 // });
 
-const getProductDetails = catchAsyncErrors(async (req, res) => {
+export const getProductDetails = catchAsyncErrors(async (req, res) => {
   const productId = req.params.id;
   const cacheKey = `product_${productId}`;
 
@@ -266,7 +425,7 @@ const getProductDetails = catchAsyncErrors(async (req, res) => {
 });
 
 // create new product review or update the review
-const createProductReview = catchAsyncErrors(async (req, res) => {
+export const createProductReview = catchAsyncErrors(async (req, res) => {
   const { rating, comment, productId } = req.body;
 
   const product = await Product.findById(productId);
@@ -310,7 +469,7 @@ const createProductReview = catchAsyncErrors(async (req, res) => {
 });
 
 // get all product review
-const getAllReviews = catchAsyncErrors(async (req, res) => {
+export const getAllReviews = catchAsyncErrors(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product)
     return res
@@ -325,7 +484,7 @@ const getAllReviews = catchAsyncErrors(async (req, res) => {
 });
 
 // delete review
-const deleteProductReview = catchAsyncErrors(async (req, res) => {
+export const deleteProductReview = catchAsyncErrors(async (req, res) => {
   const { productId } = req.body;
   const product = await Product.findById(productId);
   if (!product)
@@ -354,15 +513,3 @@ const deleteProductReview = catchAsyncErrors(async (req, res) => {
     data: product.reviews,
   });
 });
-
-module.exports = {
-  getAllProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-  getProductDetails,
-  createProductReview,
-  getAllReviews,
-  deleteProductReview,
-  getPaginatedProducts,
-};

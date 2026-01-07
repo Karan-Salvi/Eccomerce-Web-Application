@@ -1,10 +1,8 @@
-const logger = require("../infra/logger/logger.js");
-const Redis = require("ioredis");
-const dotenv = require("dotenv");
-// dotenv configuration
-dotenv.config({
-  path: "./.env",
-});
+import logger from "#infra/logger/logger.js";
+import Redis from "ioredis";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "./.env" });
 
 const redisClient = new Redis(process.env.REDIS_URL);
 
@@ -16,4 +14,5 @@ redisClient.on("error", (err) => {
   logger.error("Redis error", err);
 });
 
-module.exports = redisClient;
+export default redisClient;
+
