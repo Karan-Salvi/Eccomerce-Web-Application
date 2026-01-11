@@ -120,9 +120,9 @@
 
 // export default ProtectedProfile;
 
-import React from "react";
-import { useSelector } from "react-redux";
-import { useLocation, Navigate } from "react-router-dom";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { useLocation, Navigate } from 'react-router-dom';
 
 const ProtectedProfile = ({ children }) => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -141,7 +141,7 @@ const ProtectedProfile = ({ children }) => {
   const role = user?.data?.role?.toLowerCase();
 
   // Vendor accessing non-vendor pages like /profile
-  if (role === "vendor" && location.pathname !== "/vendor") {
+  if (role === 'vendor' && location.pathname !== '/vendor') {
     return <Navigate to="/vendor" replace />;
   }
 

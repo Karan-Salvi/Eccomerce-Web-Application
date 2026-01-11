@@ -1,7 +1,4 @@
-import React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import { useGetAllProductsByPageQuery } from "../../store/api/productApi";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // { currentPage, totalPages, onPageChange }
 
@@ -9,15 +6,12 @@ export const Pagination = ({ currentPage, totalPages, setCurrentPage }) => {
   // const [currentPage, setCurrentPage] = useState(1);
   // const [totalPages, setTotalPages] = useState(5);
 
-  const onPageChange = (page) => {
-    console.log("Page no is : ", page);
-    const { data, isLoading } = useGetAllProductsByPageQuery({
-      page,
-      limit: 12,
-    });
-
-    console.log("Page in the pagination", data);
-  };
+  // const onPageChange = (page) => {
+  //   const { data, isLoading } = useGetAllProductsByPageQuery({
+  //     page,
+  //     limit: 12,
+  //   });
+  // };
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
@@ -48,18 +42,18 @@ export const Pagination = ({ currentPage, totalPages, setCurrentPage }) => {
   // if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center space-x-2 mt-10">
+    <div className="mt-10 flex items-center justify-center space-x-2">
       {/* Previous Button */}
       <button
         onClick={() => setCurrentPage(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
+        className={`flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
           currentPage === 1
-            ? "text-gray-400 cursor-not-allowed"
-            : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+            ? 'cursor-not-allowed text-gray-400'
+            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
         }`}
       >
-        <ChevronLeft className="h-4 w-4 mr-1" />
+        <ChevronLeft className="mr-1 h-4 w-4" />
         Previous
       </button>
 
@@ -69,10 +63,10 @@ export const Pagination = ({ currentPage, totalPages, setCurrentPage }) => {
           <button
             key={page}
             onClick={() => setCurrentPage(page)}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
+            className={`cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               currentPage === page
-                ? "bg-blue-600 text-white"
-                : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
             }`}
           >
             {page}
@@ -84,14 +78,14 @@ export const Pagination = ({ currentPage, totalPages, setCurrentPage }) => {
       <button
         onClick={() => setCurrentPage(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
+        className={`flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
           currentPage === totalPages
-            ? "text-gray-400 cursor-not-allowed"
-            : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+            ? 'cursor-not-allowed text-gray-400'
+            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
         }`}
       >
         Next
-        <ChevronRight className="h-4 w-4 ml-1" />
+        <ChevronRight className="ml-1 h-4 w-4" />
       </button>
     </div>
   );

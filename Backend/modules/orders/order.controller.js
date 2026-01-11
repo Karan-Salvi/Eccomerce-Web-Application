@@ -1,41 +1,28 @@
-import Order from "#modules/orders/order.model.js";
-import Product from "#modules/products/product.model.js";
-import catchAsyncErrors from "#shared/middlewares/catchAsyncErrors.js";
-import crypto from "crypto";
-import Stripe from "stripe";
-import logger from "#infra/logger/logger.js";
-import dotenv from "dotenv";
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
+
+import Order from '#modules/orders/order.model.js';
+import Product from '#modules/products/product.model.js';
+import catchAsyncErrors from '#shared/middlewares/catchAsyncErrors.js';
+import logger from '#infra/logger/logger.js';
+
 // dotenv configuration
 dotenv.config({
-  path: "./.env",
+  path: './.env',
 });
 
 const FRONTEND_URI = process.env.FRONTEND_URI;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // create new order
 export const createNewOrder = catchAsyncErrors(async (req, res) => {
-  let {
-    shippingInfo,
-    orderItems,
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    paymentMethod,
-  } = req.body;
+  let { shippingInfo, orderItems, itemsPrice, taxPrice, shippingPrice, paymentMethod } = req.body;
   const userId = req.user._id;
 
-  if (
-    !shippingInfo ||
-    !orderItems ||
-    !itemsPrice ||
-    !taxPrice ||
-    !shippingPrice ||
-    !userId
-  ) {
-    logger.error("Missing required fields for order creation");
+  if (!shippingInfo || !orderItems || !itemsPrice || !taxPrice || !shippingPrice || !userId) {
+    logger.error('Missing required fields for order creation');
     return res.status(400).json({
       success: false,
-      message: "Please provide all required fields",
+      message: 'Please provide all required fields',
     });
   }
 
@@ -48,11 +35,11 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
 
   totalPrice += itemsPrice + taxPriceOfAmount + shippingPrice;
 
-  if (paymentMethod === "cod") {
+  if (paymentMethod === 'cod') {
     // Create order with cash on delivery
     const paymentInfo = {
-      id: "COD",
-      status: "pending",
+      id: 'COD',
+      status: 'pending',
     };
     let order = await Order.create({
       shippingInfo,
@@ -68,25 +55,25 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
 
     // Ensure order is created before proceeding
     if (!order) {
-      logger.error("Error creating order with cash on delivery");
+      logger.error('Error creating order with cash on delivery');
       return res.status(500).json({
         success: false,
-        message: "Error creating order",
+        message: 'Error creating order',
       });
     }
 
     logger.info(`Order created successfully with ID (COD): ${order._id}`);
     return res.status(201).json({
       success: true,
-      message: "Order placed successfully",
+      message: 'Order placed successfully',
       data: order,
     });
-  } else if (paymentMethod === "stripe") {
+  } else if (paymentMethod === 'stripe') {
     // Create order with stripe payment
 
     let paymentInfo = {
-      id: "stripe",
-      status: "pending",
+      id: 'stripe',
+      status: 'pending',
     };
 
     let order = await Order.create({
@@ -103,37 +90,33 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
 
     // Ensure order is created before proceeding
     if (!order) {
-      logger.error("Error creating order with Stripe payment");
+      logger.error('Error creating order with Stripe payment');
       return res.status(500).json({
         success: false,
-        message: "Error creating order",
+        message: 'Error creating order',
       });
     }
 
     const orderId = order._id;
     // Populate order items with product details
 
-    const PopulatedOrder = await Order.findById(orderId).populate(
-      "orderItems.product"
-    );
+    const PopulatedOrder = await Order.findById(orderId).populate('orderItems.product');
 
     if (!PopulatedOrder) {
-      logger.error("Order not found");
+      logger.error('Order not found');
       return res.status(404).json({
         success: false,
-        message: "Order not found",
+        message: 'Order not found',
       });
     }
 
-    console.log("PopulatedOrder : ", PopulatedOrder.orderItems[0].product);
-
     // Create a Stripe checkout session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      payment_method_types: ['card'],
 
       line_items: PopulatedOrder.orderItems.map((item) => ({
         price_data: {
-          currency: "inr",
+          currency: 'inr',
           product_data: {
             name: item.product.name, // Make sure you populate product details before
             images: [item.product.images[0].url], // Optional: Only if image is public
@@ -143,7 +126,7 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
         quantity: item.quantity, // Quantity of this item
       })),
 
-      mode: "payment",
+      mode: 'payment',
 
       success_url: `${FRONTEND_URI}/order-success/${order._id}`,
       cancel_url: `${FRONTEND_URI}/order-cancel/${order._id}`,
@@ -154,25 +137,23 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
       },
 
       shipping_address_collection: {
-        allowed_countries: ["IN"],
+        allowed_countries: ['IN'],
       },
     });
 
     if (!session.url) {
-      logger.error("Error creating Stripe session");
-      return res
-        .status(400)
-        .json({ success: false, message: "Error while creating session" });
+      logger.error('Error creating Stripe session');
+      return res.status(400).json({ success: false, message: 'Error while creating session' });
     }
 
     // Update the order with payment info
     order.paymentInfo.id = session.id;
-    order.paymentInfo.status = "pending"; // Set initial status to pending
+    order.paymentInfo.status = 'pending'; // Set initial status to pending
     await order.save();
     logger.info(`Order created successfully with ID(Stripe): ${order._id}`);
     return res.status(201).json({
       success: true,
-      message: "Order placed successfully",
+      message: 'Order placed successfully',
       data: order,
       sessionUrl: session.url, // Return the Stripe session URL
     });
@@ -193,45 +174,42 @@ export const stripeWebhook = catchAsyncErrors(async (req, res) => {
 
     event = stripe.webhooks.constructEvent(payloadString, header, secret);
   } catch (error) {
-    logger.error("Webhook error:", error.message);
+    logger.error('Webhook error:', error.message);
     return res.status(400).send(`Webhook error: ${error.message}`);
   }
 
   // Handle the checkout session completed event
-  if (event.type === "checkout.session.completed") {
-    logger.info("Checkout session completed event received");
+  if (event.type === 'checkout.session.completed') {
+    logger.info('Checkout session completed event received');
 
     try {
       const session = event.data.object;
 
-      console.log("session", session);
       if (!session.metadata || !session.metadata.orderId) {
-        logger.error("Session metadata or orderId is missing");
-        return res.status(400).json({ message: "Invalid session metadata" });
+        logger.error('Session metadata or orderId is missing');
+        return res.status(400).json({ message: 'Invalid session metadata' });
       }
 
       let purchasedOrder = await Order.findOne({
-        "paymentInfo.id": session.id,
+        'paymentInfo.id': session.id,
       });
 
       if (!purchasedOrder) {
-        logger.error("Order not found");
-        return res.status(404).json({ message: "Order not found" });
+        logger.error('Order not found');
+        return res.status(404).json({ message: 'Order not found' });
       }
 
-      purchasedOrder.paymentInfo.status = "completed";
+      purchasedOrder.paymentInfo.status = 'completed';
       purchasedOrder.paidAt = Date.now();
 
       await purchasedOrder.save();
 
-      logger.info("Order payment completed successfully");
+      logger.info('Order payment completed successfully');
 
-      return res
-        .status(200)
-        .json({ message: "Order payment completed successfully" });
+      return res.status(200).json({ message: 'Order payment completed successfully' });
     } catch (error) {
-      console.error("Error handling event:", error);
-      return res.status(500).json({ message: "Internal Server Error" });
+      console.error('Error handling event:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
     }
   }
   res.status(200).send();
@@ -239,21 +217,18 @@ export const stripeWebhook = catchAsyncErrors(async (req, res) => {
 
 // get single order details -- ADMIN
 export const getSingleOrder = catchAsyncErrors(async (req, res) => {
-  const order = await Order.findById(req.params.id).populate(
-    "user",
-    "name email"
-  );
+  const order = await Order.findById(req.params.id).populate('user', 'name email');
 
   if (!order) {
     return res.status(404).json({
       success: false,
-      message: "Order not found",
+      message: 'Order not found',
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "Order fetched successfully",
+    message: 'Order fetched successfully',
     data: order,
   });
 });
@@ -264,13 +239,13 @@ export const myOrders = catchAsyncErrors(async (req, res) => {
   if (!orders) {
     return res.status(404).json({
       success: false,
-      message: "Orders not found",
+      message: 'Orders not found',
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "Orders fetched successfully",
+    message: 'Orders fetched successfully',
     data: orders,
   });
 });
@@ -281,7 +256,7 @@ export const getAllOrders = catchAsyncErrors(async (req, res) => {
   if (!orders) {
     return res.status(404).json({
       success: false,
-      message: "Orders not found",
+      message: 'Orders not found',
     });
   }
 
@@ -292,7 +267,7 @@ export const getAllOrders = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Orders fetched successfully",
+    message: 'Orders fetched successfully',
     data: orders,
     totalAmount,
   });
@@ -307,9 +282,9 @@ export async function updateStock(id, quantity) {
 // update order status - ADMIN
 export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
   const order = await Order.findById(req.params.id);
-  if (order.orderStatus === "Delivered") {
+  if (order.orderStatus === 'Delivered') {
     return res.status(400).json({
-      message: "You have all ready delivered the product",
+      message: 'You have all ready delivered the product',
     });
   }
 
@@ -319,7 +294,7 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
 
   order.orderStatus = req.body.status;
 
-  if (req.body.status === "Delivered") {
+  if (req.body.status === 'Delivered') {
     order.deliveredAt = Date.now();
   }
 
@@ -327,7 +302,7 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Order status updated successfully",
+    message: 'Order status updated successfully',
     data: order,
   });
 });
@@ -338,13 +313,13 @@ export const deleteOrder = catchAsyncErrors(async (req, res) => {
   if (!order) {
     return res.status(404).json({
       success: false,
-      message: "Orders not found",
+      message: 'Orders not found',
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "Order deleted successfully",
+    message: 'Order deleted successfully',
     data: order,
   });
 });

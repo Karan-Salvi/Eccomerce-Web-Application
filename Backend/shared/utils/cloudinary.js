@@ -1,20 +1,22 @@
-import { v2 as cloudinary } from "cloudinary";
-import * as fs from "fs";
+import * as fs from 'fs';
+
+import { v2 as cloudinary } from 'cloudinary';
+import logger from '#infra/logger/logger.js';
 
 export const uploadOnCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
 
-    const responce = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: "auto",
+    const response = await cloudinary.uploader.upload(localFilePath, {
+      resource_type: 'auto',
     });
 
-    console.log("File is uploaded successfully");
     fs.unlinkSync(localFilePath, () => {
-      console.log("file removed successfully");
+      logger.info('file removed successfully');
     });
-    return responce.url;
+    return response.url;
   } catch (error) {
+    logger.error('Cloudinary upload error: ', error);
     fs.unlinkSync(localFilePath); //remove locally saved file on the operation got failed
     return null;
   }

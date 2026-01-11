@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   CreditCard,
   Plus,
@@ -6,9 +6,8 @@ import {
   Trash2,
   Check,
   Smartphone,
-} from "lucide-react";
-import { useEcommerce } from "../../contexts/EcommerceContext";
-
+} from 'lucide-react';
+import { useEcommerce } from '../../contexts/EcommerceContext';
 
 const PaymentPage = () => {
   const {
@@ -18,13 +17,13 @@ const PaymentPage = () => {
     setDefaultPaymentMethod,
   } = useEcommerce();
   const [showForm, setShowForm] = useState(false);
-  const [selectedType, setSelectedType] = useState  ("credit");
+  const [selectedType, setSelectedType] = useState('credit');
   const [formData, setFormData] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    cardholderName: "",
-    email: "",
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardholderName: '',
+    email: '',
   });
 
   const handleSubmit = (e) => {
@@ -32,35 +31,35 @@ const PaymentPage = () => {
 
     let newMethod;
 
-    if (selectedType === "credit") {
+    if (selectedType === 'credit') {
       const maskedCard = `**** **** **** ${formData.cardNumber.slice(-4)}`;
       newMethod = {
-        type: "credit",
+        type: 'credit',
         name: `${getCardType(
           formData.cardNumber
         )} ending in ${formData.cardNumber.slice(-4)}`,
         details: maskedCard,
         isDefault: paymentMethods.length === 0,
       };
-    } else if (selectedType === "paypal") {
+    } else if (selectedType === 'paypal') {
       newMethod = {
-        type: "paypal",
-        name: "PayPal",
+        type: 'paypal',
+        name: 'PayPal',
         details: formData.email,
         isDefault: paymentMethods.length === 0,
       };
-    } else if (selectedType === "apple") {
+    } else if (selectedType === 'apple') {
       newMethod = {
-        type: "apple",
-        name: "Apple Pay",
-        details: "Touch ID or Face ID",
+        type: 'apple',
+        name: 'Apple Pay',
+        details: 'Touch ID or Face ID',
         isDefault: paymentMethods.length === 0,
       };
     } else {
       newMethod = {
-        type: "google",
-        name: "Google Pay",
-        details: "Biometric authentication",
+        type: 'google',
+        name: 'Google Pay',
+        details: 'Biometric authentication',
         isDefault: paymentMethods.length === 0,
       };
     }
@@ -68,91 +67,91 @@ const PaymentPage = () => {
     addPaymentMethod(newMethod);
     setShowForm(false);
     setFormData({
-      cardNumber: "",
-      expiryDate: "",
-      cvv: "",
-      cardholderName: "",
-      email: "",
+      cardNumber: '',
+      expiryDate: '',
+      cvv: '',
+      cardholderName: '',
+      email: '',
     });
   };
 
   const getCardType = (cardNumber) => {
     const firstDigit = cardNumber.charAt(0);
-    if (firstDigit === "4") return "Visa";
-    if (firstDigit === "5") return "Mastercard";
-    if (firstDigit === "3") return "American Express";
-    return "Card";
+    if (firstDigit === '4') return 'Visa';
+    if (firstDigit === '5') return 'Mastercard';
+    if (firstDigit === '3') return 'American Express';
+    return 'Card';
   };
 
   const getPaymentIcon = (type) => {
     switch (type) {
-      case "credit":
-        return <CreditCard className="w-6 h-6" />;
-      case "paypal":
+      case 'credit':
+        return <CreditCard className="h-6 w-6" />;
+      case 'paypal':
         return (
-          <div className="w-6 h-6 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
+          <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-600 text-xs font-bold text-white">
             P
           </div>
         );
-      case "apple":
-        return <Smartphone className="w-6 h-6" />;
-      case "google":
+      case 'apple':
+        return <Smartphone className="h-6 w-6" />;
+      case 'google':
         return (
-          <div className="w-6 h-6 bg-green-500 rounded text-white text-xs flex items-center justify-center font-bold">
+          <div className="flex h-6 w-6 items-center justify-center rounded bg-green-500 text-xs font-bold text-white">
             G
           </div>
         );
       default:
-        return <CreditCard className="w-6 h-6" />;
+        return <CreditCard className="h-6 w-6" />;
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Payment Methods</h1>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
+          className="flex cursor-pointer items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
         >
-          <Plus className="w-5 h-5 mr-2" />
+          <Plus className="mr-2 h-5 w-5" />
           Add Payment Method
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-6">
+        <div className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-6 text-xl font-bold text-gray-800">
             Add Payment Method
           </h2>
 
           <div className="mb-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {[
                 {
-                  type: "credit",
-                  label: "Credit Card",
-                  icon: <CreditCard className="w-6 h-6" />,
+                  type: 'credit',
+                  label: 'Credit Card',
+                  icon: <CreditCard className="h-6 w-6" />,
                 },
                 {
-                  type: "paypal",
-                  label: "PayPal",
+                  type: 'paypal',
+                  label: 'PayPal',
                   icon: (
-                    <div className="w-6 h-6 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
+                    <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-600 text-xs font-bold text-white">
                       P
                     </div>
                   ),
                 },
                 {
-                  type: "apple",
-                  label: "Apple Pay",
-                  icon: <Smartphone className="w-6 h-6" />,
+                  type: 'apple',
+                  label: 'Apple Pay',
+                  icon: <Smartphone className="h-6 w-6" />,
                 },
                 {
-                  type: "google",
-                  label: "Google Pay",
+                  type: 'google',
+                  label: 'Google Pay',
                   icon: (
-                    <div className="w-6 h-6 bg-green-500 rounded text-white text-xs flex items-center justify-center font-bold">
+                    <div className="flex h-6 w-6 items-center justify-center rounded bg-green-500 text-xs font-bold text-white">
                       G
                     </div>
                   ),
@@ -162,10 +161,10 @@ const PaymentPage = () => {
                   key={option.type}
                   type="button"
                   onClick={() => setSelectedType(option.type)}
-                  className={`p-4 border-2 rounded-lg flex flex-col items-center space-y-2 transition-colors cursor-pointer ${
+                  className={`flex cursor-pointer flex-col items-center space-y-2 rounded-lg border-2 p-4 transition-colors ${
                     selectedType === option.type
-                      ? "border-blue-500 bg-blue-50 text-blue-600"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? 'border-blue-500 bg-blue-50 text-blue-600'
+                      : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   {option.icon}
@@ -176,10 +175,10 @@ const PaymentPage = () => {
           </div>
 
           <form onSubmit={handleSubmit}>
-            {selectedType === "credit" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {selectedType === 'credit' && (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     Cardholder Name
                   </label>
                   <input
@@ -192,13 +191,13 @@ const PaymentPage = () => {
                       })
                     }
                     placeholder="John Doe"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     Card Number
                   </label>
                   <input
@@ -207,18 +206,18 @@ const PaymentPage = () => {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        cardNumber: e.target.value.replace(/\s/g, ""),
+                        cardNumber: e.target.value.replace(/\s/g, ''),
                       })
                     }
                     placeholder="1234 5678 9012 3456"
                     maxLength={16}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     Expiry Date
                   </label>
                   <input
@@ -229,13 +228,13 @@ const PaymentPage = () => {
                     }
                     placeholder="MM/YY"
                     maxLength={5}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     CVV
                   </label>
                   <input
@@ -246,16 +245,16 @@ const PaymentPage = () => {
                     }
                     placeholder="123"
                     maxLength={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
               </div>
             )}
 
-            {selectedType === "paypal" && (
+            {selectedType === 'paypal' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   PayPal Email
                 </label>
                 <input
@@ -265,23 +264,23 @@ const PaymentPage = () => {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   placeholder="user@example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
             )}
 
-            {(selectedType === "apple" || selectedType === "google") && (
-              <div className="text-center py-8">
-                <p className="text-gray-600 mb-4">
-                  {selectedType === "apple" ? "Apple Pay" : "Google Pay"} will
+            {(selectedType === 'apple' || selectedType === 'google') && (
+              <div className="py-8 text-center">
+                <p className="mb-4 text-gray-600">
+                  {selectedType === 'apple' ? 'Apple Pay' : 'Google Pay'} will
                   be set up using your device's secure authentication.
                 </p>
                 <p className="text-sm text-gray-500">
-                  You'll be able to use{" "}
-                  {selectedType === "apple"
-                    ? "Touch ID, Face ID, or your device passcode"
-                    : "fingerprint, face unlock, or PIN"}{" "}
+                  You'll be able to use{' '}
+                  {selectedType === 'apple'
+                    ? 'Touch ID, Face ID, or your device passcode'
+                    : 'fingerprint, face unlock, or PIN'}{' '}
                   to complete payments.
                 </p>
               </div>
@@ -290,14 +289,14 @@ const PaymentPage = () => {
             <div className="mt-6 flex space-x-4">
               <button
                 type="submit"
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors cursor-pointer"
+                className="flex-1 cursor-pointer rounded-lg bg-blue-600 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
               >
                 Add Payment Method
               </button>
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors cursor-pointer"
+                className="flex-1 cursor-pointer rounded-lg bg-gray-200 py-3 font-semibold text-gray-800 transition-colors hover:bg-gray-300"
               >
                 Cancel
               </button>
@@ -306,13 +305,13 @@ const PaymentPage = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {paymentMethods.map((method) => (
           <div
             key={method.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
           >
-            <div className="flex items-start justify-between mb-4">
+            <div className="mb-4 flex items-start justify-between">
               <div className="flex items-center">
                 {getPaymentIcon(method.type)}
                 <div className="ml-3">
@@ -320,7 +319,7 @@ const PaymentPage = () => {
                     {method.name}
                   </span>
                   {method.isDefault && (
-                    <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                    <span className="ml-2 rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">
                       Default
                     </span>
                   )}
@@ -330,23 +329,23 @@ const PaymentPage = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={() => deletePaymentMethod(method.id)}
-                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                  className="cursor-pointer rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
-            <div className="text-gray-600 mb-4">
+            <div className="mb-4 text-gray-600">
               <p>{method.details}</p>
             </div>
 
             {!method.isDefault && (
               <button
                 onClick={() => setDefaultPaymentMethod(method.id)}
-                className="flex items-center text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+                className="flex cursor-pointer items-center font-medium text-blue-600 hover:text-blue-700"
               >
-                <Check className="w-4 h-4 mr-1" />
+                <Check className="mr-1 h-4 w-4" />
                 Set as Default
               </button>
             )}

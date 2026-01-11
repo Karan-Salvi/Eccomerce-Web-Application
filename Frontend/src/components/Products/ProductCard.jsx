@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Star, Heart, ShoppingCart, Eye } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Star, Heart, ShoppingCart, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import {
   useAddToCartMutation,
   useAddToWishlistMutation,
-} from "../../store/api/authApi";
-import { useSelector } from "react-redux";
+} from '../../store/api/authApi';
+import { useSelector } from 'react-redux';
 // import ProductDetail from "../../components/Product";
 
 export const ProductCard = ({ product, setSelectedProduct }) => {
@@ -13,7 +13,7 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const isInWishlist = user?.data?.wishlist?.some(
@@ -24,30 +24,18 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
     }
   }, [user, product._id]);
 
-  console.log("user : ", product);
-
   const discount = product.originalPrice
     ? Math.round(
         ((product.originalPrice - product.price) / product.originalPrice) * 100
       )
     : 0;
 
-  // console.log("Product individual", product);
-
   const [addToWishlist] = useAddToWishlistMutation();
   const [addToCart] = useAddToCartMutation();
 
-  console.log(
-    "Product individual detail size : ",
-    Array.isArray(product?.sizes)
-  );
-  console.log(
-    "Product individual detail colors : ",
-    Array.isArray(product?.colors)
-  );
   return (
     <div
-      className="group relative bg-white rounded-sm shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+      className="group relative overflow-hidden rounded-sm border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -56,23 +44,23 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
         <img
           src={product?.images[0]?.url}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1">
           {product.featured && (
-            <span className="px-2 py-1 bg-purple-500 text-white text-xs font-medium rounded-md">
+            <span className="rounded-md bg-purple-500 px-2 py-1 text-xs font-medium text-white">
               Featured
             </span>
           )}
           {discount > 0 && (
-            <span className="px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-md">
+            <span className="rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white">
               -{discount}%
             </span>
           )}
           {!product.inStock && (
-            <span className="px-2 py-1 bg-gray-500 text-white text-xs font-medium rounded-md">
+            <span className="rounded-md bg-gray-500 px-2 py-1 text-xs font-medium text-white">
               Out of Stock
             </span>
           )}
@@ -86,32 +74,31 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
               productId: product._id,
             });
           }}
-          className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-200 cursor-pointer ${
+          className={`absolute top-3 right-3 cursor-pointer rounded-full p-2 transition-all duration-200 ${
             isWishlisted
-              ? "bg-red-500 text-white"
-              : "bg-white/80 hover:bg-white text-gray-600 hover:text-red-500"
+              ? 'bg-red-500 text-white'
+              : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
           }`}
         >
-          <Heart className={`h-4 w-4 ${isWishlisted ? "fill-current" : ""}`} />
+          <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
         </button>
 
         {/* Quick Actions */}
         <div
-          className={`absolute bottom-3 left-3 right-3 flex gap-2 transform transition-all duration-300 ${
-            isHovered ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+          className={`absolute right-3 bottom-3 left-3 flex transform gap-2 transition-all duration-300 ${
+            isHovered ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
           }`}
         >
           <button
             onClick={() => {
-              console.log("Add to cart is clicked");
               addToCart({
                 productId: product._id,
                 quantity: 1,
-                size: Array.isArray(product?.sizes) ? product.sizes[0] : "",
-                color: Array.isArray(product?.colors) ? product.colors[0] : "",
+                size: Array.isArray(product?.sizes) ? product.sizes[0] : '',
+                color: Array.isArray(product?.colors) ? product.colors[0] : '',
               });
             }}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
           >
             <ShoppingCart className="h-4 w-4" />
             Add to Cart
@@ -120,7 +107,7 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
             onClick={() => {
               navigate(`/product/${product._id}`);
             }}
-            className="bg-white/90 hover:bg-white text-gray-700 p-2 rounded-lg transition-colors cursor-pointer"
+            className="cursor-pointer rounded-lg bg-white/90 p-2 text-gray-700 transition-colors hover:bg-white"
           >
             <Eye className="h-4 w-4" />
           </button>
@@ -129,22 +116,22 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
 
       {/* Product Info */}
       <div className="p-4">
-        <div className="flex items-start justify-between mb-2">
+        <div className="mb-2 flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-base text-nowrap font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+            <h3 className="mb-1 line-clamp-2 text-base font-semibold text-nowrap text-gray-900 transition-colors group-hover:text-blue-600">
               {product.name}
             </h3>
-            <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-500 mb-1">{product.brand}</p>
-              <div className="flex items-center gap-1 mb-1">
+            <div className="flex items-center justify-between">
+              <p className="mb-1 text-sm text-gray-500">{product.brand}</p>
+              <div className="mb-1 flex items-center gap-1">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
                       className={`h-4 w-4 ${
                         i < Math.floor(product?.ratings)
-                          ? "text-yellow-400 fill-current"
-                          : "text-gray-300"
+                          ? 'fill-current text-yellow-400'
+                          : 'text-gray-300'
                       }`}
                     />
                   ))}
@@ -160,7 +147,7 @@ export const ProductCard = ({ product, setSelectedProduct }) => {
         {/* Rating */}
 
         {/* Price */}
-        <div className="flex items-center gap-2 mb-1">
+        <div className="mb-1 flex items-center gap-2">
           <span className="text-xl font-bold text-gray-900">
             {product.price.toFixed(2)}
           </span>

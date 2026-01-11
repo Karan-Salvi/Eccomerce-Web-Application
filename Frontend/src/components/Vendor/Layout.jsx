@@ -1,23 +1,23 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { BarChart3, Package, Plus, Store, Menu, X } from "lucide-react";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { BarChart3, Package, Plus, Store, Menu, X } from 'lucide-react';
 
 const sidebarItems = [
-  { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-  { id: "products", label: "Products", icon: Package },
-  { id: "add-product", label: "Add Product", icon: Plus },
+  { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+  { id: 'products', label: 'Products', icon: Package },
+  { id: 'add-product', label: 'Add Product', icon: Plus },
 ];
 
 const Layout = ({ children, currentView, onViewChange }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="bg-background flex min-h-screen">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          className="bg-opacity-50 fixed inset-0 z-40 bg-black lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -25,15 +25,15 @@ const Layout = ({ children, currentView, onViewChange }) => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 max-h-screen",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          'fixed inset-y-0 left-0 z-50 max-h-screen w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out lg:static lg:inset-0 lg:translate-x-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center justify-between px-6 border-b">
+          <div className="flex h-16 items-center justify-between border-b px-6">
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold brand_name ">CartLoop</span>
+              <span className="brand_name text-xl font-bold">CartLoop</span>
             </div>
             <Button
               variant="ghost"
@@ -54,10 +54,10 @@ const Layout = ({ children, currentView, onViewChange }) => {
               return (
                 <Button
                   key={item.id}
-                  variant={isActive ? "default" : "ghost"}
+                  variant={isActive ? 'default' : 'ghost'}
                   className={cn(
-                    "w-full justify-start gap-3 h-12",
-                    isActive && "bg-primary text-primary-foreground"
+                    'h-12 w-full justify-start gap-3',
+                    isActive && 'bg-primary text-primary-foreground'
                   )}
                   onClick={() => {
                     onViewChange(item.id);
@@ -74,8 +74,8 @@ const Layout = ({ children, currentView, onViewChange }) => {
           {/* Footer */}
           <div className="border-t p-4">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-sm font-medium text-primary-foreground">
+              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
+                <span className="text-primary-foreground text-sm font-medium">
                   JD
                 </span>
               </div>
@@ -89,9 +89,9 @@ const Layout = ({ children, currentView, onViewChange }) => {
       </aside>
 
       {/* Main content */}
-      <div className="lg:ml-6 max-h-screen overflow-y-scroll w-full">
+      <div className="max-h-screen w-full overflow-y-scroll lg:ml-6">
         {/* Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
+        <header className="bg-background sticky top-0 z-30 flex h-16 items-center gap-4 border-b px-6">
           <Button
             variant="ghost"
             size="sm"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Star,
   Heart,
@@ -11,20 +11,16 @@ import {
   Plus,
   Minus,
   Check,
-  ThumbsUp,
-  Share2,
-  MessageCircle,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { reviews } from "../../data/reviews";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   useAddToCartMutation,
   useAddToWishlistMutation,
-} from "../../store/api/authApi";
-import { useSelector } from "react-redux";
-import Share from "../Share/Share";
-import PlaceOrderButton from "./PlaceOrderButton";
+} from '../../store/api/authApi';
+import { useSelector } from 'react-redux';
+import Share from '../Share/Share';
+import PlaceOrderButton from './PlaceOrderButton';
 
 const ProductDetail = ({ product }) => {
   const location = useLocation();
@@ -33,8 +29,8 @@ const ProductDetail = ({ product }) => {
     location.pathname +
     location.search +
     location.hash;
-  console.log("Product individual detail : ", product);
-  const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
+
+  const { user } = useSelector((state) => state.auth);
 
   const isInCart = user?.data?.cart?.some(
     (item) => item.productId._id === product._id
@@ -44,21 +40,19 @@ const ProductDetail = ({ product }) => {
     (item) => item._id === product._id
   );
 
-  console.log("isInCart : ", isInWishlist);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState("orange"); // useState(product.colors?.[0] || "");
-  const [selectedSize, setSelectedSize] = useState("sm"); //useState(product.sizes?.[0] || "");
+  const [selectedColor, setSelectedColor] = useState('orange'); // useState(product.colors?.[0] || "");
+  const [selectedSize, setSelectedSize] = useState('sm'); //useState(product.sizes?.[0] || "");
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(isInWishlist || false);
-  const [activeTab, setActiveTab] = useState("description");
-  const [showAllReviews, setShowAllReviews] = useState(false);
+  const [activeTab, setActiveTab] = useState('description');
 
   const order = {
     shippingInfo: {
-      address: "123 Main Street",
-      city: "Mumbai",
-      state: "Maharashtra",
-      country: "India",
+      address: '123 Main Street',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      country: 'India',
       pinCode: 400001,
       phoneNo: 9876543210,
     },
@@ -66,23 +60,23 @@ const ProductDetail = ({ product }) => {
       {
         price: 499,
         quantity: 2,
-        product: "686b37d27944536702caef38",
+        product: '686b37d27944536702caef38',
       },
       {
         price: 799,
         quantity: 1,
-        product: "686b37df7944536702caef39",
+        product: '686b37df7944536702caef39',
       },
     ],
     itemsPrice: 1797,
     taxPrice: 150,
     shippingPrice: 50,
-    paymentMethod: "stripe",
+    paymentMethod: 'stripe',
   };
 
   const navigate = useNavigate();
 
-  const productReviews = [];
+  // const productReviews = [];
   const discount = product.originalPrice
     ? Math.round(
         ((product.originalPrice - product.price) / product.originalPrice) * 100
@@ -97,21 +91,21 @@ const ProductDetail = ({ product }) => {
 
   const getColorStyle = (color) =>
     ({
-      white: "#ffffff",
-      black: "#000000",
-      blue: "#3b82f6",
-      red: "#ef4444",
-      gray: "#6b7280",
-      brown: "#92400e",
-      tan: "#d2b48c",
-      silver: "#c0c0c0",
-      gold: "#ffd700",
-      "rose gold": "#e8b4b8",
-      tortoise: "#8b4513",
-    }[color.toLowerCase()] || "#9ca3af");
+      white: '#ffffff',
+      black: '#000000',
+      blue: '#3b82f6',
+      red: '#ef4444',
+      gray: '#6b7280',
+      brown: '#92400e',
+      tan: '#d2b48c',
+      silver: '#c0c0c0',
+      gold: '#ffd700',
+      'rose gold': '#e8b4b8',
+      tortoise: '#8b4513',
+    })[color.toLowerCase()] || '#9ca3af';
 
-  const renderStars = (rating, size = "md") => {
-    const sizeClass = size === "sm" ? "h-4 w-4" : "h-5 w-5";
+  const renderStars = (rating, size = 'md') => {
+    const sizeClass = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
     return (
       <div className="flex items-center">
         {[...Array(5)].map((_, i) => (
@@ -119,8 +113,8 @@ const ProductDetail = ({ product }) => {
             key={i}
             className={`${sizeClass} ${
               i < Math.floor(rating)
-                ? "text-yellow-400 fill-current"
-                : "text-gray-300"
+                ? 'fill-current text-yellow-400'
+                : 'text-gray-300'
             }`}
           />
         ))}
@@ -136,12 +130,12 @@ const ProductDetail = ({ product }) => {
       {/* Header */}
 
       <div className="">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <button
             onClick={() => {
-              navigate("/products");
+              navigate('/products');
             }}
-            className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors cursor-pointer"
+            className="flex cursor-pointer items-center gap-2 text-gray-600 transition-colors hover:text-orange-600"
           >
             <ChevronLeft className="h-5 w-5" />
             <span>Back to Products</span>
@@ -149,15 +143,15 @@ const ProductDetail = ({ product }) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="aspect-square bg-white rounded-2xl overflow-hidden shadow-lg">
+            <div className="aspect-square overflow-hidden rounded-2xl bg-white shadow-lg">
               <img
                 src={images[selectedImage].url}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
             </div>
 
@@ -167,16 +161,16 @@ const ProductDetail = ({ product }) => {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                    className={`h-20 w-20 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 transition-all ${
                       selectedImage === index
-                        ? "border-blue-500 ring-2 ring-blue-200"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? 'border-blue-500 ring-2 ring-blue-200'
+                        : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <img
                       src={image.url}
                       alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </button>
                 ))}
@@ -187,28 +181,28 @@ const ProductDetail = ({ product }) => {
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm text-blue-600 font-medium">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="text-sm font-medium text-blue-600">
                   {product.brand}
                 </span>
                 {product.featured && (
-                  <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                  <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
                     Featured
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              <h1 className="mb-4 text-3xl font-bold text-gray-900">
                 {product.name}
               </h1>
 
-              <div className="flex items-center gap-4 mb-4">
+              <div className="mb-4 flex items-center gap-4">
                 {renderStars(product.rating)}
                 <span className="text-sm text-gray-600">
                   {product.rating} ({product.reviews?.length} reviews)
                 </span>
               </div>
 
-              <div className="flex items-center gap-3 mb-6">
+              <div className="mb-6 flex items-center gap-3">
                 <span className="text-3xl font-bold text-gray-900">
                   ₹{product.price.toFixed(2)}
                 </span>
@@ -217,14 +211,14 @@ const ProductDetail = ({ product }) => {
                     <span className="text-xl text-gray-500 line-through">
                       {product.originalPrice.toFixed(2)}
                     </span>
-                    <span className="px-2 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-full">
+                    <span className="rounded-full bg-red-100 px-2 py-1 text-sm font-medium text-red-700">
                       Save {discount}%
                     </span>
                   </>
                 )}
               </div>
 
-              <p className="text-gray-600 leading-relaxed">
+              <p className="leading-relaxed text-gray-600">
                 {product.description}
               </p>
             </div>
@@ -234,7 +228,7 @@ const ProductDetail = ({ product }) => {
               {/* Colors */}
               {product.colors && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-3">
+                  <h3 className="mb-3 text-sm font-medium text-gray-900">
                     Color: <span className="font-normal">{selectedColor}</span>
                   </h3>
                   <div className="flex gap-3">
@@ -242,16 +236,16 @@ const ProductDetail = ({ product }) => {
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
-                        className={`w-10 h-10 rounded-full border-2 transition-all cursor-pointer ${
+                        className={`h-10 w-10 cursor-pointer rounded-full border-2 transition-all ${
                           selectedColor === color
-                            ? "border-blue-500 ring-2 ring-blue-200"
-                            : "border-gray-300 hover:border-gray-400"
+                            ? 'border-blue-500 ring-2 ring-blue-200'
+                            : 'border-gray-300 hover:border-gray-400'
                         }`}
                         style={{ backgroundColor: getColorStyle(color) }}
                         title={color}
                       >
-                        {color.toLowerCase() === "white" && (
-                          <div className="w-full h-full rounded-full border border-gray-200" />
+                        {color.toLowerCase() === 'white' && (
+                          <div className="h-full w-full rounded-full border border-gray-200" />
                         )}
                       </button>
                     ))}
@@ -262,18 +256,18 @@ const ProductDetail = ({ product }) => {
               {/* Sizes */}
               {product.sizes && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-3">
+                  <h3 className="mb-3 text-sm font-medium text-gray-900">
                     Size: <span className="font-normal">{selectedSize}</span>
                   </h3>
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size) => (
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
-                        className={`px-4 py-2 border rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                        className={`cursor-pointer rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
                           selectedSize === size
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-gray-300 hover:border-gray-400 text-gray-700"
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-300 text-gray-700 hover:border-gray-400'
                         }`}
                       >
                         {size}
@@ -285,14 +279,14 @@ const ProductDetail = ({ product }) => {
 
               {/* Quantity */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">
+                <h3 className="mb-3 text-sm font-medium text-gray-900">
                   Quantity
                 </h3>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center border border-gray-300 rounded-lg">
+                  <div className="flex items-center rounded-lg border border-gray-300">
                     <button
                       onClick={() => handleQuantityChange(-1)}
-                      className="p-2 hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="cursor-pointer p-2 transition-colors hover:bg-gray-50"
                       disabled={quantity <= 1}
                     >
                       <Minus className="h-4 w-4" />
@@ -300,13 +294,13 @@ const ProductDetail = ({ product }) => {
                     <span className="px-4 py-2 font-medium">{quantity}</span>
                     <button
                       onClick={() => handleQuantityChange(1)}
-                      className="p-2 hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="cursor-pointer p-2 transition-colors hover:bg-gray-50"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
                   <span className="text-sm text-gray-600">
-                    {product.inStock ? "In Stock" : "Out of Stock"}
+                    {product.inStock ? 'In Stock' : 'Out of Stock'}
                   </span>
                 </div>
               </div>
@@ -318,7 +312,6 @@ const ProductDetail = ({ product }) => {
                 <button
                   disabled={!product.inStock || isInCart}
                   onClick={() => {
-                    console.log("Add to cart is clicked");
                     addToCart({
                       productId: product._id,
                       quantity: quantity,
@@ -326,10 +319,10 @@ const ProductDetail = ({ product }) => {
                       color: selectedColor,
                     });
                   }}
-                  className="flex-1 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-orange-600 px-6 py-3 font-medium text-white transition-colors hover:bg-orange-700 disabled:bg-orange-400"
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {isInCart ? "Already Added to Cart" : "Add to Cart"}
+                  {isInCart ? 'Already Added to Cart' : 'Add to Cart'}
                 </button>
                 <button
                   onClick={() => {
@@ -338,17 +331,17 @@ const ProductDetail = ({ product }) => {
                       productId: product._id,
                     });
                   }}
-                  className={`p-3 rounded-lg border transition-all cursor-pointer ${
+                  className={`cursor-pointer rounded-lg border p-3 transition-all ${
                     isWishlisted
-                      ? "border-red-300 bg-red-50 text-red-600"
-                      : "border-gray-300 hover:border-gray-400 text-gray-600"
+                      ? 'border-red-300 bg-red-50 text-red-600'
+                      : 'border-gray-300 text-gray-600 hover:border-gray-400'
                   }`}
                 >
                   <Heart
-                    className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`}
+                    className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`}
                   />
                 </button>
-                <button className="p-3 rounded-lg border border-gray-300 hover:border-gray-400 text-gray-600 transition-colors cursor-pointer">
+                <button className="cursor-pointer rounded-lg border border-gray-300 p-3 text-gray-600 transition-colors hover:border-gray-400">
                   <Share url={fullUrl} />
                   {/* <Share2 className="h-5 w-5" /> */}
                 </button>
@@ -356,21 +349,21 @@ const ProductDetail = ({ product }) => {
 
               <PlaceOrderButton order={order} />
 
-              <button className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-lg font-medium transition-colors cursor-pointer">
+              <button className="w-full cursor-pointer rounded-lg bg-gray-900 px-6 py-3 font-medium text-white transition-colors hover:bg-gray-800">
                 Buy Now
               </button>
             </div>
 
             {/* Shipping Info */}
             {product.shippingInfo && (
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+              <div className="space-y-3 rounded-lg bg-gray-50 p-4">
                 <div className="flex items-center gap-3">
                   <Truck className="h-5 w-5 text-green-600" />
                   <div>
                     <p className="font-medium text-gray-900">
                       {product.shippingInfo.freeShipping
-                        ? "Free Shipping"
-                        : "Shipping Available"}
+                        ? 'Free Shipping'
+                        : 'Shipping Available'}
                     </p>
                     <p className="text-sm text-gray-600">
                       Estimated delivery: {product.shippingInfo.estimatedDays}
@@ -404,14 +397,14 @@ const ProductDetail = ({ product }) => {
         <div className="mt-16">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
-              {["description", "specifications", "reviews"].map((tab) => (
+              {['description', 'specifications', 'reviews'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer ${
+                  className={`cursor-pointer border-b-2 px-1 py-4 text-sm font-medium transition-colors ${
                     activeTab === tab
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -421,20 +414,20 @@ const ProductDetail = ({ product }) => {
           </div>
 
           <div className="py-8">
-            {activeTab === "description" && (
+            {activeTab === 'description' && (
               <div className="prose max-w-none">
-                <p className="text-gray-600 leading-relaxed mb-6">
+                <p className="mb-6 leading-relaxed text-gray-600">
                   {product?.description}
                 </p>
                 {product?.features && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900">
                       Key Features
                     </h3>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
                       {product?.features?.map((feature, index) => (
                         <li key={index} className="flex items-center gap-2">
-                          <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+                          <Check className="h-5 w-5 flex-shrink-0 text-green-600" />
                           <span className="text-gray-700">{feature}</span>
                         </li>
                       ))}
@@ -444,12 +437,12 @@ const ProductDetail = ({ product }) => {
               </div>
             )}
 
-            {activeTab === "specifications" && product?.specifications && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {activeTab === 'specifications' && product?.specifications && (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {Object.entries(product.specifications).map(([key, value]) => (
                   <div
                     key={key}
-                    className="flex justify-between py-3 border-b border-gray-200"
+                    className="flex justify-between border-b border-gray-200 py-3"
                   >
                     <span className="font-medium text-gray-900">{key}</span>
                     <span className="text-gray-600">{value}</span>
@@ -458,21 +451,21 @@ const ProductDetail = ({ product }) => {
               </div>
             )}
 
-            {activeTab === "reviews" && (
+            {activeTab === 'reviews' && (
               <div className="space-y-8">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
                       Customer Reviews
                     </h3>
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="mt-2 flex items-center gap-4">
                       {renderStars(product.ratings)}
                       <span className="text-sm text-gray-600">
                         Based on {product.reviews?.length || 0} reviews
                       </span>
                     </div>
                   </div>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer">
+                  <button className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700">
                     Write a Review
                   </button>
                 </div>
@@ -520,47 +513,47 @@ const ProductDetail = ({ product }) => {
 
                       <div
                         key={index}
-                        className="bg-white rounded-md p-5 shadow-sm border"
+                        className="rounded-md border bg-white p-5 shadow-sm"
                       >
                         <div className="flex items-start gap-4">
                           <img
                             src={`/images/profile.png`}
                             alt={review?.user?.name}
-                            className="w-12 h-12 rounded-full object-cover"
+                            className="h-12 w-12 rounded-full object-cover"
                           />
                           <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="mb-2 flex items-center justify-between">
                               <div>
                                 <h4 className="font-medium text-gray-900">
-                                  {review?.user?.name || "User Name"}
+                                  {review?.user?.name || 'User Name'}
                                 </h4>
-                                <div className="flex items-center gap-2 mt-1">
-                                  {renderStars(review?.rating, "sm")}
+                                <div className="mt-1 flex items-center gap-2">
+                                  {renderStars(review?.rating, 'sm')}
                                   <span className="text-sm text-gray-500">
                                     {/* {review.date || "Date"} */}
                                   </span>
                                   {review.verified && (
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                                    <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">
                                       Verified Purchase
                                     </span>
                                   )}
                                 </div>
                               </div>
                             </div>
-                            <h5 className="font-medium text-gray-900 mb-2">
+                            <h5 className="mb-2 font-medium text-gray-900">
                               {review.title}
                             </h5>
-                            <p className="text-gray-600 mb-4">
+                            <p className="mb-4 text-gray-600">
                               {review.comment}
                             </p>
                             {review.images && (
-                              <div className="flex gap-2 mb-4">
+                              <div className="mb-4 flex gap-2">
                                 {review.images.map((image, index) => (
                                   <img
                                     key={index}
                                     src={image}
                                     alt={`Review ${index + 1}`}
-                                    className="w-16 h-16 rounded-lg object-cover"
+                                    className="h-16 w-16 rounded-lg object-cover"
                                   />
                                 ))}
                               </div>

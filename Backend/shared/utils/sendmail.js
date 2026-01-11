@@ -1,8 +1,8 @@
-import { createTransport } from "nodemailer";
+import { createTransport } from 'nodemailer';
 
 const sendEmail = async ({ email, subject, message }) => {
   const transporter = await createTransport({
-    service: "gmail",
+    service: 'gmail',
     host: process.env.HOST,
     port: process.env.EMAIL_PORT,
     secure: false,
@@ -13,7 +13,7 @@ const sendEmail = async ({ email, subject, message }) => {
   });
 
   const mailOptions = {
-    from: "",
+    from: '',
     to: email,
     subject,
     text: message,

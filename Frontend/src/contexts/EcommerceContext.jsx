@@ -1,16 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import {
-  mockProducts,
-  mockAddresses,
-  mockPaymentMethods,
-} from "../data/mockData1";
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { mockAddresses, mockPaymentMethods } from '../data/mockData1';
 
 const EcommerceContext = createContext(undefined);
 
 export const useEcommerce = () => {
   const context = useContext(EcommerceContext);
   if (!context) {
-    throw new Error("useEcommerce must be used within an EcommerceProvider");
+    throw new Error('useEcommerce must be used within an EcommerceProvider');
   }
   return context;
 };
@@ -20,7 +16,7 @@ export const EcommerceProvider = ({ children }) => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [addresses, setAddresses] = useState(mockAddresses);
   const [paymentMethods, setPaymentMethods] = useState(mockPaymentMethods);
-  const [currentPage, setCurrentPage] = useState("cart");
+  const [currentPage, setCurrentPage] = useState('cart');
 
   // Cart functions
   const addToCart = (product) => {

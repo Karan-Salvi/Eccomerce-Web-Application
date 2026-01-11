@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
-import { mockProducts, generateAnalytics } from "../data/mockData";
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { mockProducts, generateAnalytics } from '../data/mockData';
 
 const VendorContext = createContext(undefined);
 
 export const useVendor = () => {
   const context = useContext(VendorContext);
   if (!context) {
-    throw new Error("useVendor must be used within a VendorProvider");
+    throw new Error('useVendor must be used within a VendorProvider');
   }
   return context;
 };

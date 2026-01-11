@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
-import logger from "#infra/logger/logger.js";
-import dotenv from "dotenv";
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-dotenv.config({ path: "./.env" });
+import logger from '#infra/logger/logger.js';
+
+dotenv.config({ path: './.env' });
 
 const DB_connect = async () => {
   try {
@@ -11,13 +12,11 @@ const DB_connect = async () => {
     );
 
     if (!connectionInstance) {
-      logger.warn("MongoDB connection failed");
+      logger.warn('MongoDB connection failed');
     }
-    logger.info(
-      "MongoDB connected successfully : " + connectionInstance.connection.host
-    );
+    logger.info('MongoDB connected successfully : ' + connectionInstance.connection.host);
   } catch (error) {
-    logger.error("MongoDB connection failed due to some error :", error);
+    logger.error('MongoDB connection failed due to some error :', error);
   }
 };
 

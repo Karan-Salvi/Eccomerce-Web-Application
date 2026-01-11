@@ -1,22 +1,22 @@
-import React, { useState } from "react";
-import { ProductCard } from "./ProductCard";
-import ProductDetail from "../../components/Product/ProductDetail";
-import { Pagination } from "./Pagination";
+import React, { useState } from 'react';
+import { ProductCard } from './ProductCard';
+import ProductDetail from '../../components/Product/ProductDetail';
+import { Pagination } from './Pagination';
 
 export const ProductGrid = ({ products, loading }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
         {[...Array(12)].map((_, i) => (
           <div
             key={i}
-            className="bg-white rounded-xl shadow-sm overflow-hidden animate-pulse"
+            className="animate-pulse overflow-hidden rounded-xl bg-white shadow-sm"
           >
             <div className="aspect-square bg-gray-200" />
-            <div className="p-4 space-y-3">
-              <div className="h-4 bg-gray-200 rounded w-3/4" />
-              <div className="h-3 bg-gray-200 rounded w-1/2" />
-              <div className="h-4 bg-gray-200 rounded w-1/4" />
+            <div className="space-y-3 p-4">
+              <div className="h-4 w-3/4 rounded bg-gray-200" />
+              <div className="h-3 w-1/2 rounded bg-gray-200" />
+              <div className="h-4 w-1/4 rounded bg-gray-200" />
             </div>
           </div>
         ))}
@@ -26,8 +26,8 @@ export const ProductGrid = ({ products, loading }) => {
 
   if (products?.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-gray-400 mb-4">
+      <div className="py-12 text-center">
+        <div className="mb-4 text-gray-400">
           <svg
             className="mx-auto h-12 w-12"
             fill="none"
@@ -42,7 +42,7 @@ export const ProductGrid = ({ products, loading }) => {
             />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <h3 className="mb-2 text-lg font-medium text-gray-900">
           No products found
         </h3>
         <p className="text-gray-500">
@@ -55,7 +55,6 @@ export const ProductGrid = ({ products, loading }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   if (selectedProduct) {
-    console.log("Selected Product:", selectedProduct);
     return (
       <ProductDetail
         product={selectedProduct}
@@ -64,11 +63,9 @@ export const ProductGrid = ({ products, loading }) => {
     );
   }
 
-  console.log("Products in the grid :", products);
-
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3  gap-6">
+      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
         {products?.map((product) => (
           <ProductCard
             key={product._id}

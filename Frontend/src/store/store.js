@@ -1,9 +1,9 @@
-import { configureStore } from "@reduxjs/toolkit";
-import rootRedcuer from "./rootRedcuer";
-import { authApi } from "./api/authApi";
-import { productApi } from "./api/productApi";
-import { orderApi } from "./api/orderApi";
-import { purchaseApi } from "./api/purchaseApi";
+import { configureStore } from '@reduxjs/toolkit';
+import rootRedcuer from './rootRedcuer';
+import { authApi } from './api/authApi';
+import { productApi } from './api/productApi';
+import { orderApi } from './api/orderApi';
+import { purchaseApi } from './api/purchaseApi';
 
 export const appStore = configureStore({
   reducer: rootRedcuer,

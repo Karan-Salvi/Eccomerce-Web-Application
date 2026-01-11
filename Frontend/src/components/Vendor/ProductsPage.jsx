@@ -1,14 +1,14 @@
-import React, { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useMemo } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,16 +18,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { ProductCard } from "@/components/ui/product-card";
-import { useVendor } from "@/contexts/VendorContext";
-import { Search, Filter, Plus, Package } from "lucide-react";
+} from '@/components/ui/alert-dialog';
+import { ProductCard } from '@/components/ui/product-card';
+import { useVendor } from '@/contexts/VendorContext';
+import { Search, Filter, Plus, Package } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ProductsPage = ({ onAddProduct, onEditProduct }) => {
   const { products, deleteProduct } = useVendor();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [deleteProduct_id, setDeleteProductId] = useState(null);
 
   const categories = useMemo(() => {
@@ -41,9 +42,9 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus =
-        statusFilter === "all" || product.status === statusFilter;
+        statusFilter === 'all' || product.status === statusFilter;
       const matchesCategory =
-        categoryFilter === "all" || product.category === categoryFilter;
+        categoryFilter === 'all' || product.category === categoryFilter;
 
       return matchesSearch && matchesStatus && matchesCategory;
     });
@@ -58,8 +59,8 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
       deleteProduct(deleteProduct_id);
       setDeleteProductId(null);
       toast({
-        title: "Product deleted",
-        description: "The product has been successfully deleted.",
+        title: 'Product deleted',
+        description: 'The product has been successfully deleted.',
       });
     }
   };
@@ -72,9 +73,9 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
   };
 
   const getStatusStats = () => {
-    const active = products.filter((p) => p.status === "active").length;
-    const inactive = products.filter((p) => p.status === "inactive").length;
-    const draft = products.filter((p) => p.status === "draft").length;
+    const active = products.filter((p) => p.status === 'active').length;
+    const inactive = products.filter((p) => p.status === 'inactive').length;
+    const draft = products.filter((p) => p.status === 'draft').length;
     return { active, inactive, draft };
   };
 
@@ -91,7 +92,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
           </p>
         </div>
         <Button onClick={onAddProduct} className="md:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           Add New Product
         </Button>
       </div>
@@ -103,7 +104,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
             <CardTitle className="text-sm font-medium">
               Total Products
             </CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <Package className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{products.length}</div>
@@ -143,7 +144,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
         <CardContent className="p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <Input
                 placeholder="Search products..."
                 value={searchTerm}
@@ -154,7 +155,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
             <div className="flex gap-2">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[140px]">
-                  <Filter className="h-4 w-4 mr-2" />
+                  <Filter className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -198,18 +199,18 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
       ) : (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Package className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No products found</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              {searchTerm || statusFilter !== "all" || categoryFilter !== "all"
-                ? "Try adjusting your search terms or filters."
-                : "Get started by adding your first product."}
+            <Package className="text-muted-foreground mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-lg font-semibold">No products found</h3>
+            <p className="text-muted-foreground mb-4 text-center">
+              {searchTerm || statusFilter !== 'all' || categoryFilter !== 'all'
+                ? 'Try adjusting your search terms or filters.'
+                : 'Get started by adding your first product.'}
             </p>
             {!searchTerm &&
-              statusFilter === "all" &&
-              categoryFilter === "all" && (
+              statusFilter === 'all' &&
+              categoryFilter === 'all' && (
                 <Button onClick={onAddProduct}>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   Add Your First Product
                 </Button>
               )}

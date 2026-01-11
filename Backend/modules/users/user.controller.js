@@ -1,10 +1,12 @@
-import catchAsyncErrors from "#shared/middlewares/catchAsyncErrors.js";
-import User from "#modules/users/user.model.js";
-import sendEmail from "#shared/utils/sendmail.js";
-import crypto from "crypto";
-import logger from "#infra/logger/logger.js";
-import mongoose from "mongoose";
-import Product from "#modules/products/product.model.js";
+import crypto from 'crypto';
+
+import mongoose from 'mongoose';
+
+import catchAsyncErrors from '#shared/middlewares/catchAsyncErrors.js';
+import User from '#modules/users/user.model.js';
+import sendEmail from '#shared/utils/sendmail.js';
+import logger from '#infra/logger/logger.js';
+import Product from '#modules/products/product.model.js';
 
 // Register or Sign up new User
 export const registerUser = catchAsyncErrors(async (req, res) => {
@@ -17,16 +19,16 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
   });
 
   if (!user) {
-    logger.warn("User not created something went wrong.");
+    logger.warn('User not created something went wrong.');
     return res.status(500).json({
       success: false,
-      message: "User not created something went wrong.",
+      message: 'User not created something went wrong.',
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "User is registered successfully",
+    message: 'User is registered successfully',
   });
 });
 
@@ -37,66 +39,66 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    logger.warn("User not found with this email");
+    logger.warn('User not found with this email');
     return res.status(404).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
   const checkUser = await user.isPasswordCorrect(password);
 
   if (!checkUser) {
-    logger.warn("Password is incorrect");
+    logger.warn('Password is incorrect');
     return res.status(500).json({
       success: false,
-      message: "Password is incorrect",
+      message: 'Password is incorrect',
     });
   }
 
   const token = await user.generateRefreshToken();
 
   if (!token) {
-    logger.warn("Token creation failed");
+    logger.warn('Token creation failed');
     return res.status(500).json({
       success: false,
-      message: "token not created something went wrong.",
+      message: 'token not created something went wrong.',
     });
   }
 
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = process.env.NODE_ENV === 'production';
 
   return res
     .status(200)
     .cookie(process.env.TOKEN_NAME, token, {
-      path: "/",
-      sameSite: isProduction ? "None" : "Lax",
+      path: '/',
+      sameSite: isProduction ? 'None' : 'Lax',
       secure: isProduction,
       httpOnly: true,
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
     .json({
       success: true,
-      message: "User is successfully logged in.",
+      message: 'User is successfully logged in.',
       data: user,
     });
 });
 
 // Logout user in our web app
 export const logoutUser = catchAsyncErrors(async (req, res) => {
-  const isProduction = process.env.NODE_ENV === "production";
-  logger.info("User is logged out successfully");
+  const isProduction = process.env.NODE_ENV === 'production';
+  logger.info('User is logged out successfully');
   return res
     .clearCookie(process.env.TOKEN_NAME, {
-      path: "/",
-      sameSite: isProduction ? "None" : "Lax",
+      path: '/',
+      sameSite: isProduction ? 'None' : 'Lax',
       secure: isProduction,
       httpOnly: true,
     })
     .status(201)
     .json({
       success: true,
-      message: "User is logged out successfully",
+      message: 'User is logged out successfully',
     });
 });
 
@@ -104,10 +106,10 @@ export const logoutUser = catchAsyncErrors(async (req, res) => {
 export const updateUserDetails = catchAsyncErrors(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) {
-    logger.warn("User not found");
+    logger.warn('User not found');
     return res.status(404).json({
       success: true,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
@@ -118,19 +120,19 @@ export const updateUserDetails = catchAsyncErrors(async (req, res) => {
       name: name,
       email: email,
     },
-  }).select("-password");
+  }).select('-password');
 
   if (!updateUser) {
-    logger.warn("Something went wrong while updating user details");
+    logger.warn('Something went wrong while updating user details');
     return res.status(500).json({
       success: false,
-      message: "Something went wrong",
+      message: 'Something went wrong',
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "User is updated successfully",
+    message: 'User is updated successfully',
     data: updateUser,
   });
 });
@@ -143,7 +145,7 @@ export const forgetPassword = catchAsyncErrors(async (req, res) => {
   if (!user) {
     return res.status(404).json({
       success: false,
-      message: "User not found ",
+      message: 'User not found ',
     });
   }
 
@@ -154,7 +156,7 @@ export const forgetPassword = catchAsyncErrors(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   const resetPasswordUrl = `${req.protocol}://${req.get(
-    "host"
+    'host'
   )}/api/v1/password/reset/${resetToken}`;
 
   const message = `Your password token is :-\n\n${resetPasswordUrl}\n\nIf you are not requested this email then please ignore this mail.`;
@@ -162,7 +164,7 @@ export const forgetPassword = catchAsyncErrors(async (req, res) => {
   try {
     await sendEmail({
       email: user.email,
-      subject: "TrendyCart password recovery",
+      subject: 'TrendyCart password recovery',
       message: message,
     });
     return res.status(200).json({
@@ -175,7 +177,7 @@ export const forgetPassword = catchAsyncErrors(async (req, res) => {
     await user.save({ validateBeforeSave: false });
     return res.status(500).json({
       success: false,
-      message: "Something went wrong ",
+      message: 'Something went wrong ',
       error: error,
     });
   }
@@ -187,10 +189,7 @@ export const resetPassword = catchAsyncErrors(async (req, res) => {
 
   const { password, confirmPassword } = req.body;
 
-  const resetPasswordToken = await crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
+  const resetPasswordToken = await crypto.createHash('sha256').update(token).digest('hex');
 
   const user = await User.findOne({
     resetPasswordToken,
@@ -200,14 +199,14 @@ export const resetPassword = catchAsyncErrors(async (req, res) => {
   if (!user) {
     return res.status(401).json({
       success: false,
-      message: "Reset Password token is invalid or has been expired",
+      message: 'Reset Password token is invalid or has been expired',
     });
   }
 
   if (password !== confirmPassword) {
     return res.status(401).json({
       success: false,
-      message: "Please enter password and confirm password",
+      message: 'Please enter password and confirm password',
     });
   }
 
@@ -219,27 +218,27 @@ export const resetPassword = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Password changed successfully",
+    message: 'Password changed successfully',
   });
 });
 
 // get user personal details
 export const getUserDetails = catchAsyncErrors(async (req, res) => {
   const user = await User.findById(req.user._id)
-    .select("-password -resetPasswordToken -resetPasswordExpiry")
-    .populate("wishlist")
-    .populate("cart.productId");
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
 
   if (!user) {
     return res.status(500).json({
       success: false,
-      message: "Something went wrong ",
+      message: 'Something went wrong ',
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "User details are fetched successfully",
+    message: 'User details are fetched successfully',
     data: user,
   });
 });
@@ -255,21 +254,21 @@ export const updatePassword = catchAsyncErrors(async (req, res) => {
   if (!user) {
     return res.status(500).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
   if (!isPasswordMatched) {
     return res.status(500).json({
       success: false,
-      message: "Old password is incorrect.Please enter correct password ",
+      message: 'Old password is incorrect.Please enter correct password ',
     });
   }
 
   if (password !== confirmPassword) {
     return res.status(500).json({
       success: false,
-      message: "Password and Confirm password should be same.",
+      message: 'Password and Confirm password should be same.',
     });
   }
 
@@ -278,7 +277,7 @@ export const updatePassword = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Password updated successfully",
+    message: 'Password updated successfully',
   });
 });
 
@@ -299,13 +298,13 @@ export const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
   if (!user) {
     return res.status(500).json({
       success: false,
-      message: "Something went wrong",
+      message: 'Something went wrong',
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "User details updated successfully",
+    message: 'User details updated successfully',
     data: user,
   });
 });
@@ -315,7 +314,7 @@ export const getAllUsersDetail = catchAsyncErrors(async (req, res) => {
   const users = await find();
   return res.status(200).json({
     success: true,
-    message: "All user fetch successfully",
+    message: 'All user fetch successfully',
     data: users,
   });
 });
@@ -327,7 +326,7 @@ export const getSingleUserDetail = catchAsyncErrors(async (req, res) => {
   if (!user) {
     return res.status(404).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 });
@@ -346,13 +345,13 @@ export const updateUserRole = catchAsyncErrors(async (req, res) => {
   if (!user) {
     return res.status(500).json({
       success: false,
-      message: "Something went wrong",
+      message: 'Something went wrong',
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "User Role updated successfully",
+    message: 'User Role updated successfully',
     data: user,
   });
 });
@@ -364,13 +363,13 @@ export const DeleteUser = catchAsyncErrors(async (req, res) => {
   if (!user) {
     return res.status(404).json({
       success: false,
-      message: "User does not exist",
+      message: 'User does not exist',
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "User deleted successfully",
+    message: 'User deleted successfully',
     data: user,
   });
 });
@@ -380,10 +379,10 @@ export const addAddress = catchAsyncErrors(async (req, res) => {
   const userId = req?.user?._id;
 
   if (!userId) {
-    logger.warn("User not found");
+    logger.warn('User not found');
     return res.status(400).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
@@ -403,7 +402,7 @@ export const addAddress = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Address updated successfully",
+    message: 'Address updated successfully',
   });
 });
 
@@ -412,34 +411,32 @@ export const deleteAddress = catchAsyncErrors(async (req, res) => {
   const userId = req?.user?._id;
 
   if (!userId) {
-    logger.warn("User not found");
+    logger.warn('User not found');
     return res.status(400).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
   const user = await User.findById(userId);
 
   if (!user) {
-    logger.error("User not found");
+    logger.error('User not found');
     return res.status(404).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
   if (!mongoose.Types.ObjectId.isValid(addressId)) {
-    logger.error("Invalid address ID");
+    logger.error('Invalid address ID');
     return res.status(400).json({
       success: false,
-      message: "Invalid address ID",
+      message: 'Invalid address ID',
     });
   }
 
-  user.addressInfo = user.addressInfo.filter(
-    (address) => address._id !== addressId
-  );
+  user.addressInfo = user.addressInfo.filter((address) => address._id !== addressId);
 
   await user.save();
 
@@ -447,44 +444,41 @@ export const deleteAddress = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Address deleted successfully",
+    message: 'Address deleted successfully',
   });
 });
 
 export const updateAddress = catchAsyncErrors(async (req, res) => {
-  const { address, city, state, country, pinCode, phoneNo, addressId } =
-    req.body;
+  const { address, city, state, country, pinCode, phoneNo, addressId } = req.body;
   const userId = req?.user?._id;
 
   if (!userId) {
-    logger.warn("User not found");
+    logger.warn('User not found');
     return res.status(400).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
   const user = await User.findById(userId);
 
   if (!user) {
-    logger.error("User not found");
+    logger.error('User not found');
     return res.status(404).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
   if (!mongoose.Types.ObjectId.isValid(addressId)) {
-    logger.error("Invalid address ID");
+    logger.error('Invalid address ID');
     return res.status(400).json({
       success: false,
-      message: "Invalid address ID",
+      message: 'Invalid address ID',
     });
   }
 
-  user.addressInfo = user.addressInfo.filter(
-    (address) => address._id !== addressId
-  );
+  user.addressInfo = user.addressInfo.filter((address) => address._id !== addressId);
 
   await user.save();
 
@@ -492,7 +486,7 @@ export const updateAddress = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Address deleted successfully",
+    message: 'Address deleted successfully',
   });
 });
 
@@ -500,23 +494,21 @@ export const addToWishlist = catchAsyncErrors(async (req, res) => {
   const { productId } = req.body;
   const userId = req?.user?._id;
 
-  console.log("productId : ", productId);
-
   if (!userId) {
-    logger.warn("User not found");
+    logger.warn('User not found');
     return res.status(400).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
   const user = await User.findById(userId);
 
   if (!user) {
-    logger.error("User not found");
+    logger.error('User not found');
     return res.status(404).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
@@ -524,7 +516,7 @@ export const addToWishlist = catchAsyncErrors(async (req, res) => {
   if (user.wishlist.includes(productId)) {
     return res.status(200).json({
       success: true,
-      message: "Product already in wishlist",
+      message: 'Product already in wishlist',
     });
   }
 
@@ -534,7 +526,7 @@ export const addToWishlist = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Product added to wishlist successfully",
+    message: 'Product added to wishlist successfully',
   });
 });
 
@@ -543,20 +535,20 @@ export const removeFromWishlist = catchAsyncErrors(async (req, res) => {
   const userId = req?.user?._id;
 
   if (!userId) {
-    logger.warn("User not found");
+    logger.warn('User not found');
     return res.status(400).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
   const user = await User.findById(userId);
 
   if (!user) {
-    logger.error("User not found");
+    logger.error('User not found');
     return res.status(404).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
@@ -566,7 +558,7 @@ export const removeFromWishlist = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Product removed from wishlist successfully",
+    message: 'Product removed from wishlist successfully',
   });
 });
 
@@ -667,29 +659,23 @@ export const addToCart = catchAsyncErrors(async (req, res) => {
   const userId = req?.user?._id;
 
   if (!userId) {
-    logger.warn("User not found");
-    return res.status(400).json({ success: false, message: "User not found" });
+    logger.warn('User not found');
+    return res.status(400).json({ success: false, message: 'User not found' });
   }
 
   if (!productId || !quantity || quantity <= 0) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid product or quantity" });
+    return res.status(400).json({ success: false, message: 'Invalid product or quantity' });
   }
 
   const user = await User.findById(userId);
   if (!user) {
-    logger.error("User not found");
-    return res.status(404).json({ success: false, message: "User not found" });
+    logger.error('User not found');
+    return res.status(404).json({ success: false, message: 'User not found' });
   }
-
-  console.log("Product ID: ", productId);
 
   const product = await Product.findById(productId); // optional but good
   if (!product) {
-    return res
-      .status(404)
-      .json({ success: false, message: "Product not found" });
+    return res.status(404).json({ success: false, message: 'Product not found' });
   }
 
   const productObjectId = new mongoose.Types.ObjectId(productId);
@@ -717,35 +703,32 @@ export const addToCart = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Product added to cart successfully",
+    message: 'Product added to cart successfully',
   });
 });
 
 export const removeFromCart = catchAsyncErrors(async (req, res) => {
   const { productId } = req.body;
 
-  console.log("productId received from frontend : ", productId);
   const userId = req?.user?._id;
 
   if (!userId) {
-    logger.warn("User not found");
+    logger.warn('User not found');
     return res.status(400).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
 
   const user = await User.findById(userId);
 
   if (!user) {
-    logger.error("User not found");
+    logger.error('User not found');
     return res.status(404).json({
       success: false,
-      message: "User not found",
+      message: 'User not found',
     });
   }
-
-  console.log("Product ID: ", user);
 
   // user.cart = user.cart.filter((item) => item._id !== productId);
 
@@ -755,6 +738,6 @@ export const removeFromCart = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Product removed from cart successfully",
+    message: 'Product removed from cart successfully',
   });
 });

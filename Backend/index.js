@@ -1,47 +1,50 @@
-import express from "express";
-import dotenv from "dotenv";
-import logger from "./infra/logger/logger.js";
+import express from 'express';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import cloudinary from 'cloudinary';
+import cors from 'cors';
+
+import logger from './infra/logger/logger.js';
 // middlewares
-import rateLimit from "./shared/middlewares/rateLimiter.js";
-import cookieParser from "cookie-parser";
+import rateLimit from './shared/middlewares/rateLimiter.js';
 // Database connection
-import DB_connect from "./database/DB_connect.js";
+import DB_connect from './database/DB_connect.js';
+
 // cloudinary
-import cloudinary from "cloudinary";
 // cors
-import cors from "cors";
+
 // routes
-import productRoute from "./modules/products/product.routes.js";
-import userRoute from "./modules/users/user.routes.js";
-import orderRoute from "./modules/orders/order.routes.js";
+import productRoute from './modules/products/product.routes.js';
+import userRoute from './modules/users/user.routes.js';
+import orderRoute from './modules/orders/order.routes.js';
 
 // dotenv configuration
 dotenv.config({
-  path: "./.env",
+  path: './.env',
 });
 
 const app = express();
 
 const corsOptions = {
   origin: process.env.FRONTEND_URI,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
 
-app.use(express.json({ limit: "16kb" }));
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-app.use(express.static("public"));
+app.use(express.json({ limit: '16kb' }));
+app.use(express.urlencoded({ extended: true, limit: '16kb' }));
+app.use(express.static('public'));
 app.use(cookieParser());
 
 // Database connection
 
 // middlewares
 app.use(express.json());
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true, limit: '16kb' }));
+app.use(express.static('public'));
 app.use(cookieParser());
 
 // rate limiting
@@ -55,14 +58,14 @@ cloudinary.config({
 
 const PORT = process.env.PORT;
 
-app.get("/", (req, res) => {
-  res.send("Server is ready to listen");
+app.get('/', (req, res) => {
+  res.send('Server is ready to listen');
 });
 
 // routes
-app.use("/api/v1", productRoute);
-app.use("/api/v1", userRoute);
-app.use("/api/v1", orderRoute);
+app.use('/api/v1', productRoute);
+app.use('/api/v1', userRoute);
+app.use('/api/v1', orderRoute);
 
 const startServer = async () => {
   try {
@@ -72,7 +75,7 @@ const startServer = async () => {
       logger.info(`Server started on port ${PORT}`);
     });
   } catch (error) {
-    logger.error("Server failed to start:", error.message);
+    logger.error('Server failed to start:', error.message);
     process.exit(1);
   }
 };

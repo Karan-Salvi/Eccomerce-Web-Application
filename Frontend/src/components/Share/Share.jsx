@@ -1,5 +1,5 @@
-import { Share2 } from "lucide-react";
-import { Button } from "../ui/button";
+import { Share2 } from 'lucide-react';
+import { Button } from '../ui/button';
 import {
   Dialog,
   DialogClose,
@@ -9,16 +9,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { useState } from "react";
-import { TbCopy } from "react-icons/tb";
-import { TbCopyCheck } from "react-icons/tb";
+} from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { useState } from 'react';
+import { TbCopy } from 'react-icons/tb';
+import { TbCopyCheck } from 'react-icons/tb';
 
 export default function Share({ url }) {
   const [textToCopy, setTextToCopy] = useState(
-    url || "https://cartloop.vercel.app/products"
+    url || 'https://cartloop.vercel.app/products'
   );
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -30,7 +30,7 @@ export default function Share({ url }) {
       })
       .catch((err) => {
         setCopySuccess(false);
-        console.error("Error copying text: ", err);
+        console.error('Error copying text: ', err);
       });
   };
   return (

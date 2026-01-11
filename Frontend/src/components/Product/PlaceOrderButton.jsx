@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { useCreateCheckoutSessionMutation } from "../../store/api/purchaseApi";
-import { Button } from "../ui/button";
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useCreateCheckoutSessionMutation } from '../../store/api/purchaseApi';
+import { Button } from '../ui/button';
 
 const PlaceOrderButton = ({ order }) => {
   const [
@@ -13,8 +13,6 @@ const PlaceOrderButton = ({ order }) => {
 
   const purchaseCourseHandler = async () => {
     await createCheckoutSession(order);
-
-    console.log(data);
   };
 
   useEffect(() => {
@@ -22,11 +20,11 @@ const PlaceOrderButton = ({ order }) => {
       if (data?.sessionUrl) {
         window.location.href = data.sessionUrl; // Redirect to stripe checkout url
       } else {
-        toast.error("Invalid response from server.");
+        toast.error('Invalid response from server.');
       }
     }
     if (isError) {
-      toast.error(error?.data?.message || "Failed to create checkout session");
+      toast.error(error?.data?.message || 'Failed to create checkout session');
     }
   }, [data, isSuccess, isError, error]);
 
@@ -42,7 +40,7 @@ const PlaceOrderButton = ({ order }) => {
           Please wait
         </>
       ) : (
-        "Purchase Course"
+        'Purchase Course'
       )}
     </Button>
   );

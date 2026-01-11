@@ -1,4 +1,4 @@
-import { ZodError } from "zod";
+import { ZodError } from 'zod';
 
 const validate = (schema) => {
   return (req, res, next) => {
@@ -19,13 +19,13 @@ const validate = (schema) => {
     } catch (error) {
       if (error instanceof ZodError) {
         const formattedErrors = error.errors.map((err) => ({
-          field: err.path.join("."),
+          field: err.path.join('.'),
           message: err.message,
         }));
 
         return res.status(400).json({
           success: false,
-          message: "Validation failed",
+          message: 'Validation failed',
           errors: formattedErrors,
         });
       }

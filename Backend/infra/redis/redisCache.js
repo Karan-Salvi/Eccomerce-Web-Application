@@ -4,6 +4,6 @@ export const getOrSetCache = async (key, cb) => {
 
   const freshData = await cb();
   // await redisClient.setEx(key, 3600, JSON.stringify(freshData));
-  await redisClient.set(key, JSON.stringify(freshData), "EX", 3600);
+  await redisClient.set(key, JSON.stringify(freshData), 'EX', 3600);
   return freshData;
 };

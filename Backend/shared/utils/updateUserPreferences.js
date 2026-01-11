@@ -1,9 +1,6 @@
-import User from "#modules/users/user.model.js";
+import User from '#modules/users/user.model.js';
 
-const updateUserPreferences = async (
-  userId,
-  { productId, category, brand, tags = [] }
-) => {
+const updateUserPreferences = async (userId, { productId, category, brand, tags = [] }) => {
   try {
     const user = await User.findById(userId);
     // or throw error if needed
@@ -36,10 +33,8 @@ const updateUserPreferences = async (
     preferences.lastViewedAt = new Date();
 
     await user.save();
-
-    console.log("User preferences updated successfully");
   } catch (error) {
-    console.error("Failed to update user preferences:", error);
+    console.error('Failed to update user preferences:', error);
   }
 };
 

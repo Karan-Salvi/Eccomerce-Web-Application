@@ -1,13 +1,13 @@
-import React from "react";
+import React from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card";
-import { StatCard } from "../../components/ui/stat-card";
-import { useVendor } from "../../contexts/VendorContext";
+} from '../../components/ui/card';
+import { StatCard } from '../../components/ui/stat-card';
+import { useVendor } from '../../contexts/VendorContext';
 import {
   BarChart,
   Bar,
@@ -21,7 +21,7 @@ import {
   PieChart,
   Pie,
   Cell,
-} from "recharts";
+} from 'recharts';
 import {
   Package,
   DollarSign,
@@ -29,31 +29,31 @@ import {
   ShoppingCart,
   Target,
   Award,
-} from "lucide-react";
+} from 'lucide-react';
 
 const COLORS = [
-  "#3B82F6",
-  "#10B981",
-  "#F59E0B",
-  "#EF4444",
-  "#8B5CF6",
-  "#06B6D4",
+  '#3B82F6',
+  '#10B981',
+  '#F59E0B',
+  '#EF4444',
+  '#8B5CF6',
+  '#06B6D4',
 ];
 
 const Dashboard = () => {
   const { analytics } = useVendor();
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
   };
 
   const formatNumber = (value) => {
-    return new Intl.NumberFormat("en-US").format(value);
+    return new Intl.NumberFormat('en-US').format(value);
   };
 
   return (
@@ -122,10 +122,10 @@ const Dashboard = () => {
                 <YAxis />
                 <Tooltip
                   formatter={(value, name) => [
-                    name === "sales"
+                    name === 'sales'
                       ? formatNumber(Number(value))
                       : formatCurrency(Number(value)),
-                    name === "sales" ? "Sales" : "Revenue",
+                    name === 'sales' ? 'Sales' : 'Revenue',
                   ]}
                 />
                 <Line
@@ -133,14 +133,14 @@ const Dashboard = () => {
                   dataKey="sales"
                   stroke="#3B82F6"
                   strokeWidth={2}
-                  dot={{ fill: "#3B82F6" }}
+                  dot={{ fill: '#3B82F6' }}
                 />
                 <Line
                   type="monotone"
                   dataKey="revenue"
                   stroke="#10B981"
                   strokeWidth={2}
-                  dot={{ fill: "#10B981" }}
+                  dot={{ fill: '#10B981' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -180,7 +180,7 @@ const Dashboard = () => {
                 <Tooltip
                   formatter={(value) => [
                     formatNumber(Number(value)),
-                    "Products",
+                    'Products',
                   ]}
                 />
               </PieChart>
@@ -206,7 +206,7 @@ const Dashboard = () => {
               <Tooltip
                 formatter={(value) => [
                   formatCurrency(Number(value)),
-                  "Revenue",
+                  'Revenue',
                 ]}
               />
               <Bar dataKey="revenue" fill="#3B82F6" />
@@ -227,52 +227,52 @@ const Dashboard = () => {
           <div className="space-y-4">
             {[
               {
-                action: "Product Updated",
+                action: 'Product Updated',
                 description:
-                  "Wireless Bluetooth Headphones stock updated to 45 units",
-                time: "2 minutes ago",
-                type: "update",
+                  'Wireless Bluetooth Headphones stock updated to 45 units',
+                time: '2 minutes ago',
+                type: 'update',
               },
               {
-                action: "New Sale",
-                description: "Smart Fitness Watch sold for $299.99",
-                time: "15 minutes ago",
-                type: "sale",
+                action: 'New Sale',
+                description: 'Smart Fitness Watch sold for $299.99',
+                time: '15 minutes ago',
+                type: 'sale',
               },
               {
-                action: "Low Stock Alert",
-                description: "Ergonomic Office Chair has only 3 units left",
-                time: "1 hour ago",
-                type: "alert",
+                action: 'Low Stock Alert',
+                description: 'Ergonomic Office Chair has only 3 units left',
+                time: '1 hour ago',
+                type: 'alert',
               },
               {
-                action: "Product Added",
-                description: "Gaming Mechanical Keyboard added to draft",
-                time: "2 hours ago",
-                type: "add",
+                action: 'Product Added',
+                description: 'Gaming Mechanical Keyboard added to draft',
+                time: '2 hours ago',
+                type: 'add',
               },
             ].map((activity, index) => (
               <div
                 key={index}
-                className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50"
+                className="bg-muted/50 flex items-start space-x-3 rounded-lg p-3"
               >
                 <div
-                  className={`w-2 h-2 rounded-full mt-2 ${
-                    activity.type === "sale"
-                      ? "bg-green-500"
-                      : activity.type === "alert"
-                      ? "bg-yellow-500"
-                      : activity.type === "add"
-                      ? "bg-blue-500"
-                      : "bg-gray-500"
+                  className={`mt-2 h-2 w-2 rounded-full ${
+                    activity.type === 'sale'
+                      ? 'bg-green-500'
+                      : activity.type === 'alert'
+                        ? 'bg-yellow-500'
+                        : activity.type === 'add'
+                          ? 'bg-blue-500'
+                          : 'bg-gray-500'
                   }`}
                 />
                 <div className="flex-1">
                   <p className="font-medium">{activity.action}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {activity.description}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     {activity.time}
                   </p>
                 </div>

@@ -1,5 +1,5 @@
-import CartPage from "../../components/Cart/CartPage";
-import Navbar from "../../components/Home/Navbar";
+import CartPage from '../../components/Cart/CartPage';
+import Navbar from '../../components/Home/Navbar';
 
 const Cart = () => {
   return (

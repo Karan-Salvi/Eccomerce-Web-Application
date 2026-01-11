@@ -1,18 +1,4 @@
-import React from "react";
-import {
-  ShoppingCart,
-  Heart,
-  MapPin,
-  CreditCard,
-  Search,
-  User,
-  Menu,
-  X,
-  LocationEdit,
-  LucideLocationEdit,
-  CardSim,
-} from "lucide-react";
-import { useEcommerce } from "../../contexts/EcommerceContext";
+import { ShoppingCart, Heart } from 'lucide-react';
 
 const Navigation = () => {
   // const { currentPage, setCurrentPage, getCartItemsCount, wishlistItems } =
@@ -20,14 +6,14 @@ const Navigation = () => {
 
   const navItems = [
     {
-      id: "cart",
-      label: "Cart",
+      id: 'cart',
+      label: 'Cart',
       icon: ShoppingCart,
       badge: 2,
     },
     {
-      id: "wishlist",
-      label: "Wishlist",
+      id: 'wishlist',
+      label: 'Wishlist',
       icon: Heart,
       badge: 2,
     },
@@ -37,47 +23,47 @@ const Navigation = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 shadow-sm backdrop-blur-md">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent brand_name">
+                <h1 className="brand_name bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-2xl font-bold text-transparent">
                   CartLoop
                 </h1>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden space-x-8 md:flex">
               <a
                 href="/"
-                className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
+                className="font-medium text-gray-700 transition-colors duration-200 hover:text-amber-600"
               >
                 Home
               </a>
               <a
                 href="/products"
-                className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
+                className="font-medium text-gray-700 transition-colors duration-200 hover:text-amber-600"
               >
                 Categories
               </a>
               <a
                 href="#"
-                className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
+                className="font-medium text-gray-700 transition-colors duration-200 hover:text-amber-600"
               >
                 Deals
               </a>
               <a
                 href="#"
-                className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
+                className="font-medium text-gray-700 transition-colors duration-200 hover:text-amber-600"
               >
                 About
               </a>
               <a
                 href="#"
-                className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium"
+                className="font-medium text-gray-700 transition-colors duration-200 hover:text-amber-600"
               >
                 Contact
               </a>
@@ -93,7 +79,7 @@ const Navigation = () => {
                   <button
                     key={item.id}
                     // onClick={() => setCurrentPage(item.id)}
-                    className="text-gray-700 hover:text-amber-600 transition-colors duration-200 flex flex-col gap-0 items-center cursor-pointer"
+                    className="flex cursor-pointer flex-col items-center gap-0 text-gray-700 transition-colors duration-200 hover:text-amber-600"
                     // className={`relative flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${
                     //   isActive
                     //     ? "bg-blue-50 text-blue-600 shadow-sm"
@@ -101,7 +87,7 @@ const Navigation = () => {
                     // }`}
                   >
                     <IconComponent className="h-5 w-5 hover:-translate-y-1 hover:scale-105 hover:duration-200" />
-                    <span className="text-xs font-medium hidden md:block">
+                    <span className="hidden text-xs font-medium md:block">
                       {item.label}
                     </span>
                     {/* {item.badge && item.badge > 0 && (

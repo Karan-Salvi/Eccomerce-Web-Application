@@ -1,27 +1,23 @@
-import React, { useEffect, useMemo } from "react";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { useSelector } from "react-redux";
-import { useState } from "react";
+import React, { useEffect } from 'react';
+import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { useState } from 'react';
 import {
   useAddToCartMutation,
-  useAddToWishlistMutation,
   useRemoveFromCartMutation,
-} from "../../store/api/authApi";
+} from '../../store/api/authApi';
 
 const CartPage = () => {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [disPrice, setDisPrice] = useState(0);
   const [change, setChange] = useState(false);
 
-  const [addToWishlist] = useAddToWishlistMutation();
   const [addToCart] = useAddToCartMutation();
   const [removeFromCart] = useRemoveFromCartMutation();
 
   const updateQuantity = async (productId, quantity, size, color) => {
-    console.log("productId : ", productId);
-    console.log("quantity : ", quantity);
     if (quantity < 0) {
       return;
     }
@@ -35,11 +31,10 @@ const CartPage = () => {
       if (item._id === productId) {
         return { ...item, quantity };
       }
-      console.log("Updated item with the quantity : ", item);
+
       return item;
     });
 
-    console.log("updatedCart : ", updatedCart);
     setCart(updatedCart);
   };
 
@@ -48,7 +43,6 @@ const CartPage = () => {
     user.data.cart.forEach((item) => {
       total += item.productId.originalPrice * (item.quantity || 1);
     });
-    console.log("total : ", total);
 
     return total;
   };
@@ -58,12 +52,9 @@ const CartPage = () => {
     user.data.cart.forEach((item) => {
       total += item.productId.price * (item.quantity || 1);
     });
-    console.log("total : ", total);
 
     return total;
   };
-
-  console.log("user : ", user?.data?.cart);
 
   useEffect(() => {
     setCart(user?.data?.cart);
@@ -76,17 +67,15 @@ const CartPage = () => {
     setDisPrice(discountPrice());
   }, [user, user?.data?.cart, change]);
 
-  console.log("cart : ", cart);
-
   if (user?.data?.cart?.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="mx-auto max-w-4xl px-4 py-12">
         <div className="text-center">
-          <ShoppingBag className="w-24 h-24 text-gray-300 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          <ShoppingBag className="mx-auto mb-6 h-24 w-24 text-gray-300" />
+          <h2 className="mb-4 text-2xl font-bold text-gray-800">
             Your cart is empty
           </h2>
-          <p className="text-gray-600 mb-8">
+          <p className="mb-8 text-gray-600">
             Start shopping to add items to your cart
           </p>
         </div>
@@ -95,31 +84,31 @@ const CartPage = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      <h1 className="mb-8 text-3xl font-bold text-gray-800">Shopping Cart</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
             {cart?.map((item, index) => (
               <div
                 key={index}
                 className={`p-6 ${
-                  index !== cart.length - 1 ? "border-b border-gray-200" : ""
+                  index !== cart.length - 1 ? 'border-b border-gray-200' : ''
                 }`}
               >
                 <div className="flex items-center space-x-4">
                   <img
                     src={item?.productId?.images[0]?.url}
                     alt={item?.productId?.name}
-                    className="w-20 h-20 object-cover rounded-lg"
+                    className="h-20 w-20 rounded-lg object-cover"
                   />
 
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800 mb-1">
+                    <h3 className="mb-1 font-semibold text-gray-800">
                       {item?.productId?.name}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-2">
+                    <p className="mb-2 text-sm text-gray-600">
                       {item?.productId?.category}
                     </p>
                     <p className="text-2xl font-bold text-orange-600">
@@ -128,7 +117,7 @@ const CartPage = () => {
                   </div>
 
                   <div className="flex items-center space-x-3">
-                    <div className="flex items-center bg-gray-100 rounded-lg">
+                    <div className="flex items-center rounded-lg bg-gray-100">
                       <button
                         onClick={() => {
                           // setChange(!change),
@@ -139,37 +128,37 @@ const CartPage = () => {
                             item.variant.color
                           );
                         }}
-                        className="p-2 hover:bg-gray-200 rounded-l-lg transition-colors cursor-pointer"
+                        className="cursor-pointer rounded-l-lg p-2 transition-colors hover:bg-gray-200"
                       >
-                        <Minus className="w-4 h-4" />
+                        <Minus className="h-4 w-4" />
                       </button>
                       <span className="px-4 py-2 font-semibold">
                         {item.quantity}
                       </span>
                       <button
                         onClick={() => {
-                          setChange(!change),
+                          (setChange(!change),
                             updateQuantity(
                               item.productId._id,
                               item.quantity + 1,
                               item.variant.size,
                               item.variant.color
-                            );
+                            ));
                         }}
-                        className="p-2 hover:bg-gray-200 rounded-r-lg transition-colors cursor-pointer"
+                        className="cursor-pointer rounded-r-lg p-2 transition-colors hover:bg-gray-200"
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="h-4 w-4" />
                       </button>
                     </div>
 
                     <button
                       onClick={() => {
-                        setChange(!change),
-                          removeFromCart({ productId: item._id });
+                        (setChange(!change),
+                          removeFromCart({ productId: item._id }));
                       }}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      className="cursor-pointer rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
@@ -179,12 +168,12 @@ const CartPage = () => {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 sticky top-8">
-            <h2 className="text-xl font-bold text-gray-800 mb-6">
+          <div className="sticky top-8 rounded-sm border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-6 text-xl font-bold text-gray-800">
               Order Summary
             </h2>
 
-            <div className="space-y-4 mb-6">
+            <div className="mb-6 space-y-4">
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Price</span>
                 <span className="font-semibold line-through">
@@ -215,7 +204,7 @@ const CartPage = () => {
               </div>
             </div>
 
-            <button className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors cursor-pointer">
+            <button className="w-full cursor-pointer rounded-lg bg-orange-600 py-3 font-semibold text-white transition-colors hover:bg-orange-700">
               Proceed to Checkout
             </button>
           </div>

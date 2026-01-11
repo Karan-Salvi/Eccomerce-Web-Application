@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { MapPin, Plus, Edit2, Trash2, Check } from "lucide-react";
-import { useEcommerce } from "../../contexts/EcommerceContext";
+import React, { useState } from 'react';
+import { MapPin, Plus, Edit2, Trash2, Check } from 'lucide-react';
+import { useEcommerce } from '../../contexts/EcommerceContext';
 
 const AddressesPage = () => {
   const {
@@ -13,12 +13,12 @@ const AddressesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "United States",
+    name: '',
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: 'United States',
     isDefault: false,
   });
 
@@ -33,12 +33,12 @@ const AddressesPage = () => {
     }
 
     setFormData({
-      name: "",
-      street: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      country: "United States",
+      name: '',
+      street: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      country: 'United States',
       isDefault: false,
     });
     setShowForm(false);
@@ -62,41 +62,41 @@ const AddressesPage = () => {
     setShowForm(false);
     setEditingAddress(null);
     setFormData({
-      name: "",
-      street: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      country: "United States",
+      name: '',
+      street: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      country: 'United States',
       isDefault: false,
     });
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Delivery Addresses</h1>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
+          className="flex cursor-pointer items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
         >
-          <Plus className="w-5 h-5 " />
+          <Plus className="h-5 w-5" />
           {/* <p className="hidden group-hover:block duration-1000 transition-all absolute  top-0 left-1/2 right-1/2  text-nowrap transform translate-0.5 text-black">Add Address</p> */}
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-6">
-            {editingAddress ? "Edit Address" : "Add New Address"}
+        <div className="mb-8 rounded-sm border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-6 text-xl font-bold text-gray-800">
+            {editingAddress ? 'Edit Address' : 'Add New Address'}
           </h2>
 
           <form
             onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            className="grid grid-cols-1 gap-6 md:grid-cols-2"
           >
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Address Name
               </label>
               <input
@@ -106,13 +106,13 @@ const AddressesPage = () => {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 placeholder="e.g., Home, Work, Office"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Street Address
               </label>
               <input
@@ -122,13 +122,13 @@ const AddressesPage = () => {
                   setFormData({ ...formData, street: e.target.value })
                 }
                 placeholder="123 Main Street"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 City
               </label>
               <input
@@ -138,13 +138,13 @@ const AddressesPage = () => {
                   setFormData({ ...formData, city: e.target.value })
                 }
                 placeholder="New York"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 State
               </label>
               <input
@@ -154,13 +154,13 @@ const AddressesPage = () => {
                   setFormData({ ...formData, state: e.target.value })
                 }
                 placeholder="NY"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 ZIP Code
               </label>
               <input
@@ -170,13 +170,13 @@ const AddressesPage = () => {
                   setFormData({ ...formData, zipCode: e.target.value })
                 }
                 placeholder="10001"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Country
               </label>
               <select
@@ -184,7 +184,7 @@ const AddressesPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, country: e.target.value })
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               >
                 <option value="United States">United States</option>
                 <option value="Canada">Canada</option>
@@ -193,7 +193,7 @@ const AddressesPage = () => {
               </select>
             </div>
 
-            <div className="md:col-span-2 flex items-center">
+            <div className="flex items-center md:col-span-2">
               <input
                 type="checkbox"
                 id="isDefault"
@@ -201,24 +201,24 @@ const AddressesPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, isDefault: e.target.checked })
                 }
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
               />
               <label htmlFor="isDefault" className="ml-2 text-sm text-gray-700">
                 Set as default address
               </label>
             </div>
 
-            <div className="md:col-span-2 flex space-x-4">
+            <div className="flex space-x-4 md:col-span-2">
               <button
                 type="submit"
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors cursor-pointer"
+                className="flex-1 cursor-pointer rounded-lg bg-blue-600 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
               >
-                {editingAddress ? "Update Address" : "Save Address"}
+                {editingAddress ? 'Update Address' : 'Save Address'}
               </button>
               <button
                 type="button"
                 onClick={handleCancel}
-                className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors cursor-pointer"
+                className="flex-1 cursor-pointer rounded-lg bg-gray-200 py-3 font-semibold text-gray-800 transition-colors hover:bg-gray-300"
               >
                 Cancel
               </button>
@@ -227,20 +227,20 @@ const AddressesPage = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {addresses.map((address) => (
           <div
             key={address.id}
-            className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+            className="rounded-sm border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
           >
-            <div className="flex items-start justify-between mb-4">
+            <div className="mb-4 flex items-start justify-between">
               <div className="flex items-center">
-                <MapPin className="w-5 h-5 text-blue-600 mr-2" />
+                <MapPin className="mr-2 h-5 w-5 text-blue-600" />
                 <span className="font-semibold text-gray-800">
                   {address.name}
                 </span>
                 {address.isDefault && (
-                  <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                  <span className="ml-2 rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">
                     Default
                   </span>
                 )}
@@ -249,20 +249,20 @@ const AddressesPage = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={() => handleEdit(address)}
-                  className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                  className="cursor-pointer rounded-lg p-2 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => deleteAddress(address.id)}
-                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                  className="cursor-pointer rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
-            <div className="text-gray-600 mb-4">
+            <div className="mb-4 text-gray-600">
               <p>{address.street}</p>
               <p>
                 {address.city}, {address.state} {address.zipCode}
@@ -273,9 +273,9 @@ const AddressesPage = () => {
             {!address.isDefault && (
               <button
                 onClick={() => setDefaultAddress(address.id)}
-                className="flex items-center text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+                className="flex cursor-pointer items-center font-medium text-blue-600 hover:text-blue-700"
               >
-                <Check className="w-4 h-4 mr-1" />
+                <Check className="mr-1 h-4 w-4" />
                 Set as Default
               </button>
             )}

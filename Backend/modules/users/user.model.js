@@ -1,15 +1,16 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
+import crypto from 'crypto';
+
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Please Enter your name"],
-      maxLength: [30, "Please Enter the valid name"],
-      minLength: [4, "Name should have more than 5 characters"],
+      required: [true, 'Please Enter your name'],
+      maxLength: [30, 'Please Enter the valid name'],
+      minLength: [4, 'Name should have more than 5 characters'],
     },
     email: {
       type: String,
@@ -20,15 +21,15 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minLength: [6, "Password should have more than 6 characters"],
+      minLength: [6, 'Password should have more than 6 characters'],
     },
     avatar: {
       type: String,
-      default: "../public/images/default.png",
+      default: '../public/images/default.png',
     },
     role: {
       type: String,
-      default: "user",
+      default: 'user',
     },
     addressInfo: [
       {
@@ -64,7 +65,7 @@ const userSchema = new mongoose.Schema(
       viewedProducts: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
+          ref: 'Product',
         },
       ],
       categories: [
@@ -89,14 +90,14 @@ const userSchema = new mongoose.Schema(
     wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
+        ref: 'Product',
       },
     ],
     cart: [
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
+          ref: 'Product',
           required: true,
         },
         quantity: {
@@ -121,8 +122,8 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
 
   this.password = await bcrypt.hash(this.password, 10);
   return next();
@@ -148,20 +149,17 @@ userSchema.methods.generateRefreshToken = async function () {
 
 userSchema.methods.getResetPassword = async function () {
   // Generating token
-  const resetToken = await crypto.randomBytes(20).toString("hex");
+  const resetToken = await crypto.randomBytes(20).toString('hex');
 
   // Hashing and adding reset password token to userschema
 
-  this.resetPasswordToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
+  this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
   this.resetPasswordExpiry = Date.now() + 15 * 60 * 1000;
 
   return resetToken;
 };
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 export default User;

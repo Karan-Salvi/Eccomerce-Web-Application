@@ -63,9 +63,9 @@
 
 // export default ProtectedRoute;
 
-import React from "react";
-import { useSelector } from "react-redux";
-import { Navigate, useLocation } from "react-router-dom";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { Navigate, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
@@ -80,8 +80,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   const role = user?.data?.role?.toLowerCase();
   if (loading || !user || !user.data || !role) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-blue-500"></div>
       </div>
     );
   }

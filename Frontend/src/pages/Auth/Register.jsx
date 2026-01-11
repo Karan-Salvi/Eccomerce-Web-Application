@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { Slot } from "@radix-ui/react-slot";
-import { cva } from "class-variance-authority";
-import * as CardPrimitive from "react"; // Card is a simple div, so no radix
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import * as LabelPrimitive from "@radix-ui/react-label";
-import * as SeparatorPrimitive from "@radix-ui/react-separator";
-import { CheckIcon } from "lucide-react";
-import { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import { useRegisterUserMutation } from "../../store/api/authApi";
+import * as React from 'react';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { Slot } from '@radix-ui/react-slot';
+import { cva } from 'class-variance-authority';
+import * as CardPrimitive from 'react'; // Card is a simple div, so no radix
+import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import * as LabelPrimitive from '@radix-ui/react-label';
+import * as SeparatorPrimitive from '@radix-ui/react-separator';
+import { CheckIcon } from 'lucide-react';
+import { useState } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { useRegisterUserMutation } from '../../store/api/authApi';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -25,33 +25,33 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+          'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90',
         destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          'bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
         secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+        link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
+        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
+        sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
+        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
+        icon: 'size-9',
       },
     },
     defaultVariants: {
-      variant: "default",
-      size: "default",
+      variant: 'default',
+      size: 'default',
     },
   }
 );
 
 function Button({ className, variant, size, asChild = false, ...props }) {
-  const Comp = asChild ? Slot : "button";
+  const Comp = asChild ? Slot : 'button';
 
   return (
     <Comp
@@ -67,30 +67,30 @@ const Card = React.forwardRef(({ className, ...props }, ref) => (
     ref={ref}
     data-slot="card"
     className={cn(
-      "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+      'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm',
       className
     )}
     {...props}
   />
 ));
-Card.displayName = "Card";
+Card.displayName = 'Card';
 
 const CardContent = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
     data-slot="card-content"
-    className={cn("px-6", className)}
+    className={cn('px-6', className)}
     {...props}
   />
 ));
-CardContent.displayName = "CardContent";
+CardContent.displayName = 'CardContent';
 
 const Checkbox = React.forwardRef(({ className, ...props }, ref) => (
   <CheckboxPrimitive.Root
     ref={ref}
     data-slot="checkbox"
     className={cn(
-      "peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+      'peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
       className
     )}
     {...props}
@@ -110,9 +110,9 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
     <input
       type={type}
       className={cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+        'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+        'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+        'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
         className
       )}
       ref={ref}
@@ -120,14 +120,14 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
     />
   );
 });
-Input.displayName = "Input";
+Input.displayName = 'Input';
 
 const Label = React.forwardRef(({ className, ...props }, ref) => (
   <LabelPrimitive.Root
     ref={ref}
     data-slot="label"
     className={cn(
-      "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+      'flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
       className
     )}
     {...props}
@@ -137,7 +137,7 @@ Label.displayName = LabelPrimitive.Root.displayName;
 
 const Separator = React.forwardRef(
   (
-    { className, orientation = "horizontal", decorative = true, ...props },
+    { className, orientation = 'horizontal', decorative = true, ...props },
     ref
   ) => (
     <SeparatorPrimitive.Root
@@ -146,7 +146,7 @@ const Separator = React.forwardRef(
       decorative={decorative}
       orientation={orientation}
       className={cn(
-        "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
+        'bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px',
         className
       )}
       {...props}
@@ -179,32 +179,34 @@ const Logo = (props) => (
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
-  const [registerUser, { isLoading, error }] = useRegisterUserMutation();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [registerUser] = useRegisterUserMutation();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleRegistration = async (e) => {
     e.preventDefault();
-    const respoce = await registerUser({ name, email, password });
-    console.log(" User Registered : ", respoce);
-    navigate("/login");
+    const response = await registerUser({ name, email, password });
+    if (response?.success) {
+      navigate('/login');
+    }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex min-h-screen items-center justify-center">
       <div className="flex flex-1 flex-col justify-center px-4 py-10 lg:px-6">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
+        <div className="flex flex-col items-center sm:mx-auto sm:w-full sm:max-w-md">
           <Logo
-            className="mx-auto h-10 w-10 text-foreground dark:text-foreground"
+            className="text-foreground dark:text-foreground mx-auto h-10 w-10"
             aria-hidden={true}
           />
-          <h3 className="mt-2 text-center text-xl font-bold text-foreground dark:text-foreground">
+          <h3 className="text-foreground dark:text-foreground mt-2 text-center text-xl font-bold">
             Create Account
           </h3>
-          <p className="text-center text-sm p-2">
-            Start your shopping at <span></span> and get 5% off on your first order!
+          <p className="p-2 text-center text-sm">
+            Start your shopping at <span></span> and get 5% off on your first
+            order!
           </p>
         </div>
 
@@ -214,7 +216,7 @@ export default function Register() {
               <div>
                 <Label
                   htmlFor="name-login-05"
-                  className="text-sm font-medium text-foreground dark:text-foreground"
+                  className="text-foreground dark:text-foreground text-sm font-medium"
                 >
                   Name
                 </Label>
@@ -232,7 +234,7 @@ export default function Register() {
               <div>
                 <Label
                   htmlFor="email-login-05"
-                  className="text-sm font-medium text-foreground dark:text-foreground"
+                  className="text-foreground dark:text-foreground text-sm font-medium"
                 >
                   Email
                 </Label>
@@ -250,14 +252,14 @@ export default function Register() {
               <div>
                 <Label
                   htmlFor="password-login-05"
-                  className="text-sm font-medium text-foreground dark:text-foreground"
+                  className="text-foreground dark:text-foreground text-sm font-medium"
                 >
                   Password
                 </Label>
 
-                <div style={{ position: "relative" }}>
+                <div style={{ position: 'relative' }}>
                   <Input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     id="password-login-05   "
                     name="password-login-05"
                     autoComplete="password-login-05"
@@ -268,13 +270,13 @@ export default function Register() {
                   <span
                     onClick={() => setShowPassword(!showPassword)}
                     style={{
-                      position: "absolute",
-                      right: "10px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      cursor: "pointer",
-                      fontSize: "14px",
-                      color: "#666",
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      color: '#666',
                     }}
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -309,7 +311,7 @@ export default function Register() {
                 </div>
                 <Label
                   htmlFor="newsletter-login-05"
-                  className="ml-3 text-sm leading-6 text-muted-foreground dark:text-muted-foreground"
+                  className="text-muted-foreground dark:text-muted-foreground ml-3 text-sm leading-6"
                 >
                   Remember me
                 </Label>
@@ -317,23 +319,23 @@ export default function Register() {
 
               <Button
                 type="submit"
-                className="mt-4 w-full py-2 font-medium cursor-pointer"
+                className="mt-4 w-full cursor-pointer py-2 font-medium"
               >
                 Create account
               </Button>
 
-              <p className="text-center text-xs text-muted-foreground dark:text-muted-foreground">
-                By signing in, you agree to our{" "}
+              <p className="text-muted-foreground dark:text-muted-foreground text-center text-xs">
+                By signing in, you agree to our{' '}
                 <a
                   href="#"
-                  className="capitalize text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90"
+                  className="text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90 capitalize"
                 >
                   Terms of use
-                </a>{" "}
-                and{" "}
+                </a>{' '}
+                and{' '}
                 <a
                   href="#"
-                  className="capitalize text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90"
+                  className="text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90 capitalize"
                 >
                   Privacy policy
                 </a>
@@ -342,11 +344,11 @@ export default function Register() {
           </CardContent>
         </Card>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground dark:text-muted-foreground">
-          Already have an account?{" "}
+        <p className="text-muted-foreground dark:text-muted-foreground mt-6 text-center text-sm">
+          Already have an account?{' '}
           <Link
-            to={"/login"}
-            className="font-medium text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90"
+            to={'/login'}
+            className="text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90 font-medium"
           >
             Sign in
           </Link>

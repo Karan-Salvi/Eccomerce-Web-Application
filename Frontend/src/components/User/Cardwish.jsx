@@ -1,22 +1,22 @@
-import React from "react";
+import React from 'react';
 
 const Cardwish = ({ product, index }) => {
   return (
     <div
       key={index}
-      className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition duration-100"
+      className="rounded-lg border border-gray-200 p-3 transition duration-100 hover:shadow-md"
     >
-      <div className="h-40 mb-3 rounded-lg overflow-hidden">
+      <div className="mb-3 h-40 overflow-hidden rounded-lg">
         <img
           src={product?.images[0]?.url || `https://placehold.co/400`}
           alt="Apple iPad Pro 12.9-inch with Magic Keyboard on a desk with coffee cup"
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
         />
       </div>
-      <p className="text-gray-800 font-medium text-sm mb-1">{product?.name}</p>
-      <p className="text-gray-600 text-sm mb-2">₹{product?.price}</p>
-      <div className="flex justify-between items-center">
-        <button className="text-red-500 hover:text-red-700 text-xs">
+      <p className="mb-1 text-sm font-medium text-gray-800">{product?.name}</p>
+      <p className="mb-2 text-sm text-gray-600">₹{product?.price}</p>
+      <div className="flex items-center justify-between">
+        <button className="text-xs text-red-500 hover:text-red-700">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-4 w-4"
@@ -32,7 +32,7 @@ const Cardwish = ({ product, index }) => {
             />
           </svg>
         </button>
-        <button className="bg-orange-600 text-white text-xs px-2 py-1 rounded hover:bg-orange-700 transition duration-100">
+        <button className="rounded bg-orange-600 px-2 py-1 text-xs text-white transition duration-100 hover:bg-orange-700">
           Add to Cart
         </button>
       </div>

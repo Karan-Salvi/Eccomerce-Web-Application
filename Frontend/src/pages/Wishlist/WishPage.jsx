@@ -1,53 +1,52 @@
-import React from "react";
-import Navbar from "../../components/Home/Navbar";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import React from 'react';
+import Navbar from '../../components/Home/Navbar';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const WishPage = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  console.log("User is : ", isAuthenticated);
   const navigate = useNavigate();
 
   if (!isAuthenticated || !user || isAuthenticated == undefined) {
-    navigate("/login", { replace: true });
+    navigate('/login', { replace: true });
     return <LoginPage />;
   }
   return (
     <>
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
-        <div className="bg-white rounded-md overflow-hidden">
-          <div className="p-6  border-gray-200">
-            <div className="flex justify-between items-center">
+      <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-md bg-white">
+          <div className="border-gray-200 p-6">
+            <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-800">Wishlist</h3>
             </div>
           </div>
           <div className="p-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
               {/* <!-- Wishlist Item 1 --> */}
               {user?.data?.wishlist?.map((product, index) => (
                 <div
                   key={index}
-                  className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition duration-100"
+                  className="rounded-lg border border-gray-200 p-3 transition duration-100 hover:shadow-md"
                 >
-                  <div className="h-70 mb-3 rounded-lg overflow-hidden">
+                  <div className="mb-3 h-70 overflow-hidden rounded-lg">
                     <img
                       src={
                         product?.images[0]?.url || `https://placehold.co/400`
                       }
                       alt="Apple iPad Pro 12.9-inch with Magic Keyboard on a desk with coffee cup"
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
-                  <p className="text-gray-800 font-medium text-sm mb-1">
+                  <p className="mb-1 text-sm font-medium text-gray-800">
                     {product?.name}
                   </p>
-                  <p className="text-gray-600 text-sm mb-2">
+                  <p className="mb-2 text-sm text-gray-600">
                     ₹{product?.price}
                   </p>
-                  <div className="flex justify-between items-center">
-                    <button className="text-red-500 hover:text-red-700 text-xs">
+                  <div className="flex items-center justify-between">
+                    <button className="text-xs text-red-500 hover:text-red-700">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-4 w-4"
@@ -63,7 +62,7 @@ const WishPage = () => {
                         />
                       </svg>
                     </button>
-                    <button className="bg-orange-600 text-white text-xs px-2 py-1 rounded hover:bg-orange-700 transition duration-100">
+                    <button className="rounded bg-orange-600 px-2 py-1 text-xs text-white transition duration-100 hover:bg-orange-700">
                       Add to Cart
                     </button>
                   </div>
