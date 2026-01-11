@@ -4,24 +4,15 @@ import { fileURLToPath } from 'url';
 
 import { createLogger, format, transports } from 'winston';
 
-/**
- * Recreate __filename and __dirname for ES Modules
- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/**
- * Logs directory: Backend/logs
- */
 const logDir = path.join(__dirname, '..', '..', 'logs');
 
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }
 
-/**
- * Winston Logger Configuration
- */
 const logger = createLogger({
   level: 'info',
   format: format.combine(

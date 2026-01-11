@@ -50,13 +50,12 @@ function Products() {
     inStock: filters.inStockOnly,
     search: searchTerm,
   });
-  const [products, setProducts] = useState([]);
 
   console.log('Products Data in Product Page: ', productsData);
 
-  useEffect(() => {
-    setProducts(productsData?.data);
-  }, [productsData, currentPage]);
+  // useEffect(() => {
+  //   setProducts(productsData?.data);
+  // }, [productsData, currentPage]);
 
   // // Filter and search products
   // const filteredProducts = useMemo(() => {
@@ -168,7 +167,7 @@ function Products() {
                   <InputGroupInput
                     placeholder="Search..."
                     value={searchTerm}
-                    onChange={(e) => onSearchChange(e.target.value)}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <InputGroupAddon>
                     <Search />

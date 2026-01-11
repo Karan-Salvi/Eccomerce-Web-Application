@@ -3,15 +3,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 // { currentPage, totalPages, onPageChange }
 
 export const Pagination = ({ currentPage, totalPages, setCurrentPage }) => {
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const [totalPages, setTotalPages] = useState(5);
-
-  // const onPageChange = (page) => {
-  //   const { data, isLoading } = useGetAllProductsByPageQuery({
-  //     page,
-  //     limit: 12,
-  //   });
-  // };
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
