@@ -5,6 +5,9 @@ import Order from '#modules/orders/order.model.js';
 import Product from '#modules/products/product.model.js';
 import catchAsyncErrors from '#shared/middlewares/catchAsyncErrors.js';
 import logger from '#infra/logger/logger.js';
+import { calculateOrderTotal } from '#modules/orders/order.pricing.js';
+import { verifyStripeWebhookEvent } from '#modules/orders/order.webhook.js';
+import { isAlreadyDelivered } from '#modules/orders/order.statusGuard.js';
 
 // dotenv configuration
 dotenv.config({
@@ -26,14 +29,11 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  let totalPrice = 0;
-  taxPrice = Number(taxPrice);
   itemsPrice = Number(itemsPrice);
+  taxPrice = Number(taxPrice);
   shippingPrice = Number(shippingPrice);
 
-  taxPriceOfAmount = itemsPrice * (taxPrice / 100); // Assuming 18% tax
-
-  totalPrice += itemsPrice + taxPriceOfAmount + shippingPrice;
+  const { totalPrice } = calculateOrderTotal({ itemsPrice, taxPrice, shippingPrice });
 
   if (paymentMethod === 'cod') {
     // Create order with cash on delivery
@@ -164,17 +164,12 @@ export const stripeWebhook = catchAsyncErrors(async (req, res) => {
   let event;
 
   try {
-    const payloadString = JSON.stringify(req.body, null, 2);
+    const signature = req.headers['stripe-signature'];
     const secret = process.env.WEBHOOK_ENDPOINT_SECRET;
 
-    const header = stripe.webhooks.generateTestHeaderString({
-      payload: payloadString,
-      secret,
-    });
-
-    event = stripe.webhooks.constructEvent(payloadString, header, secret);
+    event = verifyStripeWebhookEvent(req.rawBody, signature, secret);
   } catch (error) {
-    logger.error('Webhook error:', error.message);
+    logger.error('Webhook signature verification failed:', error.message);
     return res.status(400).send(`Webhook error: ${error.message}`);
   }
 
@@ -215,7 +210,7 @@ export const stripeWebhook = catchAsyncErrors(async (req, res) => {
   res.status(200).send();
 });
 
-// get single order details -- ADMIN
+// get single order details -- owner or ADMIN
 export const getSingleOrder = catchAsyncErrors(async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user', 'name email');
 
@@ -223,6 +218,14 @@ export const getSingleOrder = catchAsyncErrors(async (req, res) => {
     return res.status(404).json({
       success: false,
       message: 'Order not found',
+    });
+  }
+
+  const isOwner = order.user._id.toString() === req.user._id.toString();
+  if (!isOwner && req.user.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'You are not authorized to view this order',
     });
   }
 
@@ -282,7 +285,7 @@ export async function updateStock(id, quantity) {
 // update order status - ADMIN
 export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
   const order = await Order.findById(req.params.id);
-  if (order.orderStatus === 'Delivered') {
+  if (isAlreadyDelivered(order)) {
     return res.status(400).json({
       message: 'You have all ready delivered the product',
     });
@@ -294,7 +297,7 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
 
   order.orderStatus = req.body.status;
 
-  if (req.body.status === 'Delivered') {
+  if (req.body.status === 'delivered') {
     order.deliveredAt = Date.now();
   }
 

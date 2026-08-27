@@ -5,6 +5,7 @@ import redisClient from '#config/redis.js';
 import logger from '#infra/logger/logger.js';
 import updateUserPreferences from '#shared/utils/updateUserPreferences.js';
 import { PRODUCT_SORT, PRODUCT_SORT_OPTIONS } from '#shared/constants/productSort.constants.js';
+import { getCacheVersion, bumpCacheVersion } from '#shared/utils/productCacheVersion.js';
 
 // Create Product -- Admin
 export const createProduct = catchAsyncErrors(async (req, res) => {
@@ -32,6 +33,7 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
 
   // Clear cache for product list
   await redisClient.del('all_products');
+  await bumpCacheVersion(redisClient);
 
   return res.status(201).json({
     success: true,
@@ -298,8 +300,10 @@ export const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
   }
 
   /* ------------------ REDIS CACHE KEY ------------------ */
+  const cacheVersion = await getCacheVersion(redisClient);
   const cacheKey = [
     'products',
+    `v:${cacheVersion}`,
     `p:${page}`,
     `l:${limit}`,
     `cat:${category || 'all'}`,
@@ -386,6 +390,7 @@ export const updateProduct = catchAsyncErrors(async (req, res) => {
 
   await redisClient.del('all_products');
   await redisClient.del(`product_${productId}`);
+  await bumpCacheVersion(redisClient);
 
   logger.info(`Product ${productId} updated`);
 
@@ -407,6 +412,7 @@ export const deleteProduct = catchAsyncErrors(async (req, res) => {
 
   await redisClient.del('all_products');
   await redisClient.del(`product_${req.params.id}`);
+  await bumpCacheVersion(redisClient);
 
   logger.info(`Product ${req.params.id} deleted`);
 
@@ -544,6 +550,7 @@ export const createProductReview = catchAsyncErrors(async (req, res) => {
   await product.save({ validateBeforeSave: false });
 
   await redisClient.del(`product_${productId}`);
+  await bumpCacheVersion(redisClient);
 
   logger.info(`Review added/updated for product ${productId}`);
 
@@ -581,6 +588,7 @@ export const deleteProductReview = catchAsyncErrors(async (req, res) => {
 
   await product.save({ validateBeforeSave: false });
   await redisClient.del(`product_${productId}`);
+  await bumpCacheVersion(redisClient);
 
   logger.info(`Review deleted from product ${productId}`);
 

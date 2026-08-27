@@ -101,6 +101,10 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+orderSchema.index({ user: 1, createdAt: -1 }, { name: 'UserOrdersIndex' });
+
+orderSchema.index({ orderStatus: 1, createdAt: -1 }, { name: 'OrderStatusIndex' });
+
 const Order = mongoose.model('Order', orderSchema);
 
 export default Order;
