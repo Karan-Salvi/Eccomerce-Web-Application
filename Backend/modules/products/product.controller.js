@@ -44,20 +44,27 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
 
 // Get All Products -- User
 export const getAllProducts = catchAsyncErrors(async (req, res) => {
-  const cachedData = await redisClient.get('all_products');
-
-  if (cachedData) {
-    logger.info('Products served from Redis');
-    return res.json({
-      success: true,
-      message: 'Fetched from cache',
-      data: JSON.parse(cachedData),
-    });
+  try {
+    const cachedData = await redisClient.get('all_products');
+    if (cachedData) {
+      logger.info('Products served from Redis');
+      return res.json({
+        success: true,
+        message: 'Fetched from cache',
+        data: JSON.parse(cachedData),
+      });
+    }
+  } catch (err) {
+    logger.error(`Redis GET failed, falling back to DB: ${err.message}`);
   }
 
   const products = await Product.find();
-  // await redisClient.setEx("all_products", 3600, JSON.stringify(products));
-  await redisClient.set('all_products', JSON.stringify(products), 'EX', 3600);
+
+  try {
+    await redisClient.set('all_products', JSON.stringify(products), 'EX', 3600);
+  } catch (err) {
+    logger.error(`Redis SET failed: ${err.message}`);
+  }
 
   logger.info('Products served from DB');
 
@@ -299,33 +306,38 @@ export const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
     };
   }
 
-  /* ------------------ REDIS CACHE KEY ------------------ */
-  const cacheVersion = await getCacheVersion(redisClient);
-  const cacheKey = [
-    'products',
-    `v:${cacheVersion}`,
-    `p:${page}`,
-    `l:${limit}`,
-    `cat:${category || 'all'}`,
-    `sort:${sort}`,
-    `minP:${minPrice || 'na'}`,
-    `maxP:${maxPrice || 'na'}`,
-    `rating:${minRating || 'na'}`,
-    `stock:${inStock || 'all'}`,
-    `search:${search || 'na'}`,
-  ].join('|');
+  /* ------------------ REDIS CACHE READ (falls through to DB on any failure) ------------------ */
+  let cacheKey = null;
+  try {
+    const cacheVersion = await getCacheVersion(redisClient);
+    cacheKey = [
+      'products',
+      `v:${cacheVersion}`,
+      `p:${page}`,
+      `l:${limit}`,
+      `cat:${category || 'all'}`,
+      `sort:${sort}`,
+      `minP:${minPrice || 'na'}`,
+      `maxP:${maxPrice || 'na'}`,
+      `rating:${minRating || 'na'}`,
+      `stock:${inStock || 'all'}`,
+      `search:${search || 'na'}`,
+    ].join('|');
 
-  /* ------------------ CACHE HIT ------------------ */
-  const cachedData = await redisClient.get(cacheKey);
-  if (cachedData) {
-    logger.info(`Products served from Redis → ${cacheKey}`);
-    return res.status(200).json({
-      success: true,
-      source: 'cache',
-      message: 'Fetched from cache',
-      data: JSON.parse(cachedData).products,
-      ...JSON.parse(cachedData),
-    });
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      logger.info(`Products served from Redis → ${cacheKey}`);
+      return res.status(200).json({
+        success: true,
+        source: 'cache',
+        message: 'Fetched from cache',
+        data: JSON.parse(cachedData).products,
+        ...JSON.parse(cachedData),
+      });
+    }
+  } catch (err) {
+    logger.error(`Redis read failed, falling back to DB: ${err.message}`);
+    cacheKey = null;
   }
 
   /* ------------------ DB QUERY ------------------ */
@@ -359,12 +371,18 @@ export const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
   };
 
   /* ------------------ CACHE STORE (REDIS v3 STYLE) ------------------ */
-  await redisClient.set(
-    cacheKey,
-    JSON.stringify(responseData),
-    'EX',
-    3600 // 1 hour TTL
-  );
+  if (cacheKey) {
+    try {
+      await redisClient.set(
+        cacheKey,
+        JSON.stringify(responseData),
+        'EX',
+        3600 // 1 hour TTL
+      );
+    } catch (err) {
+      logger.error(`Redis SET failed: ${err.message}`);
+    }
+  }
 
   return res.status(200).json({
     success: true,

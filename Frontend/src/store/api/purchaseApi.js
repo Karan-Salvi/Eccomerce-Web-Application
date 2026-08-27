@@ -12,10 +12,11 @@ export const purchaseApi = createApi({
   }),
   endpoints: (builder) => ({
     createCheckoutSession: builder.mutation({
-      query: (order) => ({
+      query: ({ order, idempotencyKey }) => ({
         url: '/order/new',
         method: 'POST',
         body: order,
+        headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
       }),
     }),
     getCourseDetailWithStatus: builder.query({

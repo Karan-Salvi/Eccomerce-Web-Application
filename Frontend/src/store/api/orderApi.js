@@ -15,10 +15,11 @@ export const orderApi = createApi({
   endpoints: (builder) => ({
     // ✅ Create new order
     createNewOrder: builder.mutation({
-      query: (orderData) => ({
+      query: ({ orderData, idempotencyKey }) => ({
         url: 'order/new',
         method: 'POST',
         body: orderData,
+        headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
       }),
       invalidatesTags: ['Order'],
     }),

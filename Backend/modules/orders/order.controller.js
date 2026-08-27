@@ -5,9 +5,12 @@ import Order from '#modules/orders/order.model.js';
 import Product from '#modules/products/product.model.js';
 import catchAsyncErrors from '#shared/middlewares/catchAsyncErrors.js';
 import logger from '#infra/logger/logger.js';
+import redisClient from '#config/redis.js';
 import { calculateOrderTotal } from '#modules/orders/order.pricing.js';
 import { verifyStripeWebhookEvent } from '#modules/orders/order.webhook.js';
 import { isAlreadyDelivered } from '#modules/orders/order.statusGuard.js';
+import { reserveStock } from '#modules/products/product.stock.js';
+import { withIdempotentResult, markEventProcessed } from '#shared/utils/idempotency.js';
 
 // dotenv configuration
 dotenv.config({
@@ -16,6 +19,117 @@ dotenv.config({
 
 const FRONTEND_URI = process.env.FRONTEND_URI;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const IDEMPOTENCY_TTL_SECONDS = 600; // 10 minutes — long enough to cover a retried double-click
+const WEBHOOK_EVENT_TTL_SECONDS = 86400; // Stripe retries a failing webhook for up to 3 days; this is a practical floor, not a hard guarantee
+
+export async function buildCodOrder(
+  orderData,
+  { productModel = Product, orderModel = Order, stockRedisClient } = {}
+) {
+  const { shippingInfo, orderItems, userId, itemsPrice, taxPrice, shippingPrice, totalPrice } =
+    orderData;
+
+  await reserveStock(orderItems, { productModel, redisClient: stockRedisClient });
+
+  const paymentInfo = { id: 'COD', status: 'pending' };
+
+  const order = await orderModel.create({
+    shippingInfo,
+    orderItems,
+    user: userId,
+    paymentMethod: 'cod',
+    itemsPrice,
+    taxPrice,
+    shippingPrice,
+    totalPrice,
+    paymentInfo,
+  });
+
+  logger.info(`Order created successfully with ID (COD): ${order._id}`);
+
+  return {
+    status: 201,
+    body: {
+      success: true,
+      message: 'Order placed successfully',
+      data: order,
+    },
+  };
+}
+
+export async function buildStripeOrder(
+  orderData,
+  { productModel = Product, orderModel = Order, stockRedisClient } = {}
+) {
+  const { shippingInfo, orderItems, userId, itemsPrice, taxPrice, shippingPrice, totalPrice } =
+    orderData;
+
+  await reserveStock(orderItems, { productModel, redisClient: stockRedisClient });
+
+  const paymentInfo = { id: 'stripe', status: 'pending' };
+
+  const order = await orderModel.create({
+    shippingInfo,
+    orderItems,
+    user: userId,
+    paymentMethod: 'stripe',
+    itemsPrice,
+    taxPrice,
+    shippingPrice,
+    totalPrice,
+    paymentInfo,
+  });
+
+  const populatedOrder = await orderModel.findById(order._id).populate('orderItems.product');
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: populatedOrder.orderItems.map((item) => ({
+      price_data: {
+        currency: 'inr',
+        product_data: {
+          name: item.product.name,
+          images: [item.product.images[0].url],
+        },
+        unit_amount: item.price * 100,
+      },
+      quantity: item.quantity,
+    })),
+    mode: 'payment',
+    success_url: `${FRONTEND_URI}/order-success/${order._id}`,
+    cancel_url: `${FRONTEND_URI}/order-cancel/${order._id}`,
+    metadata: {
+      orderId: order._id.toString(),
+      userId: order.user.toString(),
+    },
+    shipping_address_collection: { allowed_countries: ['IN'] },
+  });
+
+  if (!session.url) {
+    const error = new Error('Error while creating Stripe session');
+    error.statusCode = 400;
+    error.expose = true;
+    throw error;
+  }
+
+  order.paymentInfo.id = session.id;
+  order.paymentInfo.status = 'pending';
+  await order.save();
+
+  logger.info(`Order created successfully with ID (Stripe): ${order._id}`);
+
+  return {
+    status: 201,
+    body: {
+      success: true,
+      message: 'Order placed successfully',
+      data: order,
+      sessionUrl: session.url,
+    },
+  };
+}
+
 // create new order
 export const createNewOrder = catchAsyncErrors(async (req, res) => {
   let { shippingInfo, orderItems, itemsPrice, taxPrice, shippingPrice, paymentMethod } = req.body;
@@ -29,134 +143,70 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
     });
   }
 
+  if (paymentMethod !== 'cod' && paymentMethod !== 'stripe') {
+    logger.error(`Invalid payment method for order creation: ${paymentMethod}`);
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid payment method',
+    });
+  }
+
   itemsPrice = Number(itemsPrice);
   taxPrice = Number(taxPrice);
   shippingPrice = Number(shippingPrice);
 
   const { totalPrice } = calculateOrderTotal({ itemsPrice, taxPrice, shippingPrice });
 
-  if (paymentMethod === 'cod') {
-    // Create order with cash on delivery
-    const paymentInfo = {
-      id: 'COD',
-      status: 'pending',
-    };
-    let order = await Order.create({
-      shippingInfo,
-      orderItems,
-      user: userId,
-      paymentMethod,
-      itemsPrice,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
-      paymentInfo,
-    });
+  const orderData = {
+    shippingInfo,
+    orderItems,
+    userId,
+    itemsPrice,
+    taxPrice,
+    shippingPrice,
+    totalPrice,
+  };
 
-    // Ensure order is created before proceeding
-    if (!order) {
-      logger.error('Error creating order with cash on delivery');
-      return res.status(500).json({
-        success: false,
-        message: 'Error creating order',
-      });
+  const computeOrder =
+    paymentMethod === 'cod' ? () => buildCodOrder(orderData) : () => buildStripeOrder(orderData);
+
+  try {
+    const idempotencyKey = req.headers['idempotency-key'];
+    let outcome;
+
+    if (idempotencyKey) {
+      // computeStarted tells a Redis-layer failure apart from a failure that
+      // came out of computeOrder itself — the latter must never be retried.
+      let computeStarted = false;
+      try {
+        const { result } = await withIdempotentResult(
+          redisClient,
+          `order:${userId}:${idempotencyKey}`,
+          IDEMPOTENCY_TTL_SECONDS,
+          () => {
+            computeStarted = true;
+            return computeOrder();
+          }
+        );
+        outcome = result;
+      } catch (error) {
+        if (computeStarted || error.expose) throw error;
+        logger.warn(
+          `Redis unavailable for idempotency (${error.message}) — proceeding without idempotency protection`
+        );
+        outcome = await computeOrder();
+      }
+    } else {
+      outcome = await computeOrder();
     }
 
-    logger.info(`Order created successfully with ID (COD): ${order._id}`);
-    return res.status(201).json({
-      success: true,
-      message: 'Order placed successfully',
-      data: order,
-    });
-  } else if (paymentMethod === 'stripe') {
-    // Create order with stripe payment
-
-    let paymentInfo = {
-      id: 'stripe',
-      status: 'pending',
-    };
-
-    let order = await Order.create({
-      shippingInfo,
-      orderItems,
-      user: userId,
-      paymentMethod,
-      itemsPrice,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
-      paymentInfo,
-    });
-
-    // Ensure order is created before proceeding
-    if (!order) {
-      logger.error('Error creating order with Stripe payment');
-      return res.status(500).json({
-        success: false,
-        message: 'Error creating order',
-      });
+    return res.status(outcome.status).json(outcome.body);
+  } catch (error) {
+    if (error.expose && error.statusCode) {
+      logger.error(`Order creation failed (${error.statusCode}): ${error.message}`);
+      return res.status(error.statusCode).json({ success: false, message: error.message });
     }
-
-    const orderId = order._id;
-    // Populate order items with product details
-
-    const PopulatedOrder = await Order.findById(orderId).populate('orderItems.product');
-
-    if (!PopulatedOrder) {
-      logger.error('Order not found');
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found',
-      });
-    }
-
-    // Create a Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-
-      line_items: PopulatedOrder.orderItems.map((item) => ({
-        price_data: {
-          currency: 'inr',
-          product_data: {
-            name: item.product.name, // Make sure you populate product details before
-            images: [item.product.images[0].url], // Optional: Only if image is public
-          },
-          unit_amount: item.price * 100, // Price per item in paisa
-        },
-        quantity: item.quantity, // Quantity of this item
-      })),
-
-      mode: 'payment',
-
-      success_url: `${FRONTEND_URI}/order-success/${order._id}`,
-      cancel_url: `${FRONTEND_URI}/order-cancel/${order._id}`,
-
-      metadata: {
-        orderId: order._id.toString(),
-        userId: order.user.toString(),
-      },
-
-      shipping_address_collection: {
-        allowed_countries: ['IN'],
-      },
-    });
-
-    if (!session.url) {
-      logger.error('Error creating Stripe session');
-      return res.status(400).json({ success: false, message: 'Error while creating session' });
-    }
-
-    // Update the order with payment info
-    order.paymentInfo.id = session.id;
-    order.paymentInfo.status = 'pending'; // Set initial status to pending
-    await order.save();
-    logger.info(`Order created successfully with ID(Stripe): ${order._id}`);
-    return res.status(201).json({
-      success: true,
-      message: 'Order placed successfully',
-      data: order,
-      sessionUrl: session.url, // Return the Stripe session URL
-    });
+    throw error;
   }
 });
 
@@ -173,8 +223,23 @@ export const stripeWebhook = catchAsyncErrors(async (req, res) => {
     return res.status(400).send(`Webhook error: ${error.message}`);
   }
 
-  // Handle the checkout session completed event
   if (event.type === 'checkout.session.completed') {
+    // Redis being down must degrade dedup protection, not block payment
+    // confirmation — treat a failed claim as "first delivery" and carry on.
+    let isFirstDelivery = true;
+    try {
+      isFirstDelivery = await markEventProcessed(redisClient, event.id, WEBHOOK_EVENT_TTL_SECONDS);
+    } catch (error) {
+      logger.warn(
+        `Redis unavailable for webhook dedup (${error.message}) — processing event ${event.id} without duplicate protection`
+      );
+    }
+
+    if (!isFirstDelivery) {
+      logger.info(`Duplicate webhook delivery for event ${event.id}, skipping`);
+      return res.status(200).json({ message: 'Already processed' });
+    }
+
     logger.info('Checkout session completed event received');
 
     try {
@@ -203,7 +268,7 @@ export const stripeWebhook = catchAsyncErrors(async (req, res) => {
 
       return res.status(200).json({ message: 'Order payment completed successfully' });
     } catch (error) {
-      console.error('Error handling event:', error);
+      logger.error('Error handling event:', error.message);
       return res.status(500).json({ message: 'Internal Server Error' });
     }
   }
@@ -276,12 +341,6 @@ export const getAllOrders = catchAsyncErrors(async (req, res) => {
   });
 });
 
-export async function updateStock(id, quantity) {
-  const product = await Product.findById(id);
-  product.stock = product.stock - quantity;
-  await product.save();
-}
-
 // update order status - ADMIN
 export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
   const order = await Order.findById(req.params.id);
@@ -290,10 +349,6 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
       message: 'You have all ready delivered the product',
     });
   }
-
-  order.orderItems.forEach(async (order) => {
-    await updateStock(order.product, order.quantity);
-  });
 
   order.orderStatus = req.body.status;
 
