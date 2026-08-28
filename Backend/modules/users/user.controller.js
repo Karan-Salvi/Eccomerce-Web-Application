@@ -50,7 +50,7 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
 
   if (!checkUser) {
     logger.warn('Password is incorrect');
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
       message: 'Password is incorrect',
     });
@@ -264,14 +264,14 @@ export const updatePassword = catchAsyncErrors(async (req, res) => {
   const isPasswordMatched = await user.isPasswordCorrect(oldPassword);
 
   if (!isPasswordMatched) {
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
       message: 'Old password is incorrect.Please enter correct password ',
     });
   }
 
   if (password !== confirmPassword) {
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
       message: 'Password and Confirm password should be same.',
     });
