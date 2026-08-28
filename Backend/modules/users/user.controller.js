@@ -406,6 +406,14 @@ export const addAddress = catchAsyncErrors(async (req, res) => {
   }
 
   const user = await User.findById(userId);
+  if (!user) {
+    logger.error('User not found');
+    return res.status(404).json({
+      success: false,
+      message: 'User not found',
+    });
+  }
+
   const addressInformation = {
     address,
     city,
@@ -421,7 +429,7 @@ export const addAddress = catchAsyncErrors(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: 'Address updated successfully',
+    message: 'Address added successfully',
   });
 });
 

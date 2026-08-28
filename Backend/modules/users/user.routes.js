@@ -18,6 +18,9 @@ import {
   removeFromWishlist,
   addToCart,
   removeFromCart,
+  addAddress,
+  updateAddress,
+  deleteAddress,
 } from '#modules/users/user.controller.js';
 
 const router = express.Router();
@@ -59,5 +62,11 @@ router
   .route('/user/cart')
   .post(checkAuthenticated(), addToCart)
   .delete(checkAuthenticated(), removeFromCart);
+
+router
+  .route('/address')
+  .post(checkAuthenticated(), addAddress)
+  .put(checkAuthenticated(), updateAddress)
+  .delete(checkAuthenticated(), deleteAddress);
 
 export default router;
