@@ -1,7 +1,8 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { BarChart3, Package, Plus, Store, Menu, X } from 'lucide-react';
+import { BarChart3, Package, Plus, Menu, X } from 'lucide-react';
 
 const sidebarItems = [
   { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -11,6 +12,14 @@ const sidebarItems = [
 
 const Layout = ({ children, currentView, onViewChange }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const vendorName = user?.data?.name || 'Vendor';
+  const initials = vendorName
+    .split(' ')
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   return (
     <div className="bg-background flex min-h-screen">
@@ -76,11 +85,11 @@ const Layout = ({ children, currentView, onViewChange }) => {
             <div className="flex items-center gap-3">
               <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
                 <span className="text-primary-foreground text-sm font-medium">
-                  JD
+                  {initials}
                 </span>
               </div>
               <div className="text-sm">
-                <div className="font-medium">John Doe</div>
+                <div className="font-medium">{vendorName}</div>
                 <div className="text-muted-foreground">Vendor</div>
               </div>
             </div>

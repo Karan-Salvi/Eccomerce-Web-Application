@@ -59,7 +59,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
   }
 
   const handleDeleteProduct = (product) => {
-    setDeleteProductId(product.id);
+    setDeleteProductId(product._id);
   };
 
   const confirmDelete = async () => {
@@ -152,7 +152,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredProducts.map((product) => (
             <ProductCard
-              key={product.id}
+              key={product._id}
               product={product}
               onEdit={onEditProduct}
               onView={handleViewProduct}

@@ -102,7 +102,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
         body.append('price', formData.price);
         body.append('originalPrice', formData.price);
         body.append('category', formData.category);
-        body.append('stock', formData.stock);
+        body.append('inStock', formData.stock);
         imageFiles.forEach((file) => body.append('image', file));
 
         await createProduct(body).unwrap();

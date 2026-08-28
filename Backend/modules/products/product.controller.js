@@ -35,15 +35,16 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
 
   const images = uploadedImages.map((image) => ({ url: image }));
 
-  const { name, description, price, ratings, category, stock } = req.body;
+  const { name, description, price, originalPrice, ratings, category, inStock } = req.body;
 
   const product = await Product.create({
     name,
     description,
     price,
+    originalPrice,
     ratings,
     category,
-    stock,
+    inStock,
     images,
     createdBy: req.user._id,
   });

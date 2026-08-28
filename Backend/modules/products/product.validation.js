@@ -4,9 +4,20 @@ import { z } from 'zod';
 export const objectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId');
 
 // Price / stock helpers
-export const priceSchema = z.number().positive().max(99999999, 'Price cannot exceed 8 digits');
+// z.coerce.number() (not z.number()) because createProduct arrives as
+// multipart/form-data (multer) — every field lands in req.body as a string,
+// even numeric ones. Coercion is a no-op for callers that already send real
+// numbers (e.g. updateProduct's JSON body), so this is safe both ways.
+export const priceSchema = z.coerce
+  .number()
+  .positive()
+  .max(99999999, 'Price cannot exceed 8 digits');
 
-export const stockSchema = z.number().int().nonnegative().max(9999, 'Stock cannot exceed 4 digits');
+export const stockSchema = z.coerce
+  .number()
+  .int()
+  .nonnegative()
+  .max(9999, 'Stock cannot exceed 4 digits');
 
 export const createProductSchema = z.object({
   body: z.object({
@@ -16,7 +27,7 @@ export const createProductSchema = z.object({
     price: priceSchema,
     originalPrice: priceSchema,
 
-    ratings: z.number().min(0).max(5).optional(),
+    ratings: z.coerce.number().min(0).max(5).optional(),
 
     sizes: z.array(z.string()).optional(),
     colors: z.array(z.string()).optional(),
@@ -41,7 +52,7 @@ export const updateProductSchema = z.object({
     price: priceSchema.optional(),
     originalPrice: priceSchema.optional(),
 
-    ratings: z.number().min(0).max(5).optional(),
+    ratings: z.coerce.number().min(0).max(5).optional(),
 
     sizes: z.array(z.string()).optional(),
     colors: z.array(z.string()).optional(),
