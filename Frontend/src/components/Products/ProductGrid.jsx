@@ -4,6 +4,8 @@ import ProductDetail from '../../components/Product/ProductDetail';
 import { Pagination } from './Pagination';
 
 export const ProductGrid = ({ products, loading }) => {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   if (loading) {
     return (
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
@@ -51,8 +53,6 @@ export const ProductGrid = ({ products, loading }) => {
       </div>
     );
   }
-
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   if (selectedProduct) {
     return (
