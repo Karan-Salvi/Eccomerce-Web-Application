@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import '../User/Profile.css';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import LoginPage from '../Auth/Login';
 import Navbar from '../../components/Home/Navbar';
 
 const Profile = () => {
@@ -10,9 +9,14 @@ const Profile = () => {
 
   const navigate = useNavigate();
 
-  if (!isAuthenticated || !user || isAuthenticated == undefined) {
-    navigate('/login', { replace: true });
-    return <LoginPage />;
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  if (!isAuthenticated || !user) {
+    return null;
   }
   return (
     <section className="bg-gray-100">
