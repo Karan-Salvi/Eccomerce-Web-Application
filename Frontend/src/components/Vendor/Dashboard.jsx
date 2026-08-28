@@ -40,7 +40,17 @@ const COLORS = [
 ];
 
 const Dashboard = () => {
-  const { data, isLoading } = useGetMyAnalyticsQuery();
+  const {
+    data,
+    isLoading,
+    isFetching,
+    refetch,
+    fulfilledTimeStamp,
+  } = useGetMyAnalyticsQuery(undefined, {
+    pollingInterval: 30000, // 30s — analytics don't need faster than this
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  });
   const analytics = data?.data;
 
   if (isLoading || !analytics) {
@@ -50,6 +60,10 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  const lastUpdatedLabel = fulfilledTimeStamp
+    ? new Date(fulfilledTimeStamp).toLocaleTimeString()
+    : null;
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {
@@ -66,6 +80,23 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+          </span>
+          Live{lastUpdatedLabel ? ` · updated ${lastUpdatedLabel}` : ''}
+        </div>
+        <button
+          onClick={() => refetch()}
+          disabled={isFetching}
+          className="text-sm font-medium text-blue-600 hover:text-blue-700 disabled:opacity-50"
+        >
+          {isFetching ? 'Refreshing…' : 'Refresh now'}
+        </button>
+      </div>
+
       {/* Key Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard

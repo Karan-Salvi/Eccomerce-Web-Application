@@ -26,7 +26,10 @@ import { Search, Plus, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ProductsPage = ({ onAddProduct, onEditProduct }) => {
-  const { data, isLoading } = useGetMyProductsQuery({ page: 1, limit: 100 });
+  const { data, isLoading } = useGetMyProductsQuery(
+    { page: 1, limit: 100 },
+    { pollingInterval: 30000, refetchOnFocus: true, refetchOnReconnect: true }
+  );
   const products = useMemo(() => data?.data || [], [data]);
   const [deleteProduct] = useDeleteProductMutation();
   const [searchTerm, setSearchTerm] = useState('');

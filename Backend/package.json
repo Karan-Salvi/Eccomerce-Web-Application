@@ -18,7 +18,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
-    "fix:all": "npm run lint:fix && npm run format:fix"
+    "fix:all": "npm run lint:fix && npm run format:fix",
+    "seed": "node scripts/seed.js",
+    "seed:clear": "node scripts/clear-seed-data.js"
   },
   "author": "",
   "license": "ISC",

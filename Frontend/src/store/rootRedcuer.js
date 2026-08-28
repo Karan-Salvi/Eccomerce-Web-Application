@@ -5,6 +5,7 @@ import { orderApi } from './api/orderApi';
 import { authApi } from './api/authApi';
 import { purchaseApi } from './api/purchaseApi';
 import { vendorApi } from './api/vendorApi';
+import { recommendationApi } from './api/recommendationApi';
 
 const rootRedcuer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
@@ -12,6 +13,7 @@ const rootRedcuer = combineReducers({
   [orderApi.reducerPath]: orderApi.reducer,
   [purchaseApi.reducerPath]: purchaseApi.reducer,
   [vendorApi.reducerPath]: vendorApi.reducer,
+  [recommendationApi.reducerPath]: recommendationApi.reducer,
   auth: authReducer,
 });
 export default rootRedcuer;

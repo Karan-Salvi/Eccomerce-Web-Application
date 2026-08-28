@@ -18,6 +18,7 @@ import {
   useAddToCartMutation,
   useAddToWishlistMutation,
 } from '../../store/api/authApi';
+import { useGetSimilarProductsQuery } from '../../store/api/recommendationApi';
 import { useSelector } from 'react-redux';
 import Share from '../Share/Share';
 import PlaceOrderButton from './PlaceOrderButton';
@@ -75,6 +76,10 @@ const ProductDetail = ({ product }) => {
   };
 
   const navigate = useNavigate();
+
+  const { data: similarProductsData, isLoading: isLoadingSimilar } = useGetSimilarProductsQuery(product._id, {
+    skip: !product._id,
+  });
 
   // const productReviews = [];
   const discount = product.originalPrice
@@ -594,6 +599,38 @@ const ProductDetail = ({ product }) => {
           </div>
         </div>
       </div>
+
+      {/* You may also like */}
+      {!isLoadingSimilar && similarProductsData?.data?.length > 0 && (
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">
+            {similarProductsData.source === 'cooccurrence'
+              ? 'Customers who bought this also bought'
+              : 'You may also like'}
+          </h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {similarProductsData.data.map((item) => (
+              <a
+                key={item._id}
+                href={`/product/${item._id}`}
+                className="group overflow-hidden rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md"
+              >
+                <div className="aspect-square overflow-hidden bg-gray-100">
+                  <img
+                    src={item.images?.[0]?.url}
+                    alt={item.name}
+                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-3">
+                  <p className="truncate text-sm font-medium text-gray-900">{item.name}</p>
+                  <p className="text-sm font-bold text-gray-900">₹{item.price.toFixed(2)}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -98,6 +98,10 @@ const orderSchema = new mongoose.Schema(
       required: true,
       default: 'processing',
     },
+    seedBatch: {
+      type: String,
+      index: true,
+    },
     deliveredAt: {
       type: Date,
     },
