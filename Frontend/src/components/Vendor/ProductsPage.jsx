@@ -27,7 +27,7 @@ import { toast } from 'sonner';
 
 const ProductsPage = ({ onAddProduct, onEditProduct }) => {
   const { data, isLoading } = useGetMyProductsQuery({ page: 1, limit: 100 });
-  const products = data?.data || [];
+  const products = useMemo(() => data?.data || [], [data]);
   const [deleteProduct] = useDeleteProductMutation();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');

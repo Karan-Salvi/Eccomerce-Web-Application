@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Grid, LayoutGrid, SlidersHorizontal } from 'lucide-react';
 import { SearchBar } from '@/components/Products/SearchBar';
 import { FilterSidebar } from '@/components/Products/FilterSidebar';

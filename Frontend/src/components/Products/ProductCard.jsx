@@ -8,7 +8,7 @@ import {
 import { useSelector } from 'react-redux';
 // import ProductDetail from "../../components/Product";
 
-export const ProductCard = ({ product, setSelectedProduct }) => {
+export const ProductCard = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();

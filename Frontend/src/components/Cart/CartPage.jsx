@@ -38,36 +38,19 @@ const CartPage = () => {
     setCart(updatedCart);
   };
 
-  const TotalPrice = () => {
+  useEffect(() => {
     let total = 0;
+    let discounted = 0;
     user?.data?.cart?.forEach((item) => {
       if (!item.productId) return; // product was deleted after being added to cart
       total += item.productId.originalPrice * (item.quantity || 1);
+      discounted += item.productId.price * (item.quantity || 1);
     });
 
-    return total;
-  };
-
-  const discountPrice = () => {
-    let total = 0;
-    user?.data?.cart?.forEach((item) => {
-      if (!item.productId) return; // product was deleted after being added to cart
-      total += item.productId.price * (item.quantity || 1);
-    });
-
-    return total;
-  };
-
-  useEffect(() => {
     setCart(user?.data?.cart);
-    setTotalPrice(TotalPrice());
-    setDisPrice(discountPrice());
-  }, [user, user?.data?.cart]);
-
-  useEffect(() => {
-    setTotalPrice(TotalPrice());
-    setDisPrice(discountPrice());
-  }, [user, user?.data?.cart, change]);
+    setTotalPrice(total);
+    setDisPrice(discounted);
+  }, [user, change]);
 
   if (user?.data?.cart?.length === 0) {
     return (

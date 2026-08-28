@@ -43,13 +43,9 @@ export const authApi = createApi({
         url: 'logout',
         method: 'GET',
       }),
-      async onQueryStarted(_, { queryFulfilled, dispatch }) {
-        try {
-          localStorage.removeItem('user');
-          dispatch(userLoggedOut());
-        } catch (error) {
-          console.log(error);
-        }
+      async onQueryStarted(_, { dispatch }) {
+        localStorage.removeItem('user');
+        dispatch(userLoggedOut());
       },
     }),
 
