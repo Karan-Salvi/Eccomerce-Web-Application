@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../../components/Home/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -8,9 +8,14 @@ const WishPage = () => {
 
   const navigate = useNavigate();
 
-  if (!isAuthenticated || !user || isAuthenticated == undefined) {
-    navigate('/login', { replace: true });
-    return <LoginPage />;
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  if (!isAuthenticated || !user) {
+    return null;
   }
   return (
     <>
