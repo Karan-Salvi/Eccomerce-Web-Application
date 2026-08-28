@@ -7,6 +7,18 @@ import updateUserPreferences from '#shared/utils/updateUserPreferences.js';
 import { PRODUCT_SORT, PRODUCT_SORT_OPTIONS } from '#shared/constants/productSort.constants.js';
 import { getCacheVersion, bumpCacheVersion } from '#shared/utils/productCacheVersion.js';
 
+// Best-effort cache invalidation: the DB write already succeeded, so a Redis
+// outage here must not fail the request — cached data just goes stale until
+// the version bump/TTL catches up.
+async function invalidateProductCache(keys = []) {
+  try {
+    await Promise.all(keys.map((key) => redisClient.del(key)));
+    await bumpCacheVersion(redisClient);
+  } catch (err) {
+    logger.error(`Product cache invalidation failed: ${err.message}`);
+  }
+}
+
 // Create Product -- Admin
 export const createProduct = catchAsyncErrors(async (req, res) => {
   const files = req.files?.['image'];
@@ -39,8 +51,7 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
   logger.info(`Product created: ${product._id}`);
 
   // Clear cache for product list
-  await redisClient.del('all_products');
-  await bumpCacheVersion(redisClient);
+  await invalidateProductCache(['all_products']);
 
   return res.status(201).json({
     success: true,
@@ -413,9 +424,7 @@ export const updateProduct = catchAsyncErrors(async (req, res) => {
     runValidators: true,
   });
 
-  await redisClient.del('all_products');
-  await redisClient.del(`product_${productId}`);
-  await bumpCacheVersion(redisClient);
+  await invalidateProductCache(['all_products', `product_${productId}`]);
 
   logger.info(`Product ${productId} updated`);
 
@@ -435,9 +444,7 @@ export const deleteProduct = catchAsyncErrors(async (req, res) => {
 
   await Product.findByIdAndDelete(req.params.id);
 
-  await redisClient.del('all_products');
-  await redisClient.del(`product_${req.params.id}`);
-  await bumpCacheVersion(redisClient);
+  await invalidateProductCache(['all_products', `product_${req.params.id}`]);
 
   logger.info(`Product ${req.params.id} deleted`);
 
@@ -574,8 +581,7 @@ export const createProductReview = catchAsyncErrors(async (req, res) => {
 
   await product.save({ validateBeforeSave: false });
 
-  await redisClient.del(`product_${productId}`);
-  await bumpCacheVersion(redisClient);
+  await invalidateProductCache([`product_${productId}`]);
 
   logger.info(`Review added/updated for product ${productId}`);
 
@@ -612,8 +618,7 @@ export const deleteProductReview = catchAsyncErrors(async (req, res) => {
   product.numOfReviews = product.reviews.length;
 
   await product.save({ validateBeforeSave: false });
-  await redisClient.del(`product_${productId}`);
-  await bumpCacheVersion(redisClient);
+  await invalidateProductCache([`product_${productId}`]);
 
   logger.info(`Review deleted from product ${productId}`);
 
