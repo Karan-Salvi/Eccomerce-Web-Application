@@ -311,7 +311,7 @@ export const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
 
 // Get all users details -- ADMIN
 export const getAllUsersDetail = catchAsyncErrors(async (req, res) => {
-  const users = await find();
+  const users = await User.find();
   return res.status(200).json({
     success: true,
     message: 'All user fetch successfully',

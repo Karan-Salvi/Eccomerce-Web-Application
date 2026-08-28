@@ -7,15 +7,11 @@ import cors from 'cors';
 import logger from './infra/logger/logger.js';
 // middlewares
 import rateLimit from './shared/middlewares/rateLimiter.js';
-// Database connection
-
-// cloudinary
-// cors
-
 // routes
 import productRoute from './modules/products/product.routes.js';
 import userRoute from './modules/users/user.routes.js';
 import orderRoute from './modules/orders/order.routes.js';
+
 import dbConnect from '#database/dbConnect.js';
 
 // dotenv configuration

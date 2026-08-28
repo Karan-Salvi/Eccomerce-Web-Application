@@ -106,11 +106,18 @@ test('reserveStock never oversells under a simulated concurrent second buyer', a
   const stockById = new Map([['p1', 1]]);
   const productModel = makeFakeProductModel(stockById);
 
-  const first = await reserveStock([{ product: 'p1', quantity: 1 }], { productModel, redisClient: makeFakeRedis() });
+  const first = await reserveStock([{ product: 'p1', quantity: 1 }], {
+    productModel,
+    redisClient: makeFakeRedis(),
+  });
   assert.deepEqual(first, [{ productId: 'p1', quantity: 1 }]);
 
   await assert.rejects(
-    () => reserveStock([{ product: 'p1', quantity: 1 }], { productModel, redisClient: makeFakeRedis() }),
+    () =>
+      reserveStock([{ product: 'p1', quantity: 1 }], {
+        productModel,
+        redisClient: makeFakeRedis(),
+      }),
     (error) => {
       assert.equal(error.statusCode, 409);
       return true;
@@ -135,10 +142,10 @@ test('reserveStock still succeeds when cache invalidation fails', async () => {
   const stockById = new Map([['p1', 5]]);
   const productModel = makeFakeProductModel(stockById);
 
-  const reserved = await reserveStock(
-    [{ product: 'p1', quantity: 2 }],
-    { productModel, redisClient: makeFakeRedis({ failing: true }) }
-  );
+  const reserved = await reserveStock([{ product: 'p1', quantity: 2 }], {
+    productModel,
+    redisClient: makeFakeRedis({ failing: true }),
+  });
 
   assert.deepEqual(reserved, [{ productId: 'p1', quantity: 2 }]);
   assert.equal(stockById.get('p1'), 3);

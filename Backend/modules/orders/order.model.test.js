@@ -4,7 +4,9 @@ import assert from 'node:assert/strict';
 import Order from '#modules/orders/order.model.js';
 
 function hasIndexOn(fieldName) {
-  return Order.schema.indexes().some(([spec]) => Object.prototype.hasOwnProperty.call(spec, fieldName));
+  return Order.schema
+    .indexes()
+    .some(([spec]) => Object.prototype.hasOwnProperty.call(spec, fieldName));
 }
 
 test('Order schema has an index on user (used by myOrders lookup)', () => {

@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 
 import { v2 as cloudinary } from 'cloudinary';
+
 import logger from '#infra/logger/logger.js';
 
 export const uploadOnCloudinary = async (localFilePath) => {
