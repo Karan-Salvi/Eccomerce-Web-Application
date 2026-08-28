@@ -9,7 +9,14 @@ import { getCacheVersion, bumpCacheVersion } from '#shared/utils/productCacheVer
 
 // Create Product -- Admin
 export const createProduct = catchAsyncErrors(async (req, res) => {
-  const files = req.files['image'];
+  const files = req.files?.['image'];
+
+  if (!files || files.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please upload at least one product image',
+    });
+  }
 
   const uploadPromises = files.map((file) => uploadOnCloudinary(file.path));
   const uploadedImages = await Promise.all(uploadPromises);

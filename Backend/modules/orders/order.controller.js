@@ -344,6 +344,13 @@ export const getAllOrders = catchAsyncErrors(async (req, res) => {
 // update order status - ADMIN
 export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
   const order = await Order.findById(req.params.id);
+  if (!order) {
+    return res.status(404).json({
+      success: false,
+      message: 'Order not found',
+    });
+  }
+
   if (isAlreadyDelivered(order)) {
     return res.status(400).json({
       message: 'You have all ready delivered the product',

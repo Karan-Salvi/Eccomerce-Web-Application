@@ -249,14 +249,14 @@ export const updatePassword = catchAsyncErrors(async (req, res) => {
 
   const user = await User.findById(req.user._id);
 
-  const isPasswordMatched = await user.isPasswordCorrect(oldPassword);
-
   if (!user) {
-    return res.status(500).json({
+    return res.status(404).json({
       success: false,
       message: 'User not found',
     });
   }
+
+  const isPasswordMatched = await user.isPasswordCorrect(oldPassword);
 
   if (!isPasswordMatched) {
     return res.status(500).json({
@@ -329,6 +329,12 @@ export const getSingleUserDetail = catchAsyncErrors(async (req, res) => {
       message: 'User not found',
     });
   }
+
+  return res.status(200).json({
+    success: true,
+    message: 'User fetched successfully',
+    data: user,
+  });
 });
 
 // update user Role -- ADMIN
@@ -396,7 +402,7 @@ export const addAddress = catchAsyncErrors(async (req, res) => {
     phoneNo,
   };
 
-  user.addressInfo.push_back(addressInformation);
+  user.addressInfo.push(addressInformation);
 
   await user.save();
 
@@ -436,7 +442,7 @@ export const deleteAddress = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  user.addressInfo = user.addressInfo.filter((address) => address._id !== addressId);
+  user.addressInfo = user.addressInfo.filter((address) => !address._id.equals(addressId));
 
   await user.save();
 
@@ -478,15 +484,25 @@ export const updateAddress = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  user.addressInfo = user.addressInfo.filter((address) => address._id !== addressId);
+  const existingAddress = user.addressInfo.id(addressId);
+  if (!existingAddress) {
+    logger.error('Address not found');
+    return res.status(404).json({
+      success: false,
+      message: 'Address not found',
+    });
+  }
+
+  existingAddress.set({ address, city, state, country, pinCode, phoneNo });
 
   await user.save();
 
-  logger.info(`Address ${addressId} deleted for user ${userId}`);
+  logger.info(`Address ${addressId} updated for user ${userId}`);
 
   return res.status(200).json({
     success: true,
-    message: 'Address deleted successfully',
+    message: 'Address updated successfully',
+    data: existingAddress,
   });
 });
 
@@ -513,7 +529,7 @@ export const addToWishlist = catchAsyncErrors(async (req, res) => {
   }
 
   // Check if the product is already in the wishlist
-  if (user.wishlist.includes(productId)) {
+  if (user.wishlist.some((id) => id.equals(productId))) {
     return res.status(200).json({
       success: true,
       message: 'Product already in wishlist',
@@ -552,7 +568,7 @@ export const removeFromWishlist = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  user.wishlist = user.wishlist.filter((id) => id !== productId);
+  user.wishlist = user.wishlist.filter((id) => !id.equals(productId));
 
   await user.save();
 

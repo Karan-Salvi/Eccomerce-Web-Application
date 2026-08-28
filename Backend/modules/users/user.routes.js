@@ -1,6 +1,7 @@
 import express from 'express';
 
-import { checkAuthenticated } from '#shared/middlewares/authentication.js';
+import { checkAuthenticated, authorizeRoles } from '#shared/middlewares/authentication.js';
+import { ROLES } from '#shared/constants/roles.constants.js';
 import {
   registerUser,
   loginUser,
@@ -31,7 +32,9 @@ router.route('/password/reset/:token').put(resetPassword); // done
 
 router.route('/logout').get(checkAuthenticated(), logoutUser); // done
 
-router.route('/update/:id').put(checkAuthenticated(), updateUserDetails); // done
+router
+  .route('/update/:id')
+  .put(checkAuthenticated(), authorizeRoles(ROLES.ADMIN), updateUserDetails); // done
 
 router.route('/me').get(checkAuthenticated(), getUserDetails); // done
 
@@ -39,9 +42,13 @@ router.route('/password/update').put(checkAuthenticated(), updatePassword); // d
 
 router.route('/me/update').put(checkAuthenticated(), updatePersonalDetails);
 
-router.route('/user/delete/:id').delete(checkAuthenticated(), DeleteUser); // done
+router
+  .route('/user/delete/:id')
+  .delete(checkAuthenticated(), authorizeRoles(ROLES.ADMIN), DeleteUser); // done
 
-router.route('/user/updateRole/:id').put(checkAuthenticated(), updateUserRole); // done
+router
+  .route('/user/updateRole/:id')
+  .put(checkAuthenticated(), authorizeRoles(ROLES.ADMIN), updateUserRole); // done
 
 router
   .route('/user/wishlist')
