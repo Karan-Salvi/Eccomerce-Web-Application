@@ -65,8 +65,11 @@ export const authApi = createApi({
 
           localStorage.setItem('user', JSON.stringify(result.data)); // Save to storage
           dispatch(userLoggedIn({ user: result.data }));
-        } catch (error) {
-          console.log(error);
+        } catch {
+          // Session cookie is invalid/expired — clear stale localStorage state
+          // so the UI stops showing a logged-in user whose requests all fail.
+          localStorage.removeItem('user');
+          dispatch(userLoggedOut());
         }
       },
     }),

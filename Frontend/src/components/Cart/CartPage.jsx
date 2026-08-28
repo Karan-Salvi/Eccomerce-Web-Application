@@ -40,7 +40,8 @@ const CartPage = () => {
 
   const TotalPrice = () => {
     let total = 0;
-    user.data.cart.forEach((item) => {
+    user?.data?.cart?.forEach((item) => {
+      if (!item.productId) return; // product was deleted after being added to cart
       total += item.productId.originalPrice * (item.quantity || 1);
     });
 
@@ -49,7 +50,8 @@ const CartPage = () => {
 
   const discountPrice = () => {
     let total = 0;
-    user.data.cart.forEach((item) => {
+    user?.data?.cart?.forEach((item) => {
+      if (!item.productId) return; // product was deleted after being added to cart
       total += item.productId.price * (item.quantity || 1);
     });
 
@@ -90,7 +92,9 @@ const CartPage = () => {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
-            {cart?.map((item, index) => (
+            {cart
+              ?.filter((item) => item.productId)
+              .map((item, index) => (
               <div
                 key={index}
                 className={`p-6 ${
@@ -99,20 +103,20 @@ const CartPage = () => {
               >
                 <div className="flex items-center space-x-4">
                   <img
-                    src={item?.productId?.images[0]?.url}
-                    alt={item?.productId?.name}
+                    src={item.productId.images?.[0]?.url}
+                    alt={item.productId.name}
                     className="h-20 w-20 rounded-lg object-cover"
                   />
 
                   <div className="flex-1">
                     <h3 className="mb-1 font-semibold text-gray-800">
-                      {item?.productId?.name}
+                      {item.productId.name}
                     </h3>
                     <p className="mb-2 text-sm text-gray-600">
-                      {item?.productId?.category}
+                      {item.productId.category}
                     </p>
                     <p className="text-2xl font-bold text-orange-600">
-                      ₹{item?.productId?.price.toFixed(2)}
+                      ₹{item.productId.price.toFixed(2)}
                     </p>
                   </div>
 

@@ -33,7 +33,7 @@ const ProductDetail = ({ product }) => {
   const { user } = useSelector((state) => state.auth);
 
   const isInCart = user?.data?.cart?.some(
-    (item) => item.productId._id === product._id
+    (item) => item.productId?._id === product._id
   );
 
   const isInWishlist = user?.data?.wishlist?.some(
@@ -83,7 +83,10 @@ const ProductDetail = ({ product }) => {
       )
     : 0;
 
-  const images = product.images || [product.image];
+  const images =
+    product.images && product.images.length > 0
+      ? product.images
+      : [{ url: product.image || 'https://placehold.co/400' }];
 
   const handleQuantityChange = (change) => {
     setQuantity(Math.max(1, quantity + change));
