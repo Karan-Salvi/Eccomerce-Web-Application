@@ -30,13 +30,17 @@ export async function buildCodOrder(
   const { shippingInfo, orderItems, userId, itemsPrice, taxPrice, shippingPrice, totalPrice } =
     orderData;
 
-  await reserveStock(orderItems, { productModel, redisClient: stockRedisClient });
+  const reserved = await reserveStock(orderItems, { productModel, redisClient: stockRedisClient });
+  const orderItemsWithVendor = orderItems.map((item) => ({
+    ...item,
+    vendor: reserved.find((r) => r.productId === item.product)?.vendor,
+  }));
 
   const paymentInfo = { id: 'COD', status: 'pending' };
 
   const order = await orderModel.create({
     shippingInfo,
-    orderItems,
+    orderItems: orderItemsWithVendor,
     user: userId,
     paymentMethod: 'cod',
     itemsPrice,
@@ -66,13 +70,17 @@ export async function buildStripeOrder(
     orderData;
 
   const reserved = await reserveStock(orderItems, { productModel, redisClient: stockRedisClient });
+  const orderItemsWithVendor = orderItems.map((item) => ({
+    ...item,
+    vendor: reserved.find((r) => r.productId === item.product)?.vendor,
+  }));
 
   try {
     const paymentInfo = { id: 'stripe', status: 'pending' };
 
     const order = await orderModel.create({
       shippingInfo,
-      orderItems,
+      orderItems: orderItemsWithVendor,
       user: userId,
       paymentMethod: 'stripe',
       itemsPrice,

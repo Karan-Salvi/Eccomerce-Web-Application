@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from '../../components/ui/card';
 import { StatCard } from '../../components/ui/stat-card';
-import { useVendor } from '../../contexts/VendorContext';
+import { useGetMyAnalyticsQuery } from '../../store/api/vendorApi';
 import {
   BarChart,
   Bar,
@@ -27,7 +27,6 @@ import {
   DollarSign,
   TrendingUp,
   ShoppingCart,
-  Target,
   Award,
 } from 'lucide-react';
 
@@ -41,7 +40,16 @@ const COLORS = [
 ];
 
 const Dashboard = () => {
-  const { analytics } = useVendor();
+  const { data, isLoading } = useGetMyAnalyticsQuery();
+  const analytics = data?.data;
+
+  if (isLoading || !analytics) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-blue-500" />
+      </div>
+    );
+  }
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {
@@ -63,43 +71,26 @@ const Dashboard = () => {
         <StatCard
           title="Total Products"
           value={formatNumber(analytics.totalProducts)}
-          change="+12% from last month"
-          changeType="positive"
           icon={Package}
         />
         <StatCard
           title="Total Sales"
           value={formatNumber(analytics.totalSales)}
-          change="+18% from last month"
-          changeType="positive"
           icon={ShoppingCart}
         />
         <StatCard
           title="Total Revenue"
           value={formatCurrency(analytics.totalRevenue)}
-          change="+22% from last month"
-          changeType="positive"
           icon={DollarSign}
         />
         <StatCard
           title="Avg. Order Value"
           value={formatCurrency(analytics.averageOrderValue)}
-          change="+5% from last month"
-          changeType="positive"
           icon={TrendingUp}
-        />
-        <StatCard
-          title="Conversion Rate"
-          value={`${analytics.conversionRate}%`}
-          change="+2.1% from last month"
-          changeType="positive"
-          icon={Target}
         />
         <StatCard
           title="Top Product"
           value={analytics.topSellingProduct}
-          change="127 units sold"
-          changeType="neutral"
           icon={Award}
         />
       </div>
@@ -215,72 +206,6 @@ const Dashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>
-            Latest updates and activities in your store
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[
-              {
-                action: 'Product Updated',
-                description:
-                  'Wireless Bluetooth Headphones stock updated to 45 units',
-                time: '2 minutes ago',
-                type: 'update',
-              },
-              {
-                action: 'New Sale',
-                description: 'Smart Fitness Watch sold for $299.99',
-                time: '15 minutes ago',
-                type: 'sale',
-              },
-              {
-                action: 'Low Stock Alert',
-                description: 'Ergonomic Office Chair has only 3 units left',
-                time: '1 hour ago',
-                type: 'alert',
-              },
-              {
-                action: 'Product Added',
-                description: 'Gaming Mechanical Keyboard added to draft',
-                time: '2 hours ago',
-                type: 'add',
-              },
-            ].map((activity, index) => (
-              <div
-                key={index}
-                className="bg-muted/50 flex items-start space-x-3 rounded-lg p-3"
-              >
-                <div
-                  className={`mt-2 h-2 w-2 rounded-full ${
-                    activity.type === 'sale'
-                      ? 'bg-green-500'
-                      : activity.type === 'alert'
-                        ? 'bg-yellow-500'
-                        : activity.type === 'add'
-                          ? 'bg-blue-500'
-                          : 'bg-gray-500'
-                  }`}
-                />
-                <div className="flex-1">
-                  <p className="font-medium">{activity.action}</p>
-                  <p className="text-muted-foreground text-sm">
-                    {activity.description}
-                  </p>
-                  <p className="text-muted-foreground mt-1 text-xs">
-                    {activity.time}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

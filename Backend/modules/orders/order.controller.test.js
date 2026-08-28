@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 import { buildCodOrder } from '#modules/orders/order.controller.js';
 
-function makeFakeProductModel(stockById) {
+function makeFakeProductModel(stockById, vendorById = new Map()) {
   return {
     async findOneAndUpdate(filter, update) {
       const id = filter._id;
@@ -12,7 +12,7 @@ function makeFakeProductModel(stockById) {
       if (minRequired !== undefined && current < minRequired) return null;
       const next = current + (update.$inc ? update.$inc.inStock : 0);
       stockById.set(id, next);
-      return { _id: id, inStock: next };
+      return { _id: id, inStock: next, createdBy: vendorById.get(id) };
     },
   };
 }
@@ -97,4 +97,27 @@ test('buildCodOrder throws a 409 when stock is insufficient, without creating an
   );
 
   assert.equal(orderModel.created.length, 0);
+});
+
+test("buildCodOrder attaches each item's vendor from reserveStock before creating the order", async () => {
+  const stockById = new Map([['p1', 5]]);
+  const vendorById = new Map([['p1', 'vendor_1']]);
+  const productModel = makeFakeProductModel(stockById, vendorById);
+  const orderModel = makeFakeOrderModel();
+
+  await buildCodOrder(
+    {
+      shippingInfo: { address: 'a', city: 'b', state: 'c', country: 'd', pinCode: 1, phoneNo: 1 },
+      orderItems: [{ product: 'p1', quantity: 2, price: 100 }],
+      userId: 'user_1',
+      itemsPrice: 200,
+      taxPrice: 18,
+      shippingPrice: 0,
+      totalPrice: 236,
+    },
+    { productModel, orderModel, stockRedisClient }
+  );
+
+  assert.equal(orderModel.created.length, 1);
+  assert.equal(orderModel.created[0].orderItems[0].vendor, 'vendor_1');
 });

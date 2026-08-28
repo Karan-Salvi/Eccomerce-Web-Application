@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 import { reserveStock } from '#modules/products/product.stock.js';
 
-function makeFakeProductModel(stockById) {
+function makeFakeProductModel(stockById, vendorById = new Map()) {
   const calls = [];
   return {
     calls,
@@ -19,10 +19,10 @@ function makeFakeProductModel(stockById) {
           return null; // simulates Mongo's findOneAndUpdate returning null on no match
         }
         stockById.set(id, current + delta);
-        return { _id: id, inStock: current + delta };
+        return { _id: id, inStock: current + delta, createdBy: vendorById.get(id) };
       }
 
-      return { _id: id, inStock: current };
+      return { _id: id, inStock: current, createdBy: vendorById.get(id) };
     },
   };
 }
@@ -52,7 +52,11 @@ test('reserveStock decrements each item and returns what it reserved', async () 
     ['p1', 10],
     ['p2', 5],
   ]);
-  const productModel = makeFakeProductModel(stockById);
+  const vendorById = new Map([
+    ['p1', 'vendor_1'],
+    ['p2', 'vendor_2'],
+  ]);
+  const productModel = makeFakeProductModel(stockById, vendorById);
 
   const reserved = await reserveStock(
     [
@@ -65,8 +69,8 @@ test('reserveStock decrements each item and returns what it reserved', async () 
   assert.equal(stockById.get('p1'), 7);
   assert.equal(stockById.get('p2'), 3);
   assert.deepEqual(reserved, [
-    { productId: 'p1', quantity: 3 },
-    { productId: 'p2', quantity: 2 },
+    { productId: 'p1', quantity: 3, vendor: 'vendor_1' },
+    { productId: 'p2', quantity: 2, vendor: 'vendor_2' },
   ]);
 });
 
@@ -110,7 +114,7 @@ test('reserveStock never oversells under a simulated concurrent second buyer', a
     productModel,
     redisClient: makeFakeRedis(),
   });
-  assert.deepEqual(first, [{ productId: 'p1', quantity: 1 }]);
+  assert.deepEqual(first, [{ productId: 'p1', quantity: 1, vendor: undefined }]);
 
   await assert.rejects(
     () =>
@@ -147,6 +151,6 @@ test('reserveStock still succeeds when cache invalidation fails', async () => {
     redisClient: makeFakeRedis({ failing: true }),
   });
 
-  assert.deepEqual(reserved, [{ productId: 'p1', quantity: 2 }]);
+  assert.deepEqual(reserved, [{ productId: 'p1', quantity: 2, vendor: undefined }]);
   assert.equal(stockById.get('p1'), 3);
 });

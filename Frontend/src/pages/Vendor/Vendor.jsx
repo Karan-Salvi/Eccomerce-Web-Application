@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { VendorProvider } from '@/contexts/VendorContext';
 import Layout from '../../components/Vendor/Layout';
 import Dashboard from '../../components/Vendor/Dashboard';
 import ProductsPage from '../../components/Vendor/ProductsPage';
@@ -56,12 +55,12 @@ function Vendor() {
   };
 
   return (
-    <VendorProvider>
+    <>
       <Layout currentView={currentView} onViewChange={handleViewChange}>
         {renderCurrentView()}
       </Layout>
       <Toaster />
-    </VendorProvider>
+    </>
   );
 }
 

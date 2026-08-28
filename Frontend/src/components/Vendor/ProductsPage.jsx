@@ -20,14 +20,16 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ProductCard } from '@/components/ui/product-card';
-import { useVendor } from '@/contexts/VendorContext';
+import { useGetMyProductsQuery } from '@/store/api/vendorApi';
+import { useDeleteProductMutation } from '@/store/api/productApi';
 import { Search, Filter, Plus, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ProductsPage = ({ onAddProduct, onEditProduct }) => {
-  const { products, deleteProduct } = useVendor();
+  const { data, isLoading } = useGetMyProductsQuery({ page: 1, limit: 100 });
+  const products = data?.data || [];
+  const [deleteProduct] = useDeleteProductMutation();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [deleteProduct_id, setDeleteProductId] = useState(null);
 
@@ -41,27 +43,34 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus =
-        statusFilter === 'all' || product.status === statusFilter;
       const matchesCategory =
         categoryFilter === 'all' || product.category === categoryFilter;
 
-      return matchesSearch && matchesStatus && matchesCategory;
+      return matchesSearch && matchesCategory;
     });
-  }, [products, searchTerm, statusFilter, categoryFilter]);
+  }, [products, searchTerm, categoryFilter]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-blue-500" />
+      </div>
+    );
+  }
 
   const handleDeleteProduct = (product) => {
     setDeleteProductId(product.id);
   };
 
-  const confirmDelete = () => {
-    if (deleteProduct_id) {
-      deleteProduct(deleteProduct_id);
+  const confirmDelete = async () => {
+    if (!deleteProduct_id) return;
+    try {
+      await deleteProduct(deleteProduct_id).unwrap();
+      toast.success('Product deleted successfully');
+    } catch (error) {
+      toast.error(error?.data?.message || 'Failed to delete product');
+    } finally {
       setDeleteProductId(null);
-      toast({
-        title: 'Product deleted',
-        description: 'The product has been successfully deleted.',
-      });
     }
   };
 
@@ -72,14 +81,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
     });
   };
 
-  const getStatusStats = () => {
-    const active = products.filter((p) => p.status === 'active').length;
-    const inactive = products.filter((p) => p.status === 'inactive').length;
-    const draft = products.filter((p) => p.status === 'draft').length;
-    return { active, inactive, draft };
-  };
 
-  const stats = getStatusStats();
 
   return (
     <div className="space-y-6">
@@ -98,7 +100,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-1">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -108,33 +110,6 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{products.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-            <div className="h-2 w-2 rounded-full bg-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.active}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inactive</CardTitle>
-            <div className="h-2 w-2 rounded-full bg-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.inactive}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Draft</CardTitle>
-            <div className="h-2 w-2 rounded-full bg-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.draft}</div>
           </CardContent>
         </Card>
       </div>
@@ -153,18 +128,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
               />
             </div>
             <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <Filter className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                </SelectContent>
-              </Select>
+
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Category" />
@@ -202,18 +166,16 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
             <Package className="text-muted-foreground mb-4 h-12 w-12" />
             <h3 className="mb-2 text-lg font-semibold">No products found</h3>
             <p className="text-muted-foreground mb-4 text-center">
-              {searchTerm || statusFilter !== 'all' || categoryFilter !== 'all'
+              {searchTerm || categoryFilter !== 'all'
                 ? 'Try adjusting your search terms or filters.'
                 : 'Get started by adding your first product.'}
             </p>
-            {!searchTerm &&
-              statusFilter === 'all' &&
-              categoryFilter === 'all' && (
-                <Button onClick={onAddProduct}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Your First Product
-                </Button>
-              )}
+            {!searchTerm && categoryFilter === 'all' && (
+              <Button onClick={onAddProduct}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Your First Product
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}

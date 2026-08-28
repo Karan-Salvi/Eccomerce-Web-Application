@@ -35,7 +35,7 @@ export async function reserveStock(
       throw error;
     }
 
-    reserved.push({ productId: item.product, quantity: item.quantity });
+    reserved.push({ productId: item.product, quantity: item.quantity, vendor: updated.createdBy });
   }
 
   // Best-effort cache invalidation: stock changed, so cached listings are stale.

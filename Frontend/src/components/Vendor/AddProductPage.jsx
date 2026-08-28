@@ -12,40 +12,23 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useVendor } from '@/contexts/VendorContext';
-import { ArrowLeft, Upload, Eye } from 'lucide-react';
+import { useCreateProductMutation, useUpdateProductMutation } from '@/store/api/productApi';
+import { PRODUCT_CATEGORY_OPTIONS } from '@/constants/productCategories.constants';
+import { ArrowLeft, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
-const categories = [
-  'Electronics',
-  'Clothing',
-  'Books',
-  'Home',
-  'Sports',
-  'Beauty',
-];
-const statuses = ['active', 'inactive', 'draft'];
-
-const sampleImages = [
-  'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
-  'https://images.pexels.com/photos/393047/pexels-photo-393047.jpeg?auto=compress&cs=tinysrgb&w=400',
-  'https://images.pexels.com/photos/1656684/pexels-photo-1656684.jpeg?auto=compress&cs=tinysrgb&w=400',
-  'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400',
-  'https://images.pexels.com/photos/1130980/pexels-photo-1130980.jpeg?auto=compress&cs=tinysrgb&w=400',
-  'https://images.pexels.com/photos/3685522/pexels-photo-3685522.jpeg?auto=compress&cs=tinysrgb&w=400',
-];
-
 const AddProductPage = ({ onBack, editProduct }) => {
-  const { addProduct, updateProduct } = useVendor();
+  const [createProduct] = useCreateProductMutation();
+  const [updateProduct] = useUpdateProductMutation();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
     category: '',
     stock: '',
-    status: 'draft',
-    image: '',
   });
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState([]);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,10 +40,9 @@ const AddProductPage = ({ onBack, editProduct }) => {
         description: editProduct.description,
         price: editProduct.price.toString(),
         category: editProduct.category,
-        stock: editProduct.stock.toString(),
-        status: editProduct.status,
-        image: editProduct.image,
+        stock: String(editProduct.inStock ?? ''),
       });
+      setImagePreviewUrls((editProduct.images || []).map((img) => img.url));
     }
   }, [editProduct]);
 
@@ -82,8 +64,8 @@ const AddProductPage = ({ onBack, editProduct }) => {
     if (!formData.stock || parseInt(formData.stock) < 0) {
       newErrors.stock = 'Valid stock quantity is required';
     }
-    if (!formData.image.trim()) {
-      newErrors.image = 'Product image is required';
+    if (!editProduct && imageFiles.length === 0) {
+      newErrors.image = 'At least one product image is required';
     }
 
     setErrors(newErrors);
@@ -100,38 +82,36 @@ const AddProductPage = ({ onBack, editProduct }) => {
     setIsSubmitting(true);
 
     try {
-      const productData = {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        price: parseFloat(formData.price),
-        category: formData.category,
-        stock: parseInt(formData.stock),
-        status: formData.status,
-        image: formData.image.trim(),
-      };
-
       if (editProduct) {
-        updateProduct(editProduct.id, productData);
-        toast({
-          title: 'Product updated',
-          description: 'Your product has been successfully updated.',
-        });
+        await updateProduct({
+          id: editProduct._id,
+          data: {
+            name: formData.name.trim(),
+            description: formData.description.trim(),
+            price: parseFloat(formData.price),
+            originalPrice: parseFloat(formData.price),
+            category: formData.category,
+            inStock: parseInt(formData.stock, 10),
+          },
+        }).unwrap();
+        toast.success('Product updated successfully');
       } else {
-        addProduct(productData);
-        toast({
-          title: 'Product added',
-          description: 'Your product has been successfully added.',
-        });
+        const body = new FormData();
+        body.append('name', formData.name.trim());
+        body.append('description', formData.description.trim());
+        body.append('price', formData.price);
+        body.append('originalPrice', formData.price);
+        body.append('category', formData.category);
+        body.append('stock', formData.stock);
+        imageFiles.forEach((file) => body.append('image', file));
+
+        await createProduct(body).unwrap();
+        toast.success('Product added successfully');
       }
 
       onBack();
     } catch (error) {
-      toast({
-        title: 'Error',
-        description:
-          'There was an error saving your product. Please try again.',
-        variant: 'destructive',
-      });
+      toast.error(error?.data?.message || 'There was an error saving your product. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -144,8 +124,13 @@ const AddProductPage = ({ onBack, editProduct }) => {
     }
   };
 
-  const handleImageSelect = (imageUrl) => {
-    handleInputChange('image', imageUrl);
+  const handleImageFilesChange = (e) => {
+    const files = Array.from(e.target.files || []).slice(0, 5);
+    setImageFiles(files);
+    setImagePreviewUrls(files.map((file) => URL.createObjectURL(file)));
+    if (errors.image) {
+      setErrors((prev) => ({ ...prev, image: '' }));
+    }
   };
 
   return (
@@ -280,9 +265,9 @@ const AddProductPage = ({ onBack, editProduct }) => {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
+                          {PRODUCT_CATEGORY_OPTIONS.map((category) => (
+                            <SelectItem key={category.value} value={category.value}>
+                              {category.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -294,81 +279,40 @@ const AddProductPage = ({ onBack, editProduct }) => {
                       )}
                     </div>
 
-                    <div>
-                      <Label htmlFor="status" className="mb-2">
-                        Status
-                      </Label>
-                      <Select
-                        value={formData.status}
-                        onValueChange={(value) =>
-                          handleInputChange('status', value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {statuses.map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {status.charAt(0).toUpperCase() + status.slice(1)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
                 </div>
 
-                {/* Image Selection */}
+                {/* Image Upload */}
                 <div className="space-y-4">
-                  <Label>Product Image</Label>
-                  <div>
-                    <Input
-                      value={formData.image}
-                      onChange={(e) =>
-                        handleInputChange('image', e.target.value)
-                      }
-                      placeholder="Enter image URL or select from samples below"
-                      className={errors.image ? 'border-red-500' : ''}
-                    />
-                    {errors.image && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.image}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <p className="text-muted-foreground mb-3 text-sm">
-                      Or choose from sample images:
+                  <Label htmlFor="images">Product Images (up to 5)</Label>
+                  <Input
+                    id="images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageFilesChange}
+                    className={errors.image ? 'border-red-500' : ''}
+                  />
+                  {errors.image && (
+                    <p className="mt-1 text-sm text-red-500">{errors.image}</p>
+                  )}
+                  {editProduct && imageFiles.length === 0 && (
+                    <p className="text-muted-foreground text-sm">
+                      Leave empty to keep the current images.
                     </p>
+                  )}
+                  {imagePreviewUrls.length > 0 && (
                     <div className="grid grid-cols-3 gap-3">
-                      {sampleImages.map((imageUrl, index) => (
-                        <div
+                      {imagePreviewUrls.map((url, index) => (
+                        <img
                           key={index}
-                          className={`relative cursor-pointer overflow-hidden rounded-lg border-2 transition-all ${
-                            formData.image === imageUrl
-                              ? 'border-primary ring-primary/20 ring-2'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          onClick={() => handleImageSelect(imageUrl)}
-                        >
-                          <img
-                            src={imageUrl}
-                            alt={`Sample ${index + 1}`}
-                            className="h-20 w-full object-cover"
-                          />
-                          {formData.image === imageUrl && (
-                            <div className="bg-primary/10 absolute inset-0 flex items-center justify-center">
-                              <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-full">
-                                <div className="h-2 w-2 rounded-full bg-white" />
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                          src={url}
+                          alt={`Preview ${index + 1}`}
+                          className="h-20 w-full rounded-lg border object-cover"
+                        />
                       ))}
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Submit Button */}
@@ -404,15 +348,11 @@ const AddProductPage = ({ onBack, editProduct }) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {formData.image && (
+                {imagePreviewUrls[0] && (
                   <img
-                    src={formData.image}
+                    src={imagePreviewUrls[0]}
                     alt="Product preview"
                     className="h-40 w-full rounded-lg object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400';
-                    }}
                   />
                 )}
 
@@ -434,22 +374,8 @@ const AddProductPage = ({ onBack, editProduct }) => {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Stock: {formData.stock || '0'}
-                    </span>
-                    <Badge
-                      className={
-                        formData.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : formData.status === 'inactive'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                      }
-                    >
-                      {formData.status.charAt(0).toUpperCase() +
-                        formData.status.slice(1)}
-                    </Badge>
+                  <div className="text-muted-foreground text-sm">
+                    Stock: {formData.stock || '0'}
                   </div>
                 </div>
               </div>

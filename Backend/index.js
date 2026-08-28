@@ -11,6 +11,7 @@ import rateLimit from './shared/middlewares/rateLimiter.js';
 import productRoute from './modules/products/product.routes.js';
 import userRoute from './modules/users/user.routes.js';
 import orderRoute from './modules/orders/order.routes.js';
+import vendorRoute from './modules/vendor/vendor.routes.js';
 
 import dbConnect from '#database/dbConnect.js';
 
@@ -61,6 +62,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1', productRoute);
 app.use('/api/v1', userRoute);
 app.use('/api/v1', orderRoute);
+app.use('/api/v1', vendorRoute);
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
