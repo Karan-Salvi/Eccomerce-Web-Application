@@ -68,6 +68,11 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
 
   const isProduction = process.env.NODE_ENV === 'production';
 
+  const userResponse = user.toObject();
+  delete userResponse.password;
+  delete userResponse.resetPasswordToken;
+  delete userResponse.resetPasswordExpiry;
+
   return res
     .status(200)
     .cookie(process.env.TOKEN_NAME, token, {
@@ -80,7 +85,7 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
     .json({
       success: true,
       message: 'User is successfully logged in.',
-      data: user,
+      data: userResponse,
     });
 });
 
@@ -293,7 +298,7 @@ export const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
       },
     },
     { new: true }
-  );
+  ).select('-password -resetPasswordToken -resetPasswordExpiry');
 
   if (!user) {
     return res.status(500).json({
@@ -311,7 +316,7 @@ export const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
 
 // Get all users details -- ADMIN
 export const getAllUsersDetail = catchAsyncErrors(async (req, res) => {
-  const users = await User.find();
+  const users = await User.find().select('-password -resetPasswordToken -resetPasswordExpiry');
   return res.status(200).json({
     success: true,
     message: 'All user fetch successfully',
@@ -321,7 +326,9 @@ export const getAllUsersDetail = catchAsyncErrors(async (req, res) => {
 
 // get single user details
 export const getSingleUserDetail = catchAsyncErrors(async (req, res) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id).select(
+    '-password -resetPasswordToken -resetPasswordExpiry'
+  );
 
   if (!user) {
     return res.status(404).json({
@@ -340,13 +347,17 @@ export const getSingleUserDetail = catchAsyncErrors(async (req, res) => {
 // update user Role -- ADMIN
 export const updateUserRole = catchAsyncErrors(async (req, res) => {
   const { name, email, role } = req.body;
-  const user = await User.findByIdAndUpdate(req.params.id, {
-    $set: {
-      name,
-      email,
-      role,
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      $set: {
+        name,
+        email,
+        role,
+      },
     },
-  });
+    { new: true }
+  ).select('-password -resetPasswordToken -resetPasswordExpiry');
 
   if (!user) {
     return res.status(500).json({
@@ -364,7 +375,9 @@ export const updateUserRole = catchAsyncErrors(async (req, res) => {
 
 // Delete user
 export const DeleteUser = catchAsyncErrors(async (req, res) => {
-  const user = await User.findByIdAndDelete(req.params.id);
+  const user = await User.findByIdAndDelete(req.params.id).select(
+    '-password -resetPasswordToken -resetPasswordExpiry'
+  );
 
   if (!user) {
     return res.status(404).json({
