@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRegisterUserMutation } from '../../store/api/authApi';
+import { toast } from 'sonner';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -188,8 +189,10 @@ export default function Register() {
   const handleRegistration = async (e) => {
     e.preventDefault();
     const response = await registerUser({ name, email, password });
-    if (response?.success) {
+    if (response?.data?.success) {
       navigate('/login');
+    } else {
+      toast.error(response?.error?.data?.message || 'Registration failed');
     }
   };
 

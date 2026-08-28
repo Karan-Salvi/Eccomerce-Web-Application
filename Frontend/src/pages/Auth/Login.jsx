@@ -15,6 +15,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLoginUserMutation } from '../../store/api/authApi';
 import { useRef } from 'react';
+import { toast } from 'sonner';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -193,8 +194,10 @@ export default function LoginPage() {
       email: emailElement.current.value,
       password: passwordElement.current.value,
     });
-    if (response?.success) {
+    if (response?.data?.success) {
       navigate('/');
+    } else {
+      toast.error(response?.error?.data?.message || 'Login failed');
     }
   };
 
