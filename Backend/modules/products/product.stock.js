@@ -49,3 +49,11 @@ export async function reserveStock(
 
   return reserved;
 }
+
+export async function releaseStock(reserved, { productModel = Product } = {}) {
+  await Promise.all(
+    reserved.map(({ productId, quantity }) =>
+      productModel.findOneAndUpdate({ _id: productId }, { $inc: { inStock: quantity } })
+    )
+  );
+}

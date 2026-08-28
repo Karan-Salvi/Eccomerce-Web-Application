@@ -9,7 +9,7 @@ import redisClient from '#config/redis.js';
 import { calculateOrderTotal } from '#modules/orders/order.pricing.js';
 import { verifyStripeWebhookEvent } from '#modules/orders/order.webhook.js';
 import { isAlreadyDelivered } from '#modules/orders/order.statusGuard.js';
-import { reserveStock } from '#modules/products/product.stock.js';
+import { reserveStock, releaseStock } from '#modules/products/product.stock.js';
 import { withIdempotentResult, markEventProcessed } from '#shared/utils/idempotency.js';
 
 // dotenv configuration
@@ -65,69 +65,91 @@ export async function buildStripeOrder(
   const { shippingInfo, orderItems, userId, itemsPrice, taxPrice, shippingPrice, totalPrice } =
     orderData;
 
-  await reserveStock(orderItems, { productModel, redisClient: stockRedisClient });
+  const reserved = await reserveStock(orderItems, { productModel, redisClient: stockRedisClient });
 
-  const paymentInfo = { id: 'stripe', status: 'pending' };
+  try {
+    const paymentInfo = { id: 'stripe', status: 'pending' };
 
-  const order = await orderModel.create({
-    shippingInfo,
-    orderItems,
-    user: userId,
-    paymentMethod: 'stripe',
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    totalPrice,
-    paymentInfo,
-  });
+    const order = await orderModel.create({
+      shippingInfo,
+      orderItems,
+      user: userId,
+      paymentMethod: 'stripe',
+      itemsPrice,
+      taxPrice,
+      shippingPrice,
+      totalPrice,
+      paymentInfo,
+    });
 
-  const populatedOrder = await orderModel.findById(order._id).populate('orderItems.product');
+    const populatedOrder = await orderModel.findById(order._id).populate('orderItems.product');
 
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: populatedOrder.orderItems.map((item) => ({
-      price_data: {
-        currency: 'inr',
-        product_data: {
-          name: item.product.name,
-          images: [item.product.images[0].url],
+    const missingProduct = populatedOrder.orderItems.find((item) => !item.product);
+    if (missingProduct) {
+      const error = new Error('One or more products in this order no longer exist');
+      error.statusCode = 409;
+      error.expose = true;
+      throw error;
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: populatedOrder.orderItems.map((item) => ({
+        price_data: {
+          currency: 'inr',
+          product_data: {
+            name: item.product.name,
+            images: item.product.images?.[0]?.url ? [item.product.images[0].url] : [],
+          },
+          unit_amount: item.price * 100,
         },
-        unit_amount: item.price * 100,
+        quantity: item.quantity,
+      })),
+      mode: 'payment',
+      success_url: `${FRONTEND_URI}/order-success/${order._id}`,
+      cancel_url: `${FRONTEND_URI}/order-cancel/${order._id}`,
+      metadata: {
+        orderId: order._id.toString(),
+        userId: order.user.toString(),
       },
-      quantity: item.quantity,
-    })),
-    mode: 'payment',
-    success_url: `${FRONTEND_URI}/order-success/${order._id}`,
-    cancel_url: `${FRONTEND_URI}/order-cancel/${order._id}`,
-    metadata: {
-      orderId: order._id.toString(),
-      userId: order.user.toString(),
-    },
-    shipping_address_collection: { allowed_countries: ['IN'] },
-  });
+      shipping_address_collection: { allowed_countries: ['IN'] },
+    });
 
-  if (!session.url) {
-    const error = new Error('Error while creating Stripe session');
-    error.statusCode = 400;
-    error.expose = true;
+    if (!session.url) {
+      const error = new Error('Error while creating Stripe session');
+      error.statusCode = 400;
+      error.expose = true;
+      throw error;
+    }
+
+    order.paymentInfo.id = session.id;
+    order.paymentInfo.status = 'pending';
+    await order.save();
+
+    logger.info(`Order created successfully with ID (Stripe): ${order._id}`);
+
+    return {
+      status: 201,
+      body: {
+        success: true,
+        message: 'Order placed successfully',
+        data: order,
+        sessionUrl: session.url,
+      },
+    };
+  } catch (error) {
+    // Stock was already decremented above; a failure anywhere past that point
+    // (Stripe down, order save failed, product deleted mid-flight) must give
+    // it back or the product stays permanently understocked.
+    try {
+      await releaseStock(reserved, { productModel });
+    } catch (releaseError) {
+      logger.error(
+        `Failed to release reserved stock after Stripe order failure: ${releaseError.message}`
+      );
+    }
     throw error;
   }
-
-  order.paymentInfo.id = session.id;
-  order.paymentInfo.status = 'pending';
-  await order.save();
-
-  logger.info(`Order created successfully with ID (Stripe): ${order._id}`);
-
-  return {
-    status: 201,
-    body: {
-      success: true,
-      message: 'Order placed successfully',
-      data: order,
-      sessionUrl: session.url,
-    },
-  };
 }
 
 // create new order

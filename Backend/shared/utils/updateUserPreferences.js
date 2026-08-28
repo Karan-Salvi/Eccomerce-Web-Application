@@ -9,7 +9,7 @@ const updateUserPreferences = async (userId, { productId, category, brand, tags 
     const preferences = user.preferences;
 
     // Add productId if not already present
-    if (productId && !preferences.viewedProducts.includes(productId)) {
+    if (productId && !preferences.viewedProducts.some((id) => id.equals(productId))) {
       preferences.viewedProducts.push(productId);
     }
 
