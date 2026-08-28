@@ -1,6 +1,23 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import { vendorApi } from './vendorApi';
+
 const BASE_URL = import.meta.env.VITE_API_URL;
+
+// productApi and vendorApi are separate RTK Query slices (separate reducerPath),
+// so `invalidatesTags` on this slice never touches vendorApi's cache — a vendor
+// creating/editing/deleting a product here would otherwise see a stale
+// getMyProducts list until a hard reload. Dispatching vendorApi's own
+// invalidation here keeps both caches in sync regardless of which UI called
+// the mutation.
+const invalidateVendorProducts = async (arg, { dispatch, queryFulfilled }) => {
+  try {
+    await queryFulfilled;
+    dispatch(vendorApi.util.invalidateTags(['VendorProduct', 'VendorAnalytics']));
+  } catch {
+    // mutation failed — nothing to invalidate
+  }
+};
 
 const PRODUCT_API = `${BASE_URL}/api/v1/`;
 
@@ -72,6 +89,7 @@ export const productApi = createApi({
         body: formData,
       }),
       invalidatesTags: ['Product'],
+      onQueryStarted: invalidateVendorProducts,
     }),
 
     //  Get product details
@@ -88,6 +106,7 @@ export const productApi = createApi({
         body: data,
       }),
       invalidatesTags: ['Product'],
+      onQueryStarted: invalidateVendorProducts,
     }),
 
     //  Delete product
@@ -97,6 +116,7 @@ export const productApi = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: ['Product'],
+      onQueryStarted: invalidateVendorProducts,
     }),
 
     //  Create/Update product review

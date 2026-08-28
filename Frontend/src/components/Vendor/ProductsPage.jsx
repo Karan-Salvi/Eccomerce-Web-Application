@@ -22,7 +22,7 @@ import {
 import { ProductCard } from '@/components/ui/product-card';
 import { useGetMyProductsQuery } from '@/store/api/vendorApi';
 import { useDeleteProductMutation } from '@/store/api/productApi';
-import { Search, Filter, Plus, Package } from 'lucide-react';
+import { Search, Plus, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ProductsPage = ({ onAddProduct, onEditProduct }) => {
@@ -75,13 +75,8 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
   };
 
   const handleViewProduct = (product) => {
-    toast({
-      title: product.name,
-      description: `Price: $${product.price} | Stock: ${product.stock} | Sales: ${product.sales}`,
-    });
+    toast.info(`${product.name} — Price: ₹${product.price} | Stock: ${product.inStock}`);
   };
-
-
 
   return (
     <div className="space-y-6">

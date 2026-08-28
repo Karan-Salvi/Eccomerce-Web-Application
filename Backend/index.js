@@ -92,6 +92,13 @@ app.use((err, req, res, next) => {
     });
   }
 
+  if (err.name === 'MulterError' || /image/i.test(err.message || '')) {
+    return res.status(400).json({
+      success: false,
+      message: err.code === 'LIMIT_FILE_SIZE' ? 'Image file too large (max 5MB)' : err.message,
+    });
+  }
+
   return res.status(err.statusCode || 500).json({
     success: false,
     message: err.expose ? err.message : 'Internal server error',

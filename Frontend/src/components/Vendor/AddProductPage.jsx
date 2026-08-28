@@ -285,21 +285,22 @@ const AddProductPage = ({ onBack, editProduct }) => {
                 {/* Image Upload */}
                 <div className="space-y-4">
                   <Label htmlFor="images">Product Images (up to 5)</Label>
-                  <Input
-                    id="images"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageFilesChange}
-                    className={errors.image ? 'border-red-500' : ''}
-                  />
+                  {editProduct ? (
+                    <p className="text-muted-foreground text-sm">
+                      Images can&apos;t be changed when editing yet — the current images stay as-is.
+                    </p>
+                  ) : (
+                    <Input
+                      id="images"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageFilesChange}
+                      className={errors.image ? 'border-red-500' : ''}
+                    />
+                  )}
                   {errors.image && (
                     <p className="mt-1 text-sm text-red-500">{errors.image}</p>
-                  )}
-                  {editProduct && imageFiles.length === 0 && (
-                    <p className="text-muted-foreground text-sm">
-                      Leave empty to keep the current images.
-                    </p>
                   )}
                   {imagePreviewUrls.length > 0 && (
                     <div className="grid grid-cols-3 gap-3">
