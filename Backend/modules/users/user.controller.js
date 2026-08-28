@@ -180,10 +180,10 @@ export const forgetPassword = catchAsyncErrors(async (req, res) => {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiry = undefined;
     await user.save({ validateBeforeSave: false });
+    logger.error(`Failed to send password reset email: ${error.message}`);
     return res.status(500).json({
       success: false,
-      message: 'Something went wrong ',
-      error: error,
+      message: 'Failed to send reset email, please try again later',
     });
   }
 });
