@@ -118,6 +118,36 @@ Clone the repository:
    npm run dev
    ```
 
+### Stripe payments
+
+Checkout uses Stripe Checkout Sessions (`mode: payment`, card only). Stock is reserved
+(decremented) at order-creation time, before the user reaches Stripe — so the webhook is
+what reconciles that reservation with what actually happened to the payment:
+
+| Event | Handled by | Effect |
+|---|---|---|
+| `checkout.session.completed` | `processStripeWebhookEvent` (`Backend/modules/orders/order.controller.js`) | Marks the order `paymentInfo.status: 'completed'`, sets `paidAt`. |
+| `checkout.session.expired` | same function | Releases the reserved stock and marks the order `paymentInfo.status: 'failed'` / `orderStatus: 'cancelled'`. Fires automatically ~24h after an abandoned checkout. |
+
+**Security:** every webhook request's `Stripe-Signature` header is verified against
+`WEBHOOK_ENDPOINT_SECRET` before the payload is trusted (`Backend/modules/orders/order.webhook.js`).
+Requests with a missing/invalid signature are rejected with 400 before any DB write.
+
+**Idempotency:** each Stripe event id is claimed in Redis (`markEventProcessed`,
+`Backend/shared/utils/idempotency.js`) before it's processed, so a Stripe retry of an
+already-handled event is a no-op 200 instead of double-crediting or double-cancelling an order.
+
+**Local testing:**
+
+```bash
+stripe listen --forward-to localhost:8001/api/v1/webhook
+# copy the printed whsec_... into Backend/.env as WEBHOOK_ENDPOINT_SECRET, restart the server
+stripe trigger checkout.session.completed
+stripe trigger checkout.session.expired
+```
+
+(Adjust the port in the `stripe listen` command if `Backend/.env`'s `PORT` differs from 8001.)
+
 ### 💻 Frontend Setup
 
 1. Install Dependencies:

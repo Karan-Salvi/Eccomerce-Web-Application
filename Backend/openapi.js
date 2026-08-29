@@ -372,8 +372,19 @@ export const openapiSpec = {
     '/webhook': {
       post: {
         tags: ['Orders'],
-        summary: 'Stripe webhook (payment_intent events)',
-        responses: ok('Webhook processed'),
+        summary: 'Stripe webhook — signature-verified, idempotent',
+        description:
+          'Receives Stripe Checkout events. Verifies the `Stripe-Signature` header against ' +
+          'WEBHOOK_ENDPOINT_SECRET before touching the payload (see order.webhook.js). Each event ' +
+          'id is claimed in Redis before processing so a Stripe retry cannot double-apply it. ' +
+          'Handles: checkout.session.completed (marks the order paid) and checkout.session.expired ' +
+          '(releases the stock reserved at order-creation time and cancels the order). Any other ' +
+          'event type is acknowledged with 200 and ignored.',
+        responses: {
+          200: { description: 'Event processed or ignored' },
+          400: { description: 'Invalid signature or missing session metadata' },
+          404: { description: 'No order matches this checkout session' },
+        },
       },
     },
     '/order/{id}': {
