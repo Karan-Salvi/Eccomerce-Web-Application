@@ -1,0 +1,118 @@
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { BarChart3, Users, Package, ShoppingCart, Menu, X } from 'lucide-react';
+
+const sidebarItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+  { id: 'users', label: 'Users', icon: Users },
+  { id: 'products', label: 'Products', icon: Package },
+  { id: 'orders', label: 'Orders', icon: ShoppingCart },
+];
+
+const Layout = ({ children, currentView, onViewChange }) => {
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const adminName = user?.data?.name || 'Admin';
+  const initials = adminName
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+  return (
+    <div className="bg-background flex min-h-screen">
+      {sidebarOpen && (
+        <div
+          className="bg-opacity-50 fixed inset-0 z-40 bg-black lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 max-h-screen w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out lg:static lg:inset-0 lg:translate-x-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <div className="flex h-full flex-col">
+          <div className="flex h-16 items-center justify-between border-b px-6">
+            <div className="flex items-center gap-2">
+              <span className="brand_name text-xl font-bold">CartLoop</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+
+          <nav className="flex-1 space-y-2 p-4">
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentView === item.id;
+
+              return (
+                <Button
+                  key={item.id}
+                  variant={isActive ? 'default' : 'ghost'}
+                  className={cn(
+                    'h-12 w-full justify-start gap-3',
+                    isActive && 'bg-primary text-primary-foreground'
+                  )}
+                  onClick={() => {
+                    onViewChange(item.id);
+                    setSidebarOpen(false);
+                  }}
+                >
+                  <Icon className="h-5 w-5" />
+                  {item.label}
+                </Button>
+              );
+            })}
+          </nav>
+
+          <div className="border-t p-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
+                <span className="text-primary-foreground text-sm font-medium">
+                  {initials}
+                </span>
+              </div>
+              <div className="text-sm">
+                <div className="font-medium">{adminName}</div>
+                <div className="text-muted-foreground">Admin</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div className="max-h-screen w-full overflow-y-scroll lg:ml-6">
+        <header className="bg-background sticky top-0 z-30 flex h-16 items-center gap-4 border-b px-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-xl font-semibold capitalize">{currentView}</h1>
+          </div>
+        </header>
+
+        <main className="flex-1 p-6">{children}</main>
+      </div>
+    </div>
+  );
+};
+
+export default Layout;

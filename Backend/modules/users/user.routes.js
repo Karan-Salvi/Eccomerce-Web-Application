@@ -21,6 +21,8 @@ import {
   addAddress,
   updateAddress,
   deleteAddress,
+  getAllUsersDetail,
+  getSingleUserDetail,
 } from '#modules/users/user.controller.js';
 
 const router = express.Router();
@@ -40,6 +42,12 @@ router
   .put(checkAuthenticated(), authorizeRoles(ROLES.ADMIN), updateUserDetails); // done
 
 router.route('/me').get(checkAuthenticated(), getUserDetails); // done
+
+router.route('/users').get(checkAuthenticated(), authorizeRoles(ROLES.ADMIN), getAllUsersDetail);
+
+router
+  .route('/users/:id')
+  .get(checkAuthenticated(), authorizeRoles(ROLES.ADMIN), getSingleUserDetail);
 
 router.route('/password/update').put(checkAuthenticated(), updatePassword); // done
 

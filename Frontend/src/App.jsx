@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home/Home';
 import Products from './pages/Products/Products';
 import Vendor from './pages/Vendor/Vendor';
+import Admin from './pages/Admin/Admin';
 import Cart from './pages/Cart/Cart';
 import { appStore } from './store/store';
 import { Provider } from 'react-redux';
@@ -52,6 +53,14 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.VENDER]}>
                 <Vendor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+                <Admin />
               </ProtectedRoute>
             }
           />
