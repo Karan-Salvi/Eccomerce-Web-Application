@@ -3,8 +3,10 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 
 import logger from './infra/logger/logger.js';
+import { openapiSpec } from './openapi.js';
 // middlewares
 import rateLimit from './shared/middlewares/rateLimiter.js';
 // routes
@@ -58,6 +60,8 @@ const PORT = process.env.PORT;
 app.get('/', (req, res) => {
   res.send('Server is ready to listen');
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 // routes
 app.use('/api/v1', productRoute);

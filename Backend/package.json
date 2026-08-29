@@ -50,6 +50,7 @@
     "nodemailer": "^9.0.6",
     "razorpay": "^2.9.5",
     "stripe": "^18.3.0",
+    "swagger-ui-express": "^5.0.1",
     "winston": "^3.17.0",
     "zod": "^4.3.5"
   }
