@@ -35,7 +35,7 @@
     "prettier": "^3.7.4"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -46,7 +46,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.2",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^7.0.12",
+    "nodemailer": "^9.0.6",
     "razorpay": "^2.9.5",
     "stripe": "^18.3.0",
     "winston": "^3.17.0",
