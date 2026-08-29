@@ -1,12 +1,9 @@
 import React from 'react';
-import { useGetMyOrdersQuery } from '../../store/api/vendorApi';
+import { useGetAllOrdersQuery } from '../../store/api/orderApi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const OrdersPage = () => {
-  // Using vendor api as admin to get all orders since vendorApi.getMyOrders hits /vendor/orders
-  // Note: in a real app, admin would have a dedicated /admin/orders endpoint.
-  // The plan asks us to use this for the admin orders view.
-  const { data: ordersData, isLoading } = useGetMyOrdersQuery();
+  const { data: ordersData, isLoading } = useGetAllOrdersQuery();
 
   if (isLoading) {
     return <div className="p-8 text-center text-muted-foreground">Loading orders...</div>;
@@ -16,10 +13,11 @@ const OrdersPage = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Delivered': return 'bg-green-100 text-green-800';
-      case 'Processing': return 'bg-blue-100 text-blue-800';
-      case 'Shipped': return 'bg-purple-100 text-purple-800';
-      case 'Cancelled': return 'bg-red-100 text-red-800';
+      case 'delivered': return 'bg-green-100 text-green-800';
+      case 'processing': return 'bg-blue-100 text-blue-800';
+      case 'shipped':
+      case 'out_for_delivery': return 'bg-purple-100 text-purple-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -53,7 +51,7 @@ const OrdersPage = () => {
                     {new Date(order.createdAt).toLocaleDateString()}
                   </div>
                   <div className="col-span-2 font-medium">
-                    ${order.totalAmount?.toFixed(2)}
+                    ${order.totalPrice?.toFixed(2)}
                   </div>
                   <div className="col-span-2">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(order.orderStatus)}`}>

@@ -76,7 +76,7 @@ const ProductsPage = () => {
                   <div className="col-span-2 text-sm">${product.price}</div>
                   <div className="col-span-2">
                     <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold">
-                      {product.stock}
+                      {product.inStock}
                     </span>
                   </div>
                   <div className="col-span-2 flex justify-end">

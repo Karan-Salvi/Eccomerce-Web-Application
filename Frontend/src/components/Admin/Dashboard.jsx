@@ -2,17 +2,14 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetAllUsersQuery } from '../../store/api/adminApi';
 import { useGetAllProductsQuery } from '../../store/api/productApi';
-import { useGetMyOrdersQuery } from '../../store/api/vendorApi';
+import { useGetAllOrdersQuery } from '../../store/api/orderApi';
 import { Users, Package, ShoppingCart, DollarSign } from 'lucide-react';
 import { USER_ROLES } from '../../constants/roles.constants';
 
 const Dashboard = () => {
   const { data: usersData, isLoading: usersLoading } = useGetAllUsersQuery();
   const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery();
-  // Using vendor api as admin to get all orders since vendorApi.getMyOrders hits /vendor/orders
-  // Note: in a real app, admin would have a dedicated /admin/orders endpoint.
-  // The plan asks us to use this for the dashboard metrics anyway.
-  const { data: ordersData, isLoading: ordersLoading } = useGetMyOrdersQuery();
+  const { data: ordersData, isLoading: ordersLoading } = useGetAllOrdersQuery();
 
   if (usersLoading || productsLoading || ordersLoading) {
     return <div className="p-8 text-center text-muted-foreground">Loading dashboard metrics...</div>;
@@ -28,8 +25,8 @@ const Dashboard = () => {
   const totalOrders = orders.length;
 
   const totalRevenue = orders.reduce((sum, order) => {
-    if (order.orderStatus === 'Delivered') {
-      return sum + order.totalAmount;
+    if (order.orderStatus !== 'cancelled') {
+      return sum + (order.totalPrice || 0);
     }
     return sum;
   }, 0);
@@ -56,7 +53,7 @@ const Dashboard = () => {
     {
       title: 'Total Revenue',
       value: `$${totalRevenue.toFixed(2)}`,
-      description: 'From delivered orders',
+      description: 'Excludes cancelled orders',
       icon: DollarSign,
     },
   ];
@@ -123,7 +120,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                    {p.stock} in stock
+                    {p.inStock} in stock
                   </div>
                 </div>
               ))}
