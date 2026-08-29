@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Grid, LayoutGrid, SlidersHorizontal } from 'lucide-react';
 import { SearchBar } from '@/components/Products/SearchBar';
 import { FilterSidebar } from '@/components/Products/FilterSidebar';
@@ -29,12 +30,15 @@ function Products() {
   //const { data: productsData, isLoading, isError } = useGetAllProductsQuery();
 
   // console.log("All the product data is : ", productsData);
+  const [searchParams] = useSearchParams();
+  const initialCategory = searchParams.get('category');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState(PRODUCT_SORT.FEATURED);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [filters, setFilters] = useState({
-    categories: [],
+    categories: initialCategory ? [initialCategory] : [],
     priceRange: [0, 100000],
     minRating: 0,
     inStockOnly: false,

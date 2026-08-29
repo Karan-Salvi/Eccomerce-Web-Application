@@ -1,117 +1,112 @@
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
-import React from 'react';
+import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
+import { Reveal } from './Reveal';
+
+const MotionBlockquote = motion.blockquote;
+
+const testimonials = [
+  {
+    name: 'Sarah Johnson',
+    role: 'Regular customer',
+    content:
+      'Fast delivery, real customer service. I have been shopping here for two years and never had a bad order.',
+    image:
+      'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200',
+  },
+  {
+    name: 'Michael Chen',
+    role: 'Tech enthusiast',
+    content:
+      'Best prices on electronics I have found anywhere. Product quality is consistently strong.',
+    image:
+      'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=200',
+  },
+  {
+    name: 'Emily Rodriguez',
+    role: 'Fashion blogger',
+    content:
+      'Love the variety. The return policy is genuinely painless and support actually helps.',
+    image:
+      'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=200',
+  },
+];
 
 const Testimonial = () => {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const testimonials = [
-    {
-      name: 'Sarah Johnson',
-      role: 'Regular Customer',
-      content:
-        "Amazing shopping experience! Fast delivery and excellent customer service. I've been shopping here for over 2 years.",
-      rating: 5,
-      image:
-        'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
-    },
-    {
-      name: 'Michael Chen',
-      role: 'Tech Enthusiast',
-      content:
-        "Best prices on electronics I've found anywhere. The product quality is outstanding and shipping is incredibly fast.",
-      rating: 5,
-      image:
-        'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
-    },
-    {
-      name: 'Emily Rodriguez',
-      role: 'Fashion Blogger',
-      content:
-        'Love the variety and style! The return policy is fantastic and customer support is always helpful and friendly.',
-      rating: 5,
-      image:
-        'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=400',
-    },
-  ];
+  const [index, setIndex] = useState(0);
+  const reduce = useReducedMotion();
 
-  const nextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-  };
+  const next = () => setIndex((prev) => (prev + 1) % testimonials.length);
+  const prev = () =>
+    setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
-  const prevTestimonial = () => {
-    setCurrentTestimonial(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length
-    );
-  };
+  const current = testimonials[index];
+
   return (
-    <section className="bg-gray-50 py-16">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 text-center">
-          <h2 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">
-            What Our Customers Say
-          </h2>
-          <p className="text-lg text-gray-600">
-            Don't just take our word for it - hear from our satisfied customers
-          </p>
-        </div>
+    <section className="bg-zinc-50 py-20">
+      <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+        <Reveal>
+          <Quote className="mx-auto h-8 w-8 text-amber-500" />
 
-        <div className="relative">
-          <div className="rounded-2xl bg-white p-8 text-center shadow-lg sm:p-12">
-            <div className="mb-6 flex justify-center">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className="h-6 w-6 fill-current text-yellow-400"
+          <div className="relative mt-6 min-h-[9rem] sm:min-h-[7rem]">
+            <AnimatePresence mode="wait">
+              <MotionBlockquote
+                key={index}
+                initial={reduce ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduce ? undefined : { opacity: 0, y: -8 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="text-xl leading-relaxed font-medium text-zinc-900 sm:text-2xl"
+              >
+                &ldquo;{current.content}&rdquo;
+              </MotionBlockquote>
+            </AnimatePresence>
+          </div>
+
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <img
+              src={current.image}
+              alt=""
+              className="h-11 w-11 rounded-full object-cover"
+            />
+            <div className="text-left">
+              <p className="text-sm font-semibold text-zinc-900">{current.name}</p>
+              <p className="text-sm text-zinc-500">{current.role}</p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <button
+              onClick={prev}
+              aria-label="Previous testimonial"
+              className="rounded-full border border-zinc-300 p-2.5 text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-900 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            <div className="flex gap-1.5">
+              {testimonials.map((t, i) => (
+                <button
+                  key={t.name}
+                  onClick={() => setIndex(i)}
+                  aria-label={`Show testimonial from ${t.name}`}
+                  aria-current={i === index}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === index ? 'w-6 bg-amber-600' : 'w-1.5 bg-zinc-300'
+                  }`}
                 />
               ))}
             </div>
-            <blockquote className="mb-8 text-lg leading-relaxed text-gray-700 sm:text-xl">
-              "{testimonials[currentTestimonial].content}"
-            </blockquote>
-            <div className="flex items-center justify-center">
-              <img
-                src={testimonials[currentTestimonial].image}
-                alt={testimonials[currentTestimonial].name}
-                className="mr-4 h-12 w-12 rounded-full object-cover"
-              />
-              <div className="text-left">
-                <p className="font-semibold text-gray-900">
-                  {testimonials[currentTestimonial].name}
-                </p>
-                <p className="text-sm text-gray-600">
-                  {testimonials[currentTestimonial].role}
-                </p>
-              </div>
-            </div>
-          </div>
 
-          {/* Navigation Buttons */}
-          <button
-            onClick={prevTestimonial}
-            className="absolute top-1/2 left-0 -translate-x-6 -translate-y-1/2 transform rounded-full bg-white p-3 shadow-lg transition-colors duration-200 hover:bg-gray-50"
-          >
-            <ChevronLeft className="h-6 w-6 text-gray-600" />
-          </button>
-          <button
-            onClick={nextTestimonial}
-            className="absolute top-1/2 right-0 translate-x-6 -translate-y-1/2 transform rounded-full bg-white p-3 shadow-lg transition-colors duration-200 hover:bg-gray-50"
-          >
-            <ChevronRight className="h-6 w-6 text-gray-600" />
-          </button>
-
-          {/* Dots */}
-          <div className="mt-8 flex justify-center space-x-2">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentTestimonial(index)}
-                className={`h-3 w-3 rounded-full transition-colors duration-200 ${
-                  index === currentTestimonial ? 'bg-amber-600' : 'bg-gray-300'
-                }`}
-              />
-            ))}
+            <button
+              onClick={next}
+              aria-label="Next testimonial"
+              className="rounded-full border border-zinc-300 p-2.5 text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-900 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

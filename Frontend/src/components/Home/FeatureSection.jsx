@@ -1,51 +1,45 @@
 import { RefreshCw, Shield, Truck } from 'lucide-react';
-import React from 'react';
+import { Reveal } from './Reveal';
+
+const reasons = [
+  {
+    icon: Truck,
+    title: 'Free fast delivery',
+    text: 'Free shipping on orders over ₹50, with express delivery and live tracking.',
+  },
+  {
+    icon: Shield,
+    title: 'Secure shopping',
+    text: 'Bank-level encryption on every transaction, from browsing to checkout.',
+  },
+  {
+    icon: RefreshCw,
+    title: 'Easy returns',
+    text: '30-day hassle-free returns with free return shipping on all orders.',
+  },
+];
 
 const FeatureSection = () => {
   return (
-    <section className="bg-slate-900 py-16 text-white">
+    <section className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 text-center">
-          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Why Choose Us</h2>
-          <p className="mx-auto max-w-2xl text-lg text-gray-300">
-            We're committed to providing the best shopping experience possible
-          </p>
-        </div>
+        <Reveal>
+          <h2 className="max-w-md text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-4xl">
+            Why shop with CartLoop
+          </h2>
+        </Reveal>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <div className="rounded-2xl bg-slate-800 p-8 text-center transition-colors duration-300 hover:bg-slate-700">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-600">
-              <Truck className="h-8 w-8 text-white" />
+        <Reveal delay={0.1} className="mt-12 grid grid-cols-1 divide-y divide-zinc-200 md:grid-cols-3 md:divide-x md:divide-y-0">
+          {reasons.map(({ icon: Icon, title, text }) => (
+            <div key={title} className="py-8 first:pt-0 md:px-8 md:py-0 md:first:pl-0 md:last:pr-0">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+                <Icon className="h-6 w-6 text-amber-600" />
+              </div>
+              <h3 className="mt-5 text-xl font-bold text-zinc-900">{title}</h3>
+              <p className="mt-3 leading-relaxed text-zinc-600">{text}</p>
             </div>
-            <h3 className="mb-4 text-xl font-bold">Free Fast Delivery</h3>
-            <p className="leading-relaxed text-gray-300">
-              Free shipping on orders over ₹50. Express delivery available with
-              tracking.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-800 p-8 text-center transition-colors duration-300 hover:bg-slate-700">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-600">
-              <Shield className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="mb-4 text-xl font-bold">Secure Shopping</h3>
-            <p className="leading-relaxed text-gray-300">
-              Your data is protected with bank-level encryption and secure
-              payment processing.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-800 p-8 text-center transition-colors duration-300 hover:bg-slate-700">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-600">
-              <RefreshCw className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="mb-4 text-xl font-bold">Easy Returns</h3>
-            <p className="leading-relaxed text-gray-300">
-              30-day hassle-free returns with free return shipping on all
-              orders.
-            </p>
-          </div>
-        </div>
+          ))}
+        </Reveal>
       </div>
     </section>
   );

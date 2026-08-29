@@ -1,9 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Fjalla+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Fjalla+One&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 .brand_name {
   font-family: 'Alfa Slab One', serif;
   font-weight: 400;
   font-style: normal;
+}
+
+.font-display {
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+  60% {
+    transform: translateY(10px);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+}
+
+.animate-scroll-cue {
+  animation: scroll-cue 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
 /* #root {

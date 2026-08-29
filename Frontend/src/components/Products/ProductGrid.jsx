@@ -8,7 +8,7 @@ export const ProductGrid = ({ products, loading }) => {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
         {[...Array(12)].map((_, i) => (
           <div
             key={i}
@@ -65,7 +65,7 @@ export const ProductGrid = ({ products, loading }) => {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
         {products?.map((product) => (
           <ProductCard
             key={product._id}

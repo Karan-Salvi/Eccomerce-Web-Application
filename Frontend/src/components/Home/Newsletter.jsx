@@ -1,30 +1,67 @@
-import React from 'react';
+import { ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { LoopMark } from './LoopMark';
+import { Reveal } from './Reveal';
 
 const Newsletter = () => {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Enter a valid email address');
+      return;
+    }
+    setSubmitted(true);
+    setEmail('');
+  };
+
   return (
-    <section className="bg-amber-600 py-16">
-      <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-        <h2 className="mb-4 text-3xl font-bold text-white sm:text-4xl">
-          Stay Updated with Our Latest Deals
-        </h2>
-        <p className="mx-auto mb-8 max-w-2xl text-lg text-amber-100">
-          Subscribe to our newsletter and be the first to know about exclusive
-          offers, new arrivals, and special promotions.
-        </p>
-        <form className="mx-auto flex max-w-md flex-col gap-4 sm:flex-row">
-          <input
-            type="email"
-            placeholder="Enter your email address..."
-            className="flex-1 rounded-lg px-6 py-4 text-gray-900 ring-2 ring-gray-50 placeholder:font-semibold placeholder:text-gray-50 focus:ring-2 focus:ring-white focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="rounded-lg bg-slate-900 px-8 py-4 font-semibold whitespace-nowrap text-white transition-colors duration-200 hover:bg-slate-800"
-          >
-            Subscribe Now
-          </button>
-        </form>
-      </div>
+    <section className="relative overflow-hidden bg-amber-600 py-20">
+      <LoopMark className="pointer-events-none absolute top-1/2 -right-16 h-64 w-96 -translate-y-1/2 text-white/10 sm:-right-8" />
+
+      <Reveal className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="max-w-lg">
+          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            Deals worth knowing about
+          </h2>
+          <p className="mt-4 text-amber-50">
+            New arrivals and price drops, sent when there is something worth
+            sending.
+          </p>
+
+          {submitted ? (
+            <p className="mt-8 font-semibold text-white">
+              You&apos;re subscribed. Watch your inbox.
+            </p>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="mt-8 flex max-w-md items-center gap-1.5 rounded-full bg-white p-1.5 shadow-lg"
+            >
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                aria-label="Email address"
+                className="min-w-0 flex-1 bg-transparent px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                aria-label="Subscribe"
+                className="flex flex-shrink-0 items-center gap-1.5 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 focus-visible:ring-offset-amber-600 focus-visible:outline-none"
+              >
+                Subscribe
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
+          )}
+        </div>
+      </Reveal>
     </section>
   );
 };
