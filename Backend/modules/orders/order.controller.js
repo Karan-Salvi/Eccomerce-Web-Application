@@ -242,7 +242,11 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
 
 export async function processStripeWebhookEvent(
   event,
-  { orderModel = Order, productModel = Product, redisClient: injectedRedisClient = redisClient } = {}
+  {
+    orderModel = Order,
+    productModel = Product,
+    redisClient: injectedRedisClient = redisClient,
+  } = {}
 ) {
   if (event.type === 'checkout.session.completed') {
     let isFirstDelivery = true;
@@ -285,6 +289,58 @@ export async function processStripeWebhookEvent(
 
     logger.info('Order payment completed successfully');
     return { status: 200, body: { message: 'Order payment completed successfully' } };
+  }
+
+  if (event.type === 'checkout.session.expired') {
+    let isFirstDelivery = true;
+    try {
+      isFirstDelivery = await markEventProcessed(
+        injectedRedisClient,
+        event.id,
+        WEBHOOK_EVENT_TTL_SECONDS
+      );
+    } catch (error) {
+      logger.warn(
+        `Redis unavailable for webhook dedup (${error.message}) — processing event ${event.id} without duplicate protection`
+      );
+    }
+
+    if (!isFirstDelivery) {
+      logger.info(`Duplicate webhook delivery for event ${event.id}, skipping`);
+      return { status: 200, body: { message: 'Already processed' } };
+    }
+
+    const session = event.data.object;
+    const expiredOrder = await orderModel.findOne({ 'paymentInfo.id': session.id });
+
+    if (!expiredOrder) {
+      logger.error('Order not found for expired checkout session');
+      return { status: 404, body: { message: 'Order not found' } };
+    }
+
+    if (expiredOrder.paymentInfo.status !== 'pending') {
+      logger.info(`Order ${expiredOrder._id} already resolved, skipping stock release`);
+      return { status: 200, body: { message: 'Already resolved' } };
+    }
+
+    const reserved = expiredOrder.orderItems.map((item) => ({
+      productId: item.product,
+      quantity: item.quantity,
+    }));
+
+    try {
+      await releaseStock(reserved, { productModel });
+    } catch (error) {
+      logger.error(`Failed to release stock for expired session ${session.id}: ${error.message}`);
+      return { status: 500, body: { message: 'Failed to release stock' } };
+    }
+
+    expiredOrder.paymentInfo.status = 'failed';
+    expiredOrder.orderStatus = 'cancelled';
+    await expiredOrder.save();
+
+    logger.info(`Order ${expiredOrder._id} cancelled and stock released after checkout expiry`);
+    return { status: 200, body: { message: 'Order cancelled, stock released' } };
   }
 
   return { status: 200, body: {} };

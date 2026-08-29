@@ -208,3 +208,76 @@ test('processStripeWebhookEvent no-ops with 200 on an event type it does not han
 
   assert.equal(result.status, 200);
 });
+
+function makeFakeProductModelForRelease(stockById) {
+  return {
+    async findOneAndUpdate(filter, update) {
+      const id = filter._id;
+      const next = (stockById.get(id) || 0) + (update.$inc ? update.$inc.inStock : 0);
+      stockById.set(id, next);
+      return { _id: id, inStock: next };
+    },
+  };
+}
+
+test('processStripeWebhookEvent releases stock and fails the order on checkout.session.expired', async () => {
+  const stockById = new Map([['p1', 3]]);
+  const order = {
+    _id: 'order_2',
+    paymentInfo: { id: 'cs_test_2', status: 'pending' },
+    orderItems: [{ product: 'p1', quantity: 2 }],
+    orderStatus: 'processing',
+    save: async function () {
+      this.saved = true;
+    },
+  };
+  const orderModel = makeFakeOrderModelWithOrders([order]);
+  const productModel = makeFakeProductModelForRelease(stockById);
+  const event = {
+    id: 'evt_expired_1',
+    type: 'checkout.session.expired',
+    data: { object: { id: 'cs_test_2', metadata: { orderId: 'order_2' } } },
+  };
+
+  const result = await processStripeWebhookEvent(event, {
+    orderModel,
+    productModel,
+    redisClient: makeFakeRedisClient(true),
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(order.paymentInfo.status, 'failed');
+  assert.equal(order.orderStatus, 'cancelled');
+  assert.ok(order.saved);
+  assert.equal(stockById.get('p1'), 5); // 3 + 2 released back
+});
+
+test('processStripeWebhookEvent does not re-release stock for an already-failed order', async () => {
+  const stockById = new Map([['p1', 3]]);
+  const order = {
+    _id: 'order_3',
+    paymentInfo: { id: 'cs_test_3', status: 'failed' },
+    orderItems: [{ product: 'p1', quantity: 2 }],
+    orderStatus: 'cancelled',
+    save: async function () {
+      this.saved = true;
+    },
+  };
+  const orderModel = makeFakeOrderModelWithOrders([order]);
+  const productModel = makeFakeProductModelForRelease(stockById);
+  const event = {
+    id: 'evt_expired_2',
+    type: 'checkout.session.expired',
+    data: { object: { id: 'cs_test_3', metadata: { orderId: 'order_3' } } },
+  };
+
+  const result = await processStripeWebhookEvent(event, {
+    orderModel,
+    productModel,
+    redisClient: makeFakeRedisClient(true),
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(stockById.get('p1'), 3); // unchanged — Stripe retried an already-handled expiry
+  assert.ok(!order.saved);
+});
