@@ -10,7 +10,11 @@ import { calculateOrderTotal } from '#modules/orders/order.pricing.js';
 import { verifyStripeWebhookEvent } from '#modules/orders/order.webhook.js';
 import { isAlreadyDelivered } from '#modules/orders/order.statusGuard.js';
 import { reserveStock, releaseStock } from '#modules/products/product.stock.js';
-import { withIdempotentResult, markEventProcessed } from '#shared/utils/idempotency.js';
+import {
+  withIdempotentResult,
+  markEventProcessed,
+  unmarkEventProcessed,
+} from '#shared/utils/idempotency.js';
 
 // dotenv configuration
 dotenv.config({
@@ -332,6 +336,11 @@ export async function processStripeWebhookEvent(
       await releaseStock(reserved, { productModel });
     } catch (error) {
       logger.error(`Failed to release stock for expired session ${session.id}: ${error.message}`);
+      await unmarkEventProcessed(injectedRedisClient, event.id).catch((unmarkError) => {
+        logger.error(
+          `Failed to unmark event ${event.id} after stock-release failure: ${unmarkError.message}`
+        );
+      });
       return { status: 500, body: { message: 'Failed to release stock' } };
     }
 
@@ -364,6 +373,11 @@ export const stripeWebhook = catchAsyncErrors(async (req, res) => {
     return res.status(status).json(body);
   } catch (error) {
     logger.error('Error handling event:', error.message);
+    await unmarkEventProcessed(redisClient, event.id).catch((unmarkError) => {
+      logger.error(
+        `Failed to unmark event ${event.id} after handler failure: ${unmarkError.message}`
+      );
+    });
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 });

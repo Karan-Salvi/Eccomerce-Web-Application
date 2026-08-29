@@ -37,3 +37,7 @@ export async function markEventProcessed(redisClient, eventId, ttlSeconds) {
   const claimed = await redisClient.set(`stripe:event:${eventId}`, '1', 'EX', ttlSeconds, 'NX');
   return claimed === 'OK';
 }
+
+export async function unmarkEventProcessed(redisClient, eventId) {
+  await redisClient.del(`stripe:event:${eventId}`);
+}

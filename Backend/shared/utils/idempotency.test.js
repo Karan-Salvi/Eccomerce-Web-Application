@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { withIdempotentResult, markEventProcessed } from '#shared/utils/idempotency.js';
+import {
+  withIdempotentResult,
+  markEventProcessed,
+  unmarkEventProcessed,
+} from '#shared/utils/idempotency.js';
 
 function makeFakeRedis() {
   const store = new Map(); // key -> { value, expiresAt }
@@ -108,4 +112,18 @@ test('markEventProcessed returns true the first time and false on replay', async
 
   assert.equal(first, true);
   assert.equal(second, false);
+});
+
+test('unmarkEventProcessed deletes the dedup key so a later delivery is treated as first again', async () => {
+  const redis = makeFakeRedis();
+
+  await markEventProcessed(redis, 'evt_1', 86400);
+  await unmarkEventProcessed(redis, 'evt_1');
+
+  const retried = await markEventProcessed(redis, 'evt_1', 86400);
+  assert.equal(
+    retried,
+    true,
+    'the key must be gone after unmarking, so a retry can claim it again'
+  );
 });

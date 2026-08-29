@@ -131,9 +131,15 @@ function makeFakeOrderModelWithOrders(orders) {
 }
 
 function makeFakeRedisClient(claimed = true) {
+  const deletedKeys = [];
   return {
+    deletedKeys,
     async set() {
       return claimed ? 'OK' : null;
+    },
+    async del(key) {
+      deletedKeys.push(key);
+      return 1;
     },
   };
 }
@@ -279,5 +285,39 @@ test('processStripeWebhookEvent does not re-release stock for an already-failed 
 
   assert.equal(result.status, 200);
   assert.equal(stockById.get('p1'), 3); // unchanged — Stripe retried an already-handled expiry
+  assert.ok(!order.saved);
+});
+
+test('processStripeWebhookEvent unmarks the dedup key when releaseStock fails on checkout.session.expired, so Stripe can actually retry', async () => {
+  const order = {
+    _id: 'order_4',
+    paymentInfo: { id: 'cs_test_4', status: 'pending' },
+    orderItems: [{ product: 'p1', quantity: 2 }],
+    orderStatus: 'processing',
+    save: async function () {
+      this.saved = true;
+    },
+  };
+  const orderModel = makeFakeOrderModelWithOrders([order]);
+  const productModel = {
+    async findOneAndUpdate() {
+      throw new Error('transient Mongo error');
+    },
+  };
+  const redisClient = makeFakeRedisClient(true);
+  const event = {
+    id: 'evt_expired_4',
+    type: 'checkout.session.expired',
+    data: { object: { id: 'cs_test_4', metadata: { orderId: 'order_4' } } },
+  };
+
+  const result = await processStripeWebhookEvent(event, {
+    orderModel,
+    productModel,
+    redisClient,
+  });
+
+  assert.equal(result.status, 500);
+  assert.deepEqual(redisClient.deletedKeys, ['stripe:event:evt_expired_4']);
   assert.ok(!order.saved);
 });
