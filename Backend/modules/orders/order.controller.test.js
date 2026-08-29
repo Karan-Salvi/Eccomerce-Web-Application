@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { buildCodOrder } from '#modules/orders/order.controller.js';
+import { buildCodOrder, processStripeWebhookEvent } from '#modules/orders/order.controller.js';
 
 function makeFakeProductModel(stockById, vendorById = new Map()) {
   return {
@@ -120,4 +120,91 @@ test("buildCodOrder attaches each item's vendor from reserveStock before creatin
 
   assert.equal(orderModel.created.length, 1);
   assert.equal(orderModel.created[0].orderItems[0].vendor, 'vendor_1');
+});
+
+function makeFakeOrderModelWithOrders(orders) {
+  return {
+    async findOne(filter) {
+      return orders.find((o) => o.paymentInfo.id === filter['paymentInfo.id']) || null;
+    },
+  };
+}
+
+function makeFakeRedisClient(claimed = true) {
+  return {
+    async set() {
+      return claimed ? 'OK' : null;
+    },
+  };
+}
+
+test('processStripeWebhookEvent marks the order completed on checkout.session.completed', async () => {
+  const order = {
+    _id: 'order_1',
+    paymentInfo: { id: 'cs_test_1', status: 'pending' },
+    orderItems: [{ product: 'p1', quantity: 2 }],
+    save: async function () {
+      this.saved = true;
+    },
+  };
+  const orderModel = makeFakeOrderModelWithOrders([order]);
+  const event = {
+    id: 'evt_1',
+    type: 'checkout.session.completed',
+    data: { object: { id: 'cs_test_1', metadata: { orderId: 'order_1' } } },
+  };
+
+  const result = await processStripeWebhookEvent(event, {
+    orderModel,
+    redisClient: makeFakeRedisClient(true),
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(order.paymentInfo.status, 'completed');
+  assert.ok(order.saved);
+});
+
+test('processStripeWebhookEvent skips a duplicate delivery of the same event id', async () => {
+  const orderModel = makeFakeOrderModelWithOrders([]);
+  const event = {
+    id: 'evt_dup',
+    type: 'checkout.session.completed',
+    data: { object: { id: 'cs_test_x', metadata: { orderId: 'order_x' } } },
+  };
+
+  const result = await processStripeWebhookEvent(event, {
+    orderModel,
+    redisClient: makeFakeRedisClient(false),
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.message, 'Already processed');
+});
+
+test('processStripeWebhookEvent 404s when the order for the session is not found', async () => {
+  const orderModel = makeFakeOrderModelWithOrders([]);
+  const event = {
+    id: 'evt_2',
+    type: 'checkout.session.completed',
+    data: { object: { id: 'cs_missing', metadata: { orderId: 'order_missing' } } },
+  };
+
+  const result = await processStripeWebhookEvent(event, {
+    orderModel,
+    redisClient: makeFakeRedisClient(true),
+  });
+
+  assert.equal(result.status, 404);
+});
+
+test('processStripeWebhookEvent no-ops with 200 on an event type it does not handle', async () => {
+  const orderModel = makeFakeOrderModelWithOrders([]);
+  const event = { id: 'evt_3', type: 'payment_intent.created', data: { object: {} } };
+
+  const result = await processStripeWebhookEvent(event, {
+    orderModel,
+    redisClient: makeFakeRedisClient(true),
+  });
+
+  assert.equal(result.status, 200);
 });

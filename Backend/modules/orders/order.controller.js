@@ -240,6 +240,56 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
   }
 });
 
+export async function processStripeWebhookEvent(
+  event,
+  { orderModel = Order, productModel = Product, redisClient: injectedRedisClient = redisClient } = {}
+) {
+  if (event.type === 'checkout.session.completed') {
+    let isFirstDelivery = true;
+    try {
+      isFirstDelivery = await markEventProcessed(
+        injectedRedisClient,
+        event.id,
+        WEBHOOK_EVENT_TTL_SECONDS
+      );
+    } catch (error) {
+      logger.warn(
+        `Redis unavailable for webhook dedup (${error.message}) — processing event ${event.id} without duplicate protection`
+      );
+    }
+
+    if (!isFirstDelivery) {
+      logger.info(`Duplicate webhook delivery for event ${event.id}, skipping`);
+      return { status: 200, body: { message: 'Already processed' } };
+    }
+
+    logger.info('Checkout session completed event received');
+
+    const session = event.data.object;
+
+    if (!session.metadata || !session.metadata.orderId) {
+      logger.error('Session metadata or orderId is missing');
+      return { status: 400, body: { message: 'Invalid session metadata' } };
+    }
+
+    const purchasedOrder = await orderModel.findOne({ 'paymentInfo.id': session.id });
+
+    if (!purchasedOrder) {
+      logger.error('Order not found');
+      return { status: 404, body: { message: 'Order not found' } };
+    }
+
+    purchasedOrder.paymentInfo.status = 'completed';
+    purchasedOrder.paidAt = Date.now();
+    await purchasedOrder.save();
+
+    logger.info('Order payment completed successfully');
+    return { status: 200, body: { message: 'Order payment completed successfully' } };
+  }
+
+  return { status: 200, body: {} };
+}
+
 export const stripeWebhook = catchAsyncErrors(async (req, res) => {
   let event;
 
@@ -253,56 +303,13 @@ export const stripeWebhook = catchAsyncErrors(async (req, res) => {
     return res.status(400).send(`Webhook error: ${error.message}`);
   }
 
-  if (event.type === 'checkout.session.completed') {
-    // Redis being down must degrade dedup protection, not block payment
-    // confirmation — treat a failed claim as "first delivery" and carry on.
-    let isFirstDelivery = true;
-    try {
-      isFirstDelivery = await markEventProcessed(redisClient, event.id, WEBHOOK_EVENT_TTL_SECONDS);
-    } catch (error) {
-      logger.warn(
-        `Redis unavailable for webhook dedup (${error.message}) — processing event ${event.id} without duplicate protection`
-      );
-    }
-
-    if (!isFirstDelivery) {
-      logger.info(`Duplicate webhook delivery for event ${event.id}, skipping`);
-      return res.status(200).json({ message: 'Already processed' });
-    }
-
-    logger.info('Checkout session completed event received');
-
-    try {
-      const session = event.data.object;
-
-      if (!session.metadata || !session.metadata.orderId) {
-        logger.error('Session metadata or orderId is missing');
-        return res.status(400).json({ message: 'Invalid session metadata' });
-      }
-
-      let purchasedOrder = await Order.findOne({
-        'paymentInfo.id': session.id,
-      });
-
-      if (!purchasedOrder) {
-        logger.error('Order not found');
-        return res.status(404).json({ message: 'Order not found' });
-      }
-
-      purchasedOrder.paymentInfo.status = 'completed';
-      purchasedOrder.paidAt = Date.now();
-
-      await purchasedOrder.save();
-
-      logger.info('Order payment completed successfully');
-
-      return res.status(200).json({ message: 'Order payment completed successfully' });
-    } catch (error) {
-      logger.error('Error handling event:', error.message);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
+  try {
+    const { status, body } = await processStripeWebhookEvent(event);
+    return res.status(status).json(body);
+  } catch (error) {
+    logger.error('Error handling event:', error.message);
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
-  res.status(200).send();
 });
 
 // get single order details -- owner or ADMIN
