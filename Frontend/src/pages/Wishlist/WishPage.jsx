@@ -45,7 +45,7 @@ const WishPage = () => {
             </Link>
           </div>
         ) : (
-          <Reveal className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+          <Reveal className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
             {wishlist.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}

@@ -1,8 +1,19 @@
-import { Heart, Menu, ShoppingCart, User, X } from 'lucide-react';
+import { Heart, LogOut, Menu, Package, ShoppingCart, User, X } from 'lucide-react';
 import { useState } from 'react';
 import { RiAdminLine } from 'react-icons/ri';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { useLogoutUserMutation } from '../../store/api/authApi';
 
 const navLinks = [
   { label: 'Home', to: '/' },
@@ -34,10 +45,19 @@ const IconLink = ({ to, label, children }) => (
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const [logoutUser] = useLogoutUserMutation();
 
   const cartCount =
     user?.data?.cart?.length ??
     JSON.parse(localStorage.getItem('cart') || '[]').length;
+
+  const handleLogout = async () => {
+    setIsMenuOpen(false);
+    await logoutUser();
+    toast.success('Signed out');
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/90 backdrop-blur-md">
@@ -56,9 +76,52 @@ const Navbar = () => {
           </nav>
 
           <div className="flex items-center gap-1">
-            <IconLink to={isAuthenticated ? '/profile' : '/login'} label="Account">
-              <User className="h-5 w-5" />
-            </IconLink>
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="Account menu"
+                    className="relative cursor-pointer rounded-full p-2 text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none"
+                  >
+                    <User className="h-5 w-5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="z-[60] w-48">
+                  <DropdownMenuLabel className="truncate">
+                    {user?.data?.name ?? 'My Account'}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => navigate('/profile')}
+                    className="cursor-pointer"
+                  >
+                    <User className="h-4 w-4" />
+                    My Account
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate('/profile')}
+                    className="cursor-pointer"
+                  >
+                    <Package className="h-4 w-4" />
+                    Orders
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={handleLogout}
+                    className="cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <IconLink to="/login" label="Account">
+                <User className="h-5 w-5" />
+              </IconLink>
+            )}
             <IconLink to="/wishlist" label="Wishlist">
               <Heart className="h-5 w-5" />
             </IconLink>
@@ -103,6 +166,25 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+            {isAuthenticated && (
+              <>
+                <div className="my-1 border-t border-zinc-100" />
+                <Link
+                  to="/profile"
+                  className="rounded-lg px-2 py-2.5 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  My Account
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="cursor-pointer rounded-lg px-2 py-2.5 text-left text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+                >
+                  Log out
+                </button>
+              </>
+            )}
           </nav>
         )}
       </div>
