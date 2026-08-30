@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCreateProductMutation, useUpdateProductMutation } from '@/store/api/productApi';
 import { PRODUCT_CATEGORY_OPTIONS } from '@/constants/productCategories.constants';
-import { PRODUCT_COLOR_SWATCHES } from '@/constants/productColors.constants';
+import { PRODUCT_COLOR_SWATCHES, getProductColorHex, isLightColor } from '@/constants/productColors.constants';
 import { ArrowLeft, Eye, ImagePlus, Star, X, Check, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -45,8 +45,6 @@ const AddProductPage = ({ onBack, editProduct }) => {
   });
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState([]);
-  const [customColorInput, setCustomColorInput] = useState('');
-  const [showCustomColorInput, setShowCustomColorInput] = useState(false);
 
   const [errors, setErrors] = useState({});
 
@@ -173,15 +171,11 @@ const AddProductPage = ({ onBack, editProduct }) => {
     }));
   };
 
-  const addCustomColor = () => {
-    const name = customColorInput.trim();
-    if (!name) return;
-    const alreadyAdded = formData.colors.some((c) => c.toLowerCase() === name.toLowerCase());
+  const addCustomColor = (hex) => {
+    const alreadyAdded = formData.colors.some((c) => c.toLowerCase() === hex.toLowerCase());
     if (!alreadyAdded) {
-      setFormData((prev) => ({ ...prev, colors: [...prev.colors, name] }));
+      setFormData((prev) => ({ ...prev, colors: [...prev.colors, hex] }));
     }
-    setCustomColorInput('');
-    setShowCustomColorInput(false);
   };
 
   const removeColor = (colorName) => {
@@ -393,7 +387,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
                       Colors{' '}
                       <span className="text-muted-foreground font-normal">— optional</span>
                     </Label>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       {PRODUCT_COLOR_SWATCHES.map((swatch) => {
                         const isSelected = formData.colors.includes(swatch.name);
                         return (
@@ -419,11 +413,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
                               <Check
                                 className={cn(
                                   'h-4 w-4',
-                                  ['White', 'Silver', 'Gold', 'Rose Gold', 'Tan'].includes(
-                                    swatch.name
-                                  )
-                                    ? 'text-zinc-900'
-                                    : 'text-white'
+                                  isLightColor(swatch.hex) ? 'text-zinc-900' : 'text-white'
                                 )}
                               />
                             )}
@@ -431,58 +421,50 @@ const AddProductPage = ({ onBack, editProduct }) => {
                         );
                       })}
 
-                      {showCustomColorInput ? (
-                        <div className="flex h-10 items-center gap-1 rounded-full border border-zinc-300 pr-1 pl-3">
-                          <input
-                            autoFocus
-                            value={customColorInput}
-                            onChange={(e) => setCustomColorInput(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                addCustomColor();
-                              }
-                              if (e.key === 'Escape') {
-                                setShowCustomColorInput(false);
-                                setCustomColorInput('');
-                              }
-                            }}
-                            onBlur={addCustomColor}
-                            placeholder="Color name"
-                            className="w-28 text-sm outline-none"
-                          />
+                      {formData.colors
+                        .filter((color) => color.startsWith('#'))
+                        .map((hex) => (
                           <button
+                            key={hex}
                             type="button"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={addCustomColor}
-                            className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-600 text-white hover:bg-amber-700"
-                            aria-label="Add color"
+                            onClick={() => removeColor(hex)}
+                            title={`${hex} — click to remove`}
+                            aria-label={`Remove custom color ${hex}`}
+                            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-amber-600 ring-2 ring-amber-100"
+                            style={{ backgroundColor: hex }}
                           >
-                            <Check className="h-3.5 w-3.5" />
+                            <X className={cn('h-4 w-4', isLightColor(hex) ? 'text-zinc-900' : 'text-white')} />
                           </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setShowCustomColorInput(true)}
-                          title="Add a custom color"
-                          aria-label="Add a custom color"
-                          className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-zinc-300 text-zinc-400 hover:border-amber-400 hover:text-amber-600"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </button>
-                      )}
+                        ))}
+
+                      <label
+                        title="Pick a custom color"
+                        className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-zinc-300 text-zinc-400 hover:border-amber-400 hover:text-amber-600"
+                      >
+                        <Plus className="pointer-events-none h-4 w-4" />
+                        <input
+                          type="color"
+                          aria-label="Pick a custom color"
+                          defaultValue="#000000"
+                          onChange={(e) => addCustomColor(e.target.value)}
+                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        />
+                      </label>
                     </div>
                     <p className="text-muted-foreground mt-2 text-sm">
-                      Not seeing the right shade? Use the + to add any color by name.
+                      Not seeing the right shade? Use the + to pick any color.
                     </p>
                     {formData.colors.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {formData.colors.map((color) => (
                           <span
                             key={color}
-                            className="flex items-center gap-1.5 rounded-full bg-zinc-100 py-1 pr-1.5 pl-3 text-sm text-zinc-700"
+                            className="flex items-center gap-1.5 rounded-full bg-zinc-100 py-1 pr-1.5 pl-2 text-sm text-zinc-700"
                           >
+                            <span
+                              className="h-3.5 w-3.5 rounded-full border border-zinc-300"
+                              style={{ backgroundColor: getProductColorHex(color) }}
+                            />
                             {color}
                             <button
                               type="button"
