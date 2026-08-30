@@ -56,7 +56,7 @@ const Dashboard = () => {
   if (isLoading || !analytics) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-blue-500" />
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-amber-600" />
       </div>
     );
   }
@@ -65,14 +65,7 @@ const Dashboard = () => {
     ? new Date(fulfilledTimeStamp).toLocaleTimeString()
     : null;
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  const formatCurrency = (value) => `₹${new Intl.NumberFormat('en-US').format(Math.round(value))}`;
 
   const formatNumber = (value) => {
     return new Intl.NumberFormat('en-US').format(value);
@@ -91,7 +84,7 @@ const Dashboard = () => {
         <button
           onClick={() => refetch()}
           disabled={isFetching}
-          className="text-sm font-medium text-blue-600 hover:text-blue-700 disabled:opacity-50"
+          className="text-sm font-medium text-amber-600 hover:text-amber-700 disabled:opacity-50"
         >
           {isFetching ? 'Refreshing…' : 'Refresh now'}
         </button>

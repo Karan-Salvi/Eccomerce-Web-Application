@@ -67,7 +67,7 @@ const Layout = ({ children, currentView, onViewChange }) => {
                   variant={isActive ? 'default' : 'ghost'}
                   className={cn(
                     'h-12 w-full justify-start gap-3',
-                    isActive && 'bg-primary text-primary-foreground'
+                    isActive && 'bg-amber-600 text-white hover:bg-amber-700'
                   )}
                   onClick={() => {
                     onViewChange(item.id);
@@ -84,8 +84,8 @@ const Layout = ({ children, currentView, onViewChange }) => {
           {/* Footer */}
           <div className="border-t p-4">
             <div className="flex items-center gap-3">
-              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
-                <span className="text-primary-foreground text-sm font-medium">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-600">
+                <span className="text-sm font-medium text-white">
                   {initials}
                 </span>
               </div>
@@ -113,7 +113,7 @@ const Layout = ({ children, currentView, onViewChange }) => {
 
           <div className="flex-1">
             <h1 className="text-xl font-semibold capitalize">
-              {/* {currentView.replace("-", " ")} */}
+              {currentView.replace('-', ' ')}
             </h1>
           </div>
         </header>

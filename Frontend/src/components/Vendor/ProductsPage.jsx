@@ -56,7 +56,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-blue-500" />
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-amber-600" />
       </div>
     );
   }
