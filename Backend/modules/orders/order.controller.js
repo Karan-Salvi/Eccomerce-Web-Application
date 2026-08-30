@@ -455,7 +455,7 @@ export const myOrders = catchAsyncErrors(async (req, res) => {
 
 // get all order details -- ADMIN
 export const getAllOrders = catchAsyncErrors(async (req, res) => {
-  const orders = await Order.find();
+  const orders = await Order.find().populate('orderItems.product', 'name images');
   if (!orders) {
     return res.status(404).json({
       success: false,

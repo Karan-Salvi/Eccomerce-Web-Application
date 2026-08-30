@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, Package } from 'lucide-react';
 
 const formatCurrency = (value) => `₹${new Intl.NumberFormat('en-US').format(Math.round(value || 0))}`;
 
@@ -66,10 +66,11 @@ const OrdersPage = () => {
       ) : (
         <Card className="overflow-hidden py-0">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-sm">
+            <table className="w-full min-w-[820px] text-sm">
               <thead>
                 <tr className="border-b bg-zinc-50 text-left text-xs font-medium text-zinc-500 uppercase">
                   <th className="px-6 py-3">Order ID</th>
+                  <th className="px-6 py-3">Items</th>
                   <th className="px-6 py-3">Date</th>
                   <th className="px-6 py-3">Total</th>
                   <th className="px-6 py-3">Status</th>
@@ -83,6 +84,32 @@ const OrdersPage = () => {
                     <tr key={order._id}>
                       <td className="text-muted-foreground px-6 py-4 font-mono text-xs">
                         #{order._id.slice(-8)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex -space-x-2">
+                          {order.orderItems.slice(0, 3).map((item, index) => (
+                            <div
+                              key={item._id || index}
+                              className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-zinc-100"
+                              title={item.product?.name}
+                            >
+                              {item.product?.images?.[0]?.url ? (
+                                <img
+                                  src={item.product.images[0].url}
+                                  alt={item.product.name}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <Package className="h-4 w-4 text-zinc-400" />
+                              )}
+                            </div>
+                          ))}
+                          {order.orderItems.length > 3 && (
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-zinc-100 text-xs font-medium text-zinc-600">
+                              +{order.orderItems.length - 3}
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         {new Date(order.createdAt).toLocaleDateString()}
