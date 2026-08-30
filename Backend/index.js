@@ -29,7 +29,7 @@ const corsOptions = {
   origin: process.env.FRONTEND_URI,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key'],
 };
 
 app.use(cors(corsOptions));

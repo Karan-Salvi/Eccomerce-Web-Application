@@ -169,7 +169,17 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
   let { shippingInfo, orderItems, itemsPrice, taxPrice, shippingPrice, paymentMethod } = req.body;
   const userId = req.user._id;
 
-  if (!shippingInfo || !orderItems || !itemsPrice || !taxPrice || !shippingPrice || !userId) {
+  const hasValidNumber = (value) => value !== undefined && value !== null && !Number.isNaN(Number(value));
+
+  if (
+    !shippingInfo ||
+    !Array.isArray(orderItems) ||
+    orderItems.length === 0 ||
+    !hasValidNumber(itemsPrice) ||
+    !hasValidNumber(taxPrice) ||
+    !hasValidNumber(shippingPrice) ||
+    !userId
+  ) {
     logger.error('Missing required fields for order creation');
     return res.status(400).json({
       success: false,
@@ -190,6 +200,20 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
   shippingPrice = Number(shippingPrice);
 
   const { totalPrice } = calculateOrderTotal({ itemsPrice, taxPrice, shippingPrice });
+
+  // Stripe rejects any checkout session whose total converts to under $0.50 USD
+  // (no fixed INR minimum is published for this account, so it's enforced via
+  // live FX conversion). A ~₹42-47 order trips that depending on the day's rate;
+  // ₹50 gives a safety margin so we reject with a clear message up front instead
+  // of reserving stock, calling Stripe, and surfacing a raw API crash.
+  const MINIMUM_STRIPE_CHECKOUT_INR = 50;
+  if (paymentMethod === 'stripe' && totalPrice < MINIMUM_STRIPE_CHECKOUT_INR) {
+    logger.warn(`Stripe checkout rejected: order total ₹${totalPrice} is below the ₹${MINIMUM_STRIPE_CHECKOUT_INR} minimum`);
+    return res.status(400).json({
+      success: false,
+      message: `Card checkout requires a minimum order of ₹${MINIMUM_STRIPE_CHECKOUT_INR}. Increase the quantity or pay on delivery instead.`,
+    });
+  }
 
   const orderData = {
     shippingInfo,

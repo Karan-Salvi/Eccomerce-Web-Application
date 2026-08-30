@@ -166,6 +166,16 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
+
+    // Shipping address
+    addAddress: builder.mutation({
+      query: (addressData) => ({
+        url: 'address',
+        method: 'POST',
+        body: addressData,
+      }),
+      invalidatesTags: ['User'],
+    }),
   }),
 });
 
@@ -185,4 +195,5 @@ export const {
   useRemoveFromWishlistMutation,
   useAddToCartMutation,
   useRemoveFromCartMutation,
+  useAddAddressMutation,
 } = authApi;

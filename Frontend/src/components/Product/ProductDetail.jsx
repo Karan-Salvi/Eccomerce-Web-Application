@@ -21,6 +21,7 @@ import { useGetSimilarProductsQuery } from '../../store/api/recommendationApi';
 import { useSelector } from 'react-redux';
 import Share from '../Share/Share';
 import PlaceOrderButton from './PlaceOrderButton';
+import AddAddressDialog from './AddAddressDialog';
 import { ProductCard } from '../Products/ProductCard';
 import { Reveal } from '../Home/Reveal';
 
@@ -51,32 +52,40 @@ const ProductDetail = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(isInWishlist || false);
   const [activeTab, setActiveTab] = useState('description');
 
-  const order = {
-    shippingInfo: {
-      address: '123 Main Street',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      country: 'India',
-      pinCode: 400001,
-      phoneNo: 9876543210,
-    },
-    orderItems: [
-      {
-        price: 499,
-        quantity: 2,
-        product: '686b37d27944536702caef38',
-      },
-      {
-        price: 799,
-        quantity: 1,
-        product: '686b37df7944536702caef39',
-      },
-    ],
-    itemsPrice: 1797,
-    taxPrice: 150,
-    shippingPrice: 50,
-    paymentMethod: 'stripe',
-  };
+  // A saved address (from the user's account) or one just entered in the
+  // dialog below — either is enough to build a real order. Kept separate
+  // from redux user state so checkout can proceed immediately after saving,
+  // without waiting on a user-refetch that nothing in the app currently triggers.
+  const [pendingAddress, setPendingAddress] = useState(null);
+  const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const savedAddress = user?.data?.addressInfo?.[0];
+  const shippingAddress = pendingAddress || savedAddress;
+
+  const itemsPrice = Number((product.price * quantity).toFixed(2));
+
+  const order = shippingAddress
+    ? {
+        shippingInfo: {
+          address: shippingAddress.address,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          country: shippingAddress.country,
+          pinCode: Number(shippingAddress.pinCode),
+          phoneNo: Number(shippingAddress.phoneNo),
+        },
+        orderItems: [
+          {
+            price: product.price,
+            quantity,
+            product: product._id,
+          },
+        ],
+        itemsPrice,
+        taxPrice: 0,
+        shippingPrice: 0,
+        paymentMethod: 'stripe',
+      }
+    : null;
 
   const navigate = useNavigate();
 
@@ -358,7 +367,17 @@ const ProductDetail = ({ product }) => {
                 />
               </div>
 
-              <PlaceOrderButton order={order} />
+              {order ? (
+                <PlaceOrderButton order={order} />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowAddressDialog(true)}
+                  className="h-12 w-full cursor-pointer rounded-full bg-amber-600 text-base font-semibold text-white transition-colors hover:bg-amber-700"
+                >
+                  Add shipping address to buy
+                </button>
+              )}
             </div>
 
             {/* Shipping Info */}
@@ -561,6 +580,15 @@ const ProductDetail = ({ product }) => {
           </div>
         </div>
       )}
+
+      <AddAddressDialog
+        open={showAddressDialog}
+        onOpenChange={setShowAddressDialog}
+        onSaved={(address) => {
+          setPendingAddress(address);
+          setShowAddressDialog(false);
+        }}
+      />
     </div>
   );
 };
