@@ -1,215 +1,240 @@
-import React, { useEffect } from 'react';
-import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
+
 import {
   useAddToCartMutation,
   useRemoveFromCartMutation,
 } from '../../store/api/authApi';
+import { Reveal } from '../Home/Reveal';
+import AddAddressDialog from '../Product/AddAddressDialog';
+import PlaceOrderButton from '../Product/PlaceOrderButton';
+import EmptyCart from './EmptyCart';
+
+const formatPrice = (amount) => `₹${Number(amount ?? 0).toFixed(2)}`;
 
 const CartPage = () => {
   const { user } = useSelector((state) => state.auth);
-  const [cart, setCart] = useState([]);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [disPrice, setDisPrice] = useState(0);
-  const [change, setChange] = useState(false);
+  const [addToCart, { isLoading: isUpdatingQuantity }] = useAddToCartMutation();
+  const [removeFromCart, { isLoading: isRemoving }] = useRemoveFromCartMutation();
+  const [pendingAddress, setPendingAddress] = useState(null);
+  const [showAddressDialog, setShowAddressDialog] = useState(false);
 
-  const [addToCart] = useAddToCartMutation();
-  const [removeFromCart] = useRemoveFromCartMutation();
+  const cartItems = useMemo(
+    () => (user?.data?.cart ?? []).filter((item) => item.productId),
+    [user]
+  );
 
-  const updateQuantity = async (productId, quantity, size, color) => {
-    if (quantity < 0) {
+  const { subtotal, savings } = useMemo(() => {
+    let subtotal = 0;
+    let original = 0;
+    cartItems.forEach((item) => {
+      const qty = item.quantity || 1;
+      subtotal += item.productId.price * qty;
+      original += (item.productId.originalPrice || item.productId.price) * qty;
+    });
+    return { subtotal, savings: original - subtotal };
+  }, [cartItems]);
+
+  const savedAddress = user?.data?.addressInfo?.[0];
+  const shippingAddress = pendingAddress || savedAddress;
+
+  const order = shippingAddress
+    ? {
+        shippingInfo: {
+          address: shippingAddress.address,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          country: shippingAddress.country,
+          pinCode: Number(shippingAddress.pinCode),
+          phoneNo: Number(shippingAddress.phoneNo),
+        },
+        orderItems: cartItems.map((item) => ({
+          price: item.productId.price,
+          quantity: item.quantity || 1,
+          product: item.productId._id,
+        })),
+        itemsPrice: Number(subtotal.toFixed(2)),
+        taxPrice: 0,
+        shippingPrice: 0,
+        paymentMethod: 'stripe',
+      }
+    : null;
+
+  const handleQuantityChange = (item, nextQuantity) => {
+    if (nextQuantity < 1) {
+      removeFromCart({ productId: item._id });
       return;
     }
-    await addToCart({
-      productId,
-      quantity,
-      size,
-      color,
+    addToCart({
+      productId: item.productId._id,
+      quantity: nextQuantity,
+      size: item.variant?.size,
+      color: item.variant?.color,
     });
-    const updatedCart = cart.map((item) => {
-      if (item._id === productId) {
-        return { ...item, quantity };
-      }
-
-      return item;
-    });
-
-    setCart(updatedCart);
   };
 
-  const TotalPrice = () => {
-    let total = 0;
-    user.data.cart.forEach((item) => {
-      total += item.productId.originalPrice * (item.quantity || 1);
-    });
+  const isBusy = isUpdatingQuantity || isRemoving;
 
-    return total;
-  };
-
-  const discountPrice = () => {
-    let total = 0;
-    user.data.cart.forEach((item) => {
-      total += item.productId.price * (item.quantity || 1);
-    });
-
-    return total;
-  };
-
-  useEffect(() => {
-    setCart(user?.data?.cart);
-    setTotalPrice(TotalPrice());
-    setDisPrice(discountPrice());
-  }, [user, user?.data?.cart]);
-
-  useEffect(() => {
-    setTotalPrice(TotalPrice());
-    setDisPrice(discountPrice());
-  }, [user, user?.data?.cart, change]);
-
-  if (user?.data?.cart?.length === 0) {
-    return (
-      <div className="mx-auto max-w-4xl px-4 py-12">
-        <div className="text-center">
-          <ShoppingBag className="mx-auto mb-6 h-24 w-24 text-gray-300" />
-          <h2 className="mb-4 text-2xl font-bold text-gray-800">
-            Your cart is empty
-          </h2>
-          <p className="mb-8 text-gray-600">
-            Start shopping to add items to your cart
-          </p>
-        </div>
-      </div>
-    );
+  if (cartItems.length === 0) {
+    return <EmptyCart />;
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold text-gray-800">Shopping Cart</h1>
+    <div className="min-h-screen bg-zinc-50">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Shopping Cart</h1>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <div className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
-            {cart?.map((item, index) => (
-              <div
-                key={index}
-                className={`p-6 ${
-                  index !== cart.length - 1 ? 'border-b border-gray-200' : ''
-                }`}
-              >
-                <div className="flex items-center space-x-4">
-                  <img
-                    src={item?.productId?.images[0]?.url}
-                    alt={item?.productId?.name}
-                    className="h-20 w-20 rounded-lg object-cover"
-                  />
+        <Reveal className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Cart items */}
+          <div className="lg:col-span-2">
+            <div className="divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200">
+              {cartItems.map((item) => {
+                const qty = item.quantity || 1;
+                return (
+                  <div key={item._id} className="flex gap-4 p-5 sm:p-6">
+                    <img
+                      src={item.productId.images?.[0]?.url}
+                      alt={item.productId.name}
+                      className="h-20 w-20 flex-shrink-0 rounded-xl object-cover"
+                    />
 
-                  <div className="flex-1">
-                    <h3 className="mb-1 font-semibold text-gray-800">
-                      {item?.productId?.name}
-                    </h3>
-                    <p className="mb-2 text-sm text-gray-600">
-                      {item?.productId?.category}
-                    </p>
-                    <p className="text-2xl font-bold text-orange-600">
-                      ₹{item?.productId?.price.toFixed(2)}
-                    </p>
-                  </div>
+                    <div className="flex flex-1 flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                      <div className="min-w-0">
+                        <h3 className="truncate font-semibold text-zinc-900">
+                          {item.productId.name}
+                        </h3>
+                        <p className="text-sm text-zinc-500">{item.productId.category}</p>
+                        <p className="mt-1 text-lg font-bold text-zinc-900 tabular-nums">
+                          {formatPrice(item.productId.price)}
+                        </p>
+                      </div>
 
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center rounded-lg bg-gray-100">
-                      <button
-                        onClick={() => {
-                          // setChange(!change),
-                          updateQuantity(
-                            item.productId._id,
-                            item.quantity - 1,
-                            item.variant.size,
-                            item.variant.color
-                          );
-                        }}
-                        className="cursor-pointer rounded-l-lg p-2 transition-colors hover:bg-gray-200"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <span className="px-4 py-2 font-semibold">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => {
-                          (setChange(!change),
-                            updateQuantity(
-                              item.productId._id,
-                              item.quantity + 1,
-                              item.variant.size,
-                              item.variant.color
-                            ));
-                        }}
-                        className="cursor-pointer rounded-r-lg p-2 transition-colors hover:bg-gray-200"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center rounded-full border border-zinc-300">
+                          <button
+                            type="button"
+                            onClick={() => handleQuantityChange(item, qty - 1)}
+                            disabled={isBusy}
+                            aria-label="Decrease quantity"
+                            className="cursor-pointer rounded-l-full p-2.5 text-zinc-600 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </button>
+                          <span className="min-w-[2rem] px-1 text-center font-medium text-zinc-900">
+                            {qty}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleQuantityChange(item, qty + 1)}
+                            disabled={isBusy}
+                            aria-label="Increase quantity"
+                            className="cursor-pointer rounded-r-full p-2.5 text-zinc-600 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart({ productId: item._id })}
+                          disabled={isBusy}
+                          aria-label={`Remove ${item.productId.name} from cart`}
+                          className="cursor-pointer rounded-full p-2.5 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      </div>
                     </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
+          {/* Order summary */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-4">
+              <div className="rounded-2xl bg-white p-6 ring-1 ring-zinc-200">
+                <h2 className="mb-5 text-lg font-bold text-zinc-900">Order Summary</h2>
+
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-zinc-600">Subtotal</span>
+                    <span className="font-semibold text-zinc-900 tabular-nums">
+                      {formatPrice(subtotal)}
+                    </span>
+                  </div>
+                  {savings > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-zinc-600">You're saving</span>
+                      <span className="font-semibold text-emerald-600 tabular-nums">
+                        {formatPrice(savings)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-zinc-600">Shipping</span>
+                    <span className="font-semibold text-zinc-900">Free</span>
+                  </div>
+                  <div className="border-t border-zinc-200 pt-3">
+                    <div className="flex justify-between">
+                      <span className="font-bold text-zinc-900">Total</span>
+                      <span className="text-lg font-bold text-zinc-900 tabular-nums">
+                        {formatPrice(subtotal)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  {order ? (
+                    <PlaceOrderButton order={order} />
+                  ) : (
                     <button
-                      onClick={() => {
-                        (setChange(!change),
-                          removeFromCart({ productId: item._id }));
-                      }}
-                      className="cursor-pointer rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
+                      type="button"
+                      onClick={() => setShowAddressDialog(true)}
+                      className="h-11 w-full cursor-pointer rounded-full bg-amber-600 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
                     >
-                      <Trash2 className="h-5 w-5" />
+                      Add shipping address to check out
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {shippingAddress && (
+                <div className="rounded-2xl bg-white p-6 ring-1 ring-zinc-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-zinc-900">Shipping to</h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddressDialog(true)}
+                      className="cursor-pointer text-sm font-medium text-amber-600 hover:text-amber-700"
+                    >
+                      Change
                     </button>
                   </div>
+                  <p className="mt-2 text-sm text-zinc-600">
+                    {shippingAddress.address}, {shippingAddress.city}, {shippingAddress.state}{' '}
+                    {shippingAddress.pinCode}
+                  </p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="lg:col-span-1">
-          <div className="sticky top-8 rounded-sm border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-6 text-xl font-bold text-gray-800">
-              Order Summary
-            </h2>
-
-            <div className="mb-6 space-y-4">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total Price</span>
-                <span className="font-semibold line-through">
-                  ₹ {totalPrice.toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Discounted Price</span>
-                <span className="font-semibold">₹ {disPrice.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Shipping</span>
-                <span className="font-semibold">Free</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Tax</span>
-                <span className="font-semibold">
-                  ₹ {(disPrice * 0.08).toFixed(2)}
-                </span>
-              </div>
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex justify-between">
-                  <span className="text-lg font-bold">Total</span>
-                  <span className="text-lg font-bold text-orange-600">
-                    ₹{(disPrice + disPrice * 0.08).toFixed(2)}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
-
-            <button className="w-full cursor-pointer rounded-lg bg-orange-600 py-3 font-semibold text-white transition-colors hover:bg-orange-700">
-              Proceed to Checkout
-            </button>
           </div>
-        </div>
+        </Reveal>
       </div>
+
+      <AddAddressDialog
+        open={showAddressDialog}
+        onOpenChange={setShowAddressDialog}
+        addressId={savedAddress?._id}
+        initialValues={savedAddress}
+        onSaved={(address) => {
+          setPendingAddress(address);
+          setShowAddressDialog(false);
+        }}
+      />
     </div>
   );
 };

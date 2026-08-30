@@ -1,114 +1,48 @@
-import React from 'react';
-import Navbar from '../../components/Home/Navbar';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
+import Navbar from '../../components/Home/Navbar';
+import { Reveal } from '../../components/Home/Reveal';
+import { ProductCard } from '../../components/Products/ProductCard';
+import EmptyWishlist from '../../components/Wishlist/EmptyWishlist';
+
 const WishPage = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-
   const navigate = useNavigate();
 
-  if (!isAuthenticated || !user || isAuthenticated == undefined) {
-    navigate('/login', { replace: true });
-    return <LoginPage />;
-  }
-  return (
-    <>
-      <Navbar />
-      <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-md bg-white">
-          <div className="border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-800">Wishlist</h3>
-            </div>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-              {/* <!-- Wishlist Item 1 --> */}
-              {user?.data?.wishlist?.map((product, index) => (
-                <div
-                  key={index}
-                  className="rounded-lg border border-gray-200 p-3 transition duration-100 hover:shadow-md"
-                >
-                  <div className="mb-3 h-70 overflow-hidden rounded-lg">
-                    <img
-                      src={
-                        product?.images[0]?.url || `https://placehold.co/400`
-                      }
-                      alt="Apple iPad Pro 12.9-inch with Magic Keyboard on a desk with coffee cup"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <p className="mb-1 text-sm font-medium text-gray-800">
-                    {product?.name}
-                  </p>
-                  <p className="mb-2 text-sm text-gray-600">
-                    ₹{product?.price}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <button className="text-xs text-red-500 hover:text-red-700">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                    <button className="rounded bg-orange-600 px-2 py-1 text-xs text-white transition duration-100 hover:bg-orange-700">
-                      Add to Cart
-                    </button>
-                  </div>
-                </div>
-              ))}
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
-              {/* <!-- Wishlist Item 2 --> */}
-              {/* <div className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition duration-100">
-                    <div className="h-40 mb-3 rounded-lg overflow-hidden">
-                      <img
-                        src="https://placehold.co/400"
-                        alt="White wireless charging stand compatible with multiple devices in modern setup"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <p className="text-gray-800 font-medium text-sm mb-1">
-                      Wireless Charger
-                    </p>
-                    <p className="text-gray-600 text-sm mb-2">$29.99</p>
-                    <div className="flex justify-between items-center">
-                      <button className="text-red-500 hover:text-red-700 text-xs">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
-                      <button className="bg-orange-600 text-white text-xs px-2 py-1 rounded hover:bg-orange-700 transition duration-100">
-                        Add to Cart
-                      </button>
-                    </div>
-                  </div> */}
-            </div>
-          </div>
-        </div>
+  if (!isAuthenticated || !user) {
+    return null;
+  }
+
+  const wishlist = user?.data?.wishlist ?? [];
+
+  return (
+    <div className="min-h-screen bg-zinc-50">
+      <Navbar />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Wishlist</h1>
+        <p className="mt-1 text-sm text-zinc-500">
+          {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} saved
+        </p>
+
+        {wishlist.length === 0 ? (
+          <EmptyWishlist />
+        ) : (
+          <Reveal className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+            {wishlist.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </Reveal>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

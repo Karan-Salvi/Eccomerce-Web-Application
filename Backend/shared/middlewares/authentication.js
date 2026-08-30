@@ -9,7 +9,7 @@ dotenv.config({
 });
 
 export function checkAuthenticated() {
-  return async (req, res, next) => {
+  return async function checkAuthenticatedMiddleware(req, res, next) {
     const tokenValue = req.cookies[process.env.TOKEN_NAME];
 
     if (!tokenValue) {
@@ -44,7 +44,7 @@ export function checkAuthenticated() {
 }
 
 export function authorizeRoles(...roles) {
-  return async (req, res, next) => {
+  return async function authorizeRolesMiddleware(req, res, next) {
     if (!roles.includes(req.user.role)) {
       logger.error('You are unauthorized to access this resource');
       return res.status(401).json({

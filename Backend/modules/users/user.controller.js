@@ -7,6 +7,7 @@ import User from '#modules/users/user.model.js';
 import sendEmail from '#shared/utils/sendmail.js';
 import logger from '#infra/logger/logger.js';
 import Product from '#modules/products/product.model.js';
+import { ROLES } from '#shared/constants/roles.constants.js';
 
 // Register or Sign up new User
 export const registerUser = catchAsyncErrors(async (req, res) => {
@@ -50,7 +51,7 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
 
   if (!checkUser) {
     logger.warn('Password is incorrect');
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
       message: 'Password is incorrect',
     });
@@ -68,6 +69,11 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
 
   const isProduction = process.env.NODE_ENV === 'production';
 
+  const userResponse = user.toObject();
+  delete userResponse.password;
+  delete userResponse.resetPasswordToken;
+  delete userResponse.resetPasswordExpiry;
+
   return res
     .status(200)
     .cookie(process.env.TOKEN_NAME, token, {
@@ -80,7 +86,7 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
     .json({
       success: true,
       message: 'User is successfully logged in.',
-      data: user,
+      data: userResponse,
     });
 });
 
@@ -175,10 +181,10 @@ export const forgetPassword = catchAsyncErrors(async (req, res) => {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiry = undefined;
     await user.save({ validateBeforeSave: false });
+    logger.error(`Failed to send password reset email: ${error.message}`);
     return res.status(500).json({
       success: false,
-      message: 'Something went wrong ',
-      error: error,
+      message: 'Failed to send reset email, please try again later',
     });
   }
 });
@@ -249,24 +255,24 @@ export const updatePassword = catchAsyncErrors(async (req, res) => {
 
   const user = await User.findById(req.user._id);
 
-  const isPasswordMatched = await user.isPasswordCorrect(oldPassword);
-
   if (!user) {
-    return res.status(500).json({
+    return res.status(404).json({
       success: false,
       message: 'User not found',
     });
   }
 
+  const isPasswordMatched = await user.isPasswordCorrect(oldPassword);
+
   if (!isPasswordMatched) {
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
       message: 'Old password is incorrect.Please enter correct password ',
     });
   }
 
   if (password !== confirmPassword) {
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
       message: 'Password and Confirm password should be same.',
     });
@@ -293,7 +299,7 @@ export const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
       },
     },
     { new: true }
-  );
+  ).select('-password -resetPasswordToken -resetPasswordExpiry');
 
   if (!user) {
     return res.status(500).json({
@@ -311,7 +317,7 @@ export const updatePersonalDetails = catchAsyncErrors(async (req, res) => {
 
 // Get all users details -- ADMIN
 export const getAllUsersDetail = catchAsyncErrors(async (req, res) => {
-  const users = await find();
+  const users = await User.find().select('-password -resetPasswordToken -resetPasswordExpiry');
   return res.status(200).json({
     success: true,
     message: 'All user fetch successfully',
@@ -321,7 +327,9 @@ export const getAllUsersDetail = catchAsyncErrors(async (req, res) => {
 
 // get single user details
 export const getSingleUserDetail = catchAsyncErrors(async (req, res) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id).select(
+    '-password -resetPasswordToken -resetPasswordExpiry'
+  );
 
   if (!user) {
     return res.status(404).json({
@@ -329,18 +337,43 @@ export const getSingleUserDetail = catchAsyncErrors(async (req, res) => {
       message: 'User not found',
     });
   }
+
+  return res.status(200).json({
+    success: true,
+    message: 'User fetched successfully',
+    data: user,
+  });
 });
 
 // update user Role -- ADMIN
 export const updateUserRole = catchAsyncErrors(async (req, res) => {
   const { name, email, role } = req.body;
-  const user = await User.findByIdAndUpdate(req.params.id, {
-    $set: {
-      name,
-      email,
-      role,
+
+  if (!Object.values(ROLES).includes(role)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid role',
+    });
+  }
+
+  if (req.params.id === String(req.user._id) && role !== ROLES.ADMIN) {
+    return res.status(400).json({
+      success: false,
+      message: 'You cannot remove your own admin role',
+    });
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      $set: {
+        name,
+        email,
+        role,
+      },
     },
-  });
+    { new: true }
+  ).select('-password -resetPasswordToken -resetPasswordExpiry');
 
   if (!user) {
     return res.status(500).json({
@@ -358,7 +391,16 @@ export const updateUserRole = catchAsyncErrors(async (req, res) => {
 
 // Delete user
 export const DeleteUser = catchAsyncErrors(async (req, res) => {
-  const user = await User.findByIdAndDelete(req.params.id);
+  if (req.params.id === String(req.user._id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'You cannot delete your own account',
+    });
+  }
+
+  const user = await User.findByIdAndDelete(req.params.id).select(
+    '-password -resetPasswordToken -resetPasswordExpiry'
+  );
 
   if (!user) {
     return res.status(404).json({
@@ -387,6 +429,14 @@ export const addAddress = catchAsyncErrors(async (req, res) => {
   }
 
   const user = await User.findById(userId);
+  if (!user) {
+    logger.error('User not found');
+    return res.status(404).json({
+      success: false,
+      message: 'User not found',
+    });
+  }
+
   const addressInformation = {
     address,
     city,
@@ -396,13 +446,19 @@ export const addAddress = catchAsyncErrors(async (req, res) => {
     phoneNo,
   };
 
-  user.addressInfo.push_back(addressInformation);
+  user.addressInfo.push(addressInformation);
 
   await user.save();
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
-    message: 'Address updated successfully',
+    message: 'Address added successfully',
+    data: updatedUser,
   });
 });
 
@@ -436,15 +492,21 @@ export const deleteAddress = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  user.addressInfo = user.addressInfo.filter((address) => address._id !== addressId);
+  user.addressInfo = user.addressInfo.filter((address) => !address._id.equals(addressId));
 
   await user.save();
 
   logger.info(`Address ${addressId} deleted for user ${userId}`);
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
     message: 'Address deleted successfully',
+    data: updatedUser,
   });
 });
 
@@ -478,15 +540,30 @@ export const updateAddress = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  user.addressInfo = user.addressInfo.filter((address) => address._id !== addressId);
+  const existingAddress = user.addressInfo.id(addressId);
+  if (!existingAddress) {
+    logger.error('Address not found');
+    return res.status(404).json({
+      success: false,
+      message: 'Address not found',
+    });
+  }
+
+  existingAddress.set({ address, city, state, country, pinCode, phoneNo });
 
   await user.save();
 
-  logger.info(`Address ${addressId} deleted for user ${userId}`);
+  logger.info(`Address ${addressId} updated for user ${userId}`);
+
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
 
   return res.status(200).json({
     success: true,
-    message: 'Address deleted successfully',
+    message: 'Address updated successfully',
+    data: updatedUser,
   });
 });
 
@@ -513,10 +590,16 @@ export const addToWishlist = catchAsyncErrors(async (req, res) => {
   }
 
   // Check if the product is already in the wishlist
-  if (user.wishlist.includes(productId)) {
+  if (user.wishlist.some((id) => id.equals(productId))) {
+    const currentUser = await User.findById(userId)
+      .select('-password -resetPasswordToken -resetPasswordExpiry')
+      .populate('wishlist')
+      .populate('cart.productId');
+
     return res.status(200).json({
       success: true,
       message: 'Product already in wishlist',
+      data: currentUser,
     });
   }
 
@@ -524,8 +607,14 @@ export const addToWishlist = catchAsyncErrors(async (req, res) => {
   user.wishlist.push(productId);
   await user.save();
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
+    data: updatedUser,
     message: 'Product added to wishlist successfully',
   });
 });
@@ -552,13 +641,19 @@ export const removeFromWishlist = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  user.wishlist = user.wishlist.filter((id) => id !== productId);
+  user.wishlist = user.wishlist.filter((id) => !id.equals(productId));
 
   await user.save();
+
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
 
   return res.status(200).json({
     success: true,
     message: 'Product removed from wishlist successfully',
+    data: updatedUser,
   });
 });
 
@@ -701,9 +796,15 @@ export const addToCart = catchAsyncErrors(async (req, res) => {
 
   await user.save();
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
     message: 'Product added to cart successfully',
+    data: updatedUser,
   });
 });
 
@@ -736,8 +837,14 @@ export const removeFromCart = catchAsyncErrors(async (req, res) => {
 
   await user.save();
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
     message: 'Product removed from cart successfully',
+    data: updatedUser,
   });
 });

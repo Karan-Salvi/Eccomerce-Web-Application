@@ -1,7 +1,8 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { BarChart3, Package, Plus, Store, Menu, X } from 'lucide-react';
+import { BarChart3, Package, Plus, Menu, X } from 'lucide-react';
 
 const sidebarItems = [
   { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -11,6 +12,15 @@ const sidebarItems = [
 
 const Layout = ({ children, currentView, onViewChange }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const vendorName = user?.data?.name || 'Vendor';
+  const initials = vendorName
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   return (
     <div className="bg-background flex min-h-screen">
@@ -57,7 +67,7 @@ const Layout = ({ children, currentView, onViewChange }) => {
                   variant={isActive ? 'default' : 'ghost'}
                   className={cn(
                     'h-12 w-full justify-start gap-3',
-                    isActive && 'bg-primary text-primary-foreground'
+                    isActive && 'bg-amber-600 text-white hover:bg-amber-700'
                   )}
                   onClick={() => {
                     onViewChange(item.id);
@@ -74,13 +84,13 @@ const Layout = ({ children, currentView, onViewChange }) => {
           {/* Footer */}
           <div className="border-t p-4">
             <div className="flex items-center gap-3">
-              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
-                <span className="text-primary-foreground text-sm font-medium">
-                  JD
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-600">
+                <span className="text-sm font-medium text-white">
+                  {initials}
                 </span>
               </div>
               <div className="text-sm">
-                <div className="font-medium">John Doe</div>
+                <div className="font-medium">{vendorName}</div>
                 <div className="text-muted-foreground">Vendor</div>
               </div>
             </div>
@@ -103,7 +113,7 @@ const Layout = ({ children, currentView, onViewChange }) => {
 
           <div className="flex-1">
             <h1 className="text-xl font-semibold capitalize">
-              {/* {currentView.replace("-", " ")} */}
+              {currentView.replace('-', ' ')}
             </h1>
           </div>
         </header>

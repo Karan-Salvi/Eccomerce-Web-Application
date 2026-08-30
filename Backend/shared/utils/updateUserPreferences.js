@@ -1,14 +1,15 @@
 import User from '#modules/users/user.model.js';
+import logger from '#infra/logger/logger.js';
 
 const updateUserPreferences = async (userId, { productId, category, brand, tags = [] }) => {
   try {
     const user = await User.findById(userId);
-    // or throw error if needed
+    if (!user) return;
 
     const preferences = user.preferences;
 
     // Add productId if not already present
-    if (productId && !preferences.viewedProducts.includes(productId)) {
+    if (productId && !preferences.viewedProducts.some((id) => id.equals(productId))) {
       preferences.viewedProducts.push(productId);
     }
 
@@ -34,7 +35,7 @@ const updateUserPreferences = async (userId, { productId, category, brand, tags 
 
     await user.save();
   } catch (error) {
-    console.error('Failed to update user preferences:', error);
+    logger.error('Failed to update user preferences:', error.message);
   }
 };
 

@@ -1,29 +1,66 @@
 import Product from '#modules/products/product.model.js';
 import catchAsyncErrors from '#shared/middlewares/catchAsyncErrors.js';
-import { uploadOnCloudinary } from '#shared/utils/cloudinary.js';
+import { uploadOnCloudinary, deleteFromCloudinary } from '#shared/utils/cloudinary.js';
 import redisClient from '#config/redis.js';
 import logger from '#infra/logger/logger.js';
 import updateUserPreferences from '#shared/utils/updateUserPreferences.js';
 import { PRODUCT_SORT, PRODUCT_SORT_OPTIONS } from '#shared/constants/productSort.constants.js';
+import { getCacheVersion, bumpCacheVersion } from '#shared/utils/productCacheVersion.js';
+
+// Best-effort cache invalidation: the DB write already succeeded, so a Redis
+// outage here must not fail the request — cached data just goes stale until
+// the version bump/TTL catches up.
+async function invalidateProductCache(keys = []) {
+  try {
+    await Promise.all(keys.map((key) => redisClient.del(key)));
+    await bumpCacheVersion(redisClient);
+  } catch (err) {
+    logger.error(`Product cache invalidation failed: ${err.message}`);
+  }
+}
 
 // Create Product -- Admin
 export const createProduct = catchAsyncErrors(async (req, res) => {
-  const files = req.files['image'];
+  const files = req.files?.['image'];
+
+  if (!files || files.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please upload at least one product image',
+    });
+  }
 
   const uploadPromises = files.map((file) => uploadOnCloudinary(file.path));
   const uploadedImages = await Promise.all(uploadPromises);
 
   const images = uploadedImages.map((image) => ({ url: image }));
 
-  const { name, description, price, ratings, category, stock } = req.body;
+  const {
+    name,
+    description,
+    price,
+    originalPrice,
+    ratings,
+    category,
+    inStock,
+    brand,
+    sizes,
+    colors,
+    featured,
+  } = req.body;
 
   const product = await Product.create({
     name,
     description,
     price,
+    originalPrice,
     ratings,
     category,
-    stock,
+    inStock,
+    brand,
+    sizes,
+    colors,
+    featured,
     images,
     createdBy: req.user._id,
   });
@@ -31,7 +68,7 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
   logger.info(`Product created: ${product._id}`);
 
   // Clear cache for product list
-  await redisClient.del('all_products');
+  await invalidateProductCache(['all_products']);
 
   return res.status(201).json({
     success: true,
@@ -42,20 +79,27 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
 
 // Get All Products -- User
 export const getAllProducts = catchAsyncErrors(async (req, res) => {
-  const cachedData = await redisClient.get('all_products');
-
-  if (cachedData) {
-    logger.info('Products served from Redis');
-    return res.json({
-      success: true,
-      message: 'Fetched from cache',
-      data: JSON.parse(cachedData),
-    });
+  try {
+    const cachedData = await redisClient.get('all_products');
+    if (cachedData) {
+      logger.info('Products served from Redis');
+      return res.json({
+        success: true,
+        message: 'Fetched from cache',
+        data: JSON.parse(cachedData),
+      });
+    }
+  } catch (err) {
+    logger.error(`Redis GET failed, falling back to DB: ${err.message}`);
   }
 
   const products = await Product.find();
-  // await redisClient.setEx("all_products", 3600, JSON.stringify(products));
-  await redisClient.set('all_products', JSON.stringify(products), 'EX', 3600);
+
+  try {
+    await redisClient.set('all_products', JSON.stringify(products), 'EX', 3600);
+  } catch (err) {
+    logger.error(`Redis SET failed: ${err.message}`);
+  }
 
   logger.info('Products served from DB');
 
@@ -297,31 +341,38 @@ export const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
     };
   }
 
-  /* ------------------ REDIS CACHE KEY ------------------ */
-  const cacheKey = [
-    'products',
-    `p:${page}`,
-    `l:${limit}`,
-    `cat:${category || 'all'}`,
-    `sort:${sort}`,
-    `minP:${minPrice || 'na'}`,
-    `maxP:${maxPrice || 'na'}`,
-    `rating:${minRating || 'na'}`,
-    `stock:${inStock || 'all'}`,
-    `search:${search || 'na'}`,
-  ].join('|');
+  /* ------------------ REDIS CACHE READ (falls through to DB on any failure) ------------------ */
+  let cacheKey = null;
+  try {
+    const cacheVersion = await getCacheVersion(redisClient);
+    cacheKey = [
+      'products',
+      `v:${cacheVersion}`,
+      `p:${page}`,
+      `l:${limit}`,
+      `cat:${category || 'all'}`,
+      `sort:${sort}`,
+      `minP:${minPrice || 'na'}`,
+      `maxP:${maxPrice || 'na'}`,
+      `rating:${minRating || 'na'}`,
+      `stock:${inStock || 'all'}`,
+      `search:${search || 'na'}`,
+    ].join('|');
 
-  /* ------------------ CACHE HIT ------------------ */
-  const cachedData = await redisClient.get(cacheKey);
-  if (cachedData) {
-    logger.info(`Products served from Redis → ${cacheKey}`);
-    return res.status(200).json({
-      success: true,
-      source: 'cache',
-      message: 'Fetched from cache',
-      data: JSON.parse(cachedData).products,
-      ...JSON.parse(cachedData),
-    });
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      logger.info(`Products served from Redis → ${cacheKey}`);
+      return res.status(200).json({
+        success: true,
+        source: 'cache',
+        message: 'Fetched from cache',
+        data: JSON.parse(cachedData).products,
+        ...JSON.parse(cachedData),
+      });
+    }
+  } catch (err) {
+    logger.error(`Redis read failed, falling back to DB: ${err.message}`);
+    cacheKey = null;
   }
 
   /* ------------------ DB QUERY ------------------ */
@@ -355,12 +406,18 @@ export const getPaginatedProducts = catchAsyncErrors(async (req, res) => {
   };
 
   /* ------------------ CACHE STORE (REDIS v3 STYLE) ------------------ */
-  await redisClient.set(
-    cacheKey,
-    JSON.stringify(responseData),
-    'EX',
-    3600 // 1 hour TTL
-  );
+  if (cacheKey) {
+    try {
+      await redisClient.set(
+        cacheKey,
+        JSON.stringify(responseData),
+        'EX',
+        3600 // 1 hour TTL
+      );
+    } catch (err) {
+      logger.error(`Redis SET failed: ${err.message}`);
+    }
+  }
 
   return res.status(200).json({
     success: true,
@@ -379,13 +436,35 @@ export const updateProduct = catchAsyncErrors(async (req, res) => {
     return res.status(404).json({ success: false, message: 'Product not found' });
   }
 
-  product = await Product.findByIdAndUpdate(productId, req.body, {
+  const newFiles = req.files?.['image'] || [];
+  const { manageImages, existingImages, ...updateData } = req.body;
+
+  if (manageImages) {
+    const keepUrls = existingImages || [];
+    const removedImages = product.images.filter((img) => !keepUrls.includes(img.url));
+    await Promise.all(removedImages.map((img) => deleteFromCloudinary(img.url)));
+
+    const uploadedUrls = await Promise.all(newFiles.map((file) => uploadOnCloudinary(file.path)));
+
+    updateData.images = [
+      ...product.images.filter((img) => keepUrls.includes(img.url)),
+      ...uploadedUrls.filter(Boolean).map((url) => ({ url })),
+    ];
+
+    if (updateData.images.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'A product needs at least one image',
+      });
+    }
+  }
+
+  product = await Product.findByIdAndUpdate(productId, updateData, {
     new: true,
     runValidators: true,
   });
 
-  await redisClient.del('all_products');
-  await redisClient.del(`product_${productId}`);
+  await invalidateProductCache(['all_products', `product_${productId}`]);
 
   logger.info(`Product ${productId} updated`);
 
@@ -405,8 +484,9 @@ export const deleteProduct = catchAsyncErrors(async (req, res) => {
 
   await Product.findByIdAndDelete(req.params.id);
 
-  await redisClient.del('all_products');
-  await redisClient.del(`product_${req.params.id}`);
+  await Promise.all((product.images || []).map((image) => deleteFromCloudinary(image.url)));
+
+  await invalidateProductCache(['all_products', `product_${req.params.id}`]);
 
   logger.info(`Product ${req.params.id} deleted`);
 
@@ -543,7 +623,7 @@ export const createProductReview = catchAsyncErrors(async (req, res) => {
 
   await product.save({ validateBeforeSave: false });
 
-  await redisClient.del(`product_${productId}`);
+  await invalidateProductCache([`product_${productId}`]);
 
   logger.info(`Review added/updated for product ${productId}`);
 
@@ -580,7 +660,7 @@ export const deleteProductReview = catchAsyncErrors(async (req, res) => {
   product.numOfReviews = product.reviews.length;
 
   await product.save({ validateBeforeSave: false });
-  await redisClient.del(`product_${productId}`);
+  await invalidateProductCache([`product_${productId}`]);
 
   logger.info(`Review deleted from product ${productId}`);
 

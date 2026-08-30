@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DivideIcon as LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const StatCard = ({
@@ -22,10 +21,12 @@ export const StatCard = ({
         <CardTitle className="text-muted-foreground text-sm font-medium">
           {title}
         </CardTitle>
-        <Icon className="text-muted-foreground h-4 w-4" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+          <Icon className="h-4 w-4" />
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold tabular-nums">{value}</div>
         {change && (
           <p
             className={cn(

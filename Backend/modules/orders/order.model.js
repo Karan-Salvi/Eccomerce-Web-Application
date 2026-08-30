@@ -43,6 +43,10 @@ const orderSchema = new mongoose.Schema(
           ref: 'Product',
           required: true,
         },
+        vendor: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
       },
     ],
     user: {
@@ -94,12 +98,21 @@ const orderSchema = new mongoose.Schema(
       required: true,
       default: 'processing',
     },
+    seedBatch: {
+      type: String,
+      index: true,
+    },
     deliveredAt: {
       type: Date,
     },
   },
   { timestamps: true }
 );
+
+orderSchema.index({ user: 1, createdAt: -1 }, { name: 'UserOrdersIndex' });
+
+orderSchema.index({ orderStatus: 1, createdAt: -1 }, { name: 'OrderStatusIndex' });
+orderSchema.index({ 'orderItems.vendor': 1, createdAt: -1 }, { name: 'VendorOrdersIndex' });
 
 const Order = mongoose.model('Order', orderSchema);
 

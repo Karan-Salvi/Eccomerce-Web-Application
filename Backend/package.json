@@ -14,11 +14,15 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
+    "test": "node --test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
-    "fix:all": "npm run lint:fix && npm run format:fix"
+    "fix:all": "npm run lint:fix && npm run format:fix",
+    "validate": "npm run lint && npm test",
+    "seed": "node scripts/seed.js",
+    "seed:clear": "node scripts/clear-seed-data.js"
   },
   "author": "",
   "license": "ISC",
@@ -28,11 +32,12 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^14.0.0",
     "nodemon": "^3.1.7",
     "prettier": "^3.7.4"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -43,9 +48,10 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.2",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^7.0.12",
+    "nodemailer": "^9.0.6",
     "razorpay": "^2.9.5",
     "stripe": "^18.3.0",
+    "swagger-ui-express": "^5.0.1",
     "winston": "^3.17.0",
     "zod": "^4.3.5"
   }

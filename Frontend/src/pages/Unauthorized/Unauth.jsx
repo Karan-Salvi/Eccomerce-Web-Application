@@ -1,71 +1,42 @@
 import React from 'react';
-import { IoWarningOutline } from 'react-icons/io5';
+import { Link } from 'react-router-dom';
+import { ShieldAlert } from 'lucide-react';
 
 const Unauth = () => {
   return (
-    <div class="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
-      <div class="w-full max-w-md overflow-hidden rounded-xl bg-white shadow-lg">
-        {/* <!-- Header with orange accent --> */}
-        <div class="bg-orange-500 px-6 py-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <i class="fas fa-store text-2xl text-white"></i>
-              <span class="brand_name text-xl font-bold text-white">
-                CartLoop
-              </span>
-            </div>
-            <div class="text-sm font-medium text-white">Error 403</div>
-          </div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 p-4">
+      <div className="w-full max-w-md rounded-2xl border bg-white p-8 text-center shadow-sm">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+          <ShieldAlert className="h-7 w-7" strokeWidth={2} />
+        </div>
+        <p className="mt-4 text-sm font-medium text-zinc-500">Error 403</p>
+        <h1 className="mt-1 text-xl font-bold text-zinc-900">Unauthorized access</h1>
+        <p className="mt-2 text-zinc-600">
+          You don't have permission to view this page. Sign in with the correct account to
+          continue.
+        </p>
+
+        <div className="mt-6 space-y-3">
+          <Link
+            to="/login"
+            className="block w-full rounded-full bg-amber-600 px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-amber-700"
+          >
+            Sign in
+          </Link>
+          <Link
+            to="/"
+            className="block w-full rounded-full border border-zinc-300 px-4 py-2.5 text-center text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50"
+          >
+            Return to homepage
+          </Link>
         </div>
 
-        {/* <!-- Main content --> */}
-        <div class="p-6">
-          <div class="mb-6 flex flex-col items-center text-center">
-            <div class="mb-4 flex items-center justify-center rounded-full bg-orange-100 p-4">
-              <IoWarningOutline class="text-5xl text-orange-500"></IoWarningOutline>
-            </div>
-            <h1 class="mb-2 text-2xl font-bold text-gray-800">
-              Unauthorized Access
-            </h1>
-            <p class="text-gray-600">
-              You don't have permission to access this page. Please sign in with
-              the correct account.
-            </p>
-          </div>
-
-          <div class="space-y-4">
-            <a
-              href="/login"
-              class="block w-full rounded-lg bg-orange-500 px-4 py-2 text-center font-medium text-white transition duration-200 hover:bg-orange-600"
-            >
-              Sign In to Your Account
-            </a>
-
-            <a
-              href="/"
-              class="block w-full rounded-lg border border-gray-300 px-4 py-2 text-center font-medium text-gray-700 transition duration-200 hover:bg-gray-50"
-            >
-              Return to Homepage
-            </a>
-          </div>
-        </div>
-
-        {/* <!-- Footer --> */}
-        <div class="border-t border-gray-200 bg-gray-50 px-6 py-4">
-          <p class="text-center text-sm text-gray-500">
-            Need help?{' '}
-            <a
-              href="/contact"
-              class="font-medium text-orange-500 hover:text-orange-600"
-            >
-              Contact support
-            </a>
-          </p>
-        </div>
-      </div>
-
-      <div class="mt-6 text-center text-sm text-gray-500">
-        <p>© 2023 ShopSphere. All rights reserved.</p>
+        <p className="mt-6 text-sm text-zinc-500">
+          Need help?{' '}
+          <Link to="/contact" className="font-medium text-amber-600 hover:text-amber-700">
+            Contact support
+          </Link>
+        </p>
       </div>
     </div>
   );

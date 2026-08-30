@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'user',
     },
+    seedBatch: {
+      type: String,
+      index: true,
+    },
     addressInfo: [
       {
         address: {

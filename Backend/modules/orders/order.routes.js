@@ -9,22 +9,27 @@ import {
   deleteOrder,
   stripeWebhook,
 } from '#modules/orders/order.controller.js';
-import { checkAuthenticated } from '#shared/middlewares/authentication.js';
+import { checkAuthenticated, authorizeRoles } from '#shared/middlewares/authentication.js';
+import { ROLES } from '#shared/constants/roles.constants.js';
 
 const router = express.Router();
 
 router.route('/order/new').post(checkAuthenticated(), createNewOrder);
 
-router.route('/webhook').post(express.raw({ type: 'application/json' }), stripeWebhook);
+router.route('/webhook').post(stripeWebhook);
 
-router.route('/order/:id').get(getSingleOrder);
+router.route('/order/:id').get(checkAuthenticated(), getSingleOrder);
 
-router.route('/orders/me').get(myOrders);
+router.route('/orders/me').get(checkAuthenticated(), myOrders);
 
-router.route('/orders').get(getAllOrders);
+router.route('/orders').get(checkAuthenticated(), authorizeRoles(ROLES.ADMIN), getAllOrders);
 
-router.route('/order/update/:id').put(updateOrderStatus);
+router
+  .route('/order/update/:id')
+  .put(checkAuthenticated(), authorizeRoles(ROLES.ADMIN), updateOrderStatus);
 
-router.route('/order/delete/:id').delete(deleteOrder);
+router
+  .route('/order/delete/:id')
+  .delete(checkAuthenticated(), authorizeRoles(ROLES.ADMIN), deleteOrder);
 
 export default router;

@@ -16,10 +16,8 @@ import { useState } from 'react';
 import { TbCopy } from 'react-icons/tb';
 import { TbCopyCheck } from 'react-icons/tb';
 
-export default function Share({ url }) {
-  const [textToCopy, setTextToCopy] = useState(
-    url || 'https://cartloop.vercel.app/products'
-  );
+export default function Share({ url, className }) {
+  const textToCopy = url || 'https://cartloop.vercel.app/products';
   const [copySuccess, setCopySuccess] = useState(false);
 
   const handleCopy = () => {
@@ -36,8 +34,9 @@ export default function Share({ url }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Share2 className="h-5 w-5" />
-        {/* <Button variant="outline">Share</Button> */}
+        <button type="button" className={className} aria-label="Share this product">
+          <Share2 className="h-5 w-5" />
+        </button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">
@@ -56,7 +55,7 @@ export default function Share({ url }) {
               <Input id="link" defaultValue={textToCopy} readOnly />
               {/* <button onClick={handleCopy}>Copy to Clipboard</button> */}
               {copySuccess ? (
-                <TbCopyCheck className="cursor-pointer text-2xl text-orange-600" />
+                <TbCopyCheck className="cursor-pointer text-2xl text-amber-600" />
               ) : (
                 <TbCopy
                   onClick={handleCopy}

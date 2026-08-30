@@ -112,6 +112,10 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    seedBatch: {
+      type: String,
+      index: true,
+    },
   },
   { timestamps: true }
 );
@@ -136,5 +140,6 @@ productSchema.index({ ratings: -1 }, { name: 'RatingsIndex' });
 productSchema.index({ inStock: 1 }, { name: 'StockIndex' });
 
 productSchema.index({ featured: -1, createdAt: -1 }, { name: 'FeaturedProductsIndex' });
+productSchema.index({ createdBy: 1, createdAt: -1 }, { name: 'VendorProductsIndex' });
 
 export default Product;

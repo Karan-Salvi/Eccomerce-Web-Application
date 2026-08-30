@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -11,8 +11,15 @@ const PlaceOrderButton = ({ order }) => {
     { data, isLoading, isSuccess, isError, error },
   ] = useCreateCheckoutSessionMutation();
 
+  // One key per mount: a retried/double-clicked submit reuses it, so the
+  // backend recognizes it as the same attempt instead of a new order.
+  // crypto.randomUUID is secure-context only — on a plain-HTTP LAN dev origin
+  // it's undefined, so fall back to '' (falsy → no header sent) instead of
+  // crashing the component on mount.
+  const [idempotencyKey] = useState(() => crypto.randomUUID?.() ?? '');
+
   const purchaseCourseHandler = async () => {
-    await createCheckoutSession(order);
+    await createCheckoutSession({ order, idempotencyKey });
   };
 
   useEffect(() => {
@@ -32,7 +39,7 @@ const PlaceOrderButton = ({ order }) => {
     <Button
       disabled={isLoading}
       onClick={purchaseCourseHandler}
-      className="w-full"
+      className="h-12 w-full rounded-full bg-amber-600 text-base font-semibold text-white hover:bg-amber-700"
     >
       {isLoading ? (
         <>
@@ -40,7 +47,7 @@ const PlaceOrderButton = ({ order }) => {
           Please wait
         </>
       ) : (
-        'Purchase Course'
+        'Buy Now'
       )}
     </Button>
   );

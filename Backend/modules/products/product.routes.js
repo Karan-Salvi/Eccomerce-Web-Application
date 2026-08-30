@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { authorizeRoles, checkAuthenticated } from '#shared/middlewares/authentication.js';
+import { ROLES } from '#shared/constants/roles.constants.js';
 import upload from '#shared/middlewares/multer.js';
 import preferenceAuth from '#shared/middlewares/preferenceAuth.js';
 import validate from '#shared/middlewares/validate.js';
@@ -33,6 +34,8 @@ router.route('/product').get(validate(paginationSchema), getPaginatedProducts);
 router
   .route('/product/new')
   .post(
+    checkAuthenticated(),
+    authorizeRoles(ROLES.VENDOR, ROLES.ADMIN),
     upload.fields([{ name: 'image', maxCount: 5 }]),
     validate(createProductSchema),
     createProduct
@@ -40,8 +43,14 @@ router
 
 router
   .route('/product/:id')
-  .put(validate(updateProductSchema), updateProduct)
-  .delete(deleteProduct)
+  .put(
+    checkAuthenticated(),
+    authorizeRoles(ROLES.VENDOR, ROLES.ADMIN),
+    upload.fields([{ name: 'image', maxCount: 5 }]),
+    validate(updateProductSchema),
+    updateProduct
+  )
+  .delete(checkAuthenticated(), authorizeRoles(ROLES.VENDOR, ROLES.ADMIN), deleteProduct)
   .get(preferenceAuth(), getProductDetails);
 
 router

@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
-import { VendorProvider } from '@/contexts/VendorContext';
 import Layout from '../../components/Vendor/Layout';
 import Dashboard from '../../components/Vendor/Dashboard';
 import ProductsPage from '../../components/Vendor/ProductsPage';
 import AddProductPage from '../../components/Vendor/AddProductPage';
+import ProductDetailView from '../../components/Vendor/ProductDetailView';
+import { Button } from '@/components/ui/button';
+import { Edit } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
 
 function Vendor() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [editingProduct, setEditingProduct] = useState(null);
+  const [viewingProduct, setViewingProduct] = useState(null);
 
   const handleViewChange = (view) => {
     setCurrentView(view);
     if (view !== 'add-product') {
       setEditingProduct(null);
+    }
+    if (view !== 'view-product') {
+      setViewingProduct(null);
     }
   };
 
@@ -24,23 +30,31 @@ function Vendor() {
 
   const handleEditProduct = (product) => {
     setEditingProduct(product);
+    setViewingProduct(null);
     setCurrentView('add-product');
+  };
+
+  const handleViewProduct = (product) => {
+    setViewingProduct(product);
+    setCurrentView('view-product');
   };
 
   const handleBackToProducts = () => {
     setEditingProduct(null);
+    setViewingProduct(null);
     setCurrentView('products');
   };
 
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onAddProduct={handleAddProduct} />;
       case 'products':
         return (
           <ProductsPage
             onAddProduct={handleAddProduct}
             onEditProduct={handleEditProduct}
+            onViewProduct={handleViewProduct}
           />
         );
       case 'add-product':
@@ -50,18 +64,34 @@ function Vendor() {
             editProduct={editingProduct}
           />
         );
+      case 'view-product':
+        return (
+          <ProductDetailView
+            product={viewingProduct}
+            onBack={handleBackToProducts}
+            actions={
+              <Button
+                onClick={() => handleEditProduct(viewingProduct)}
+                className="rounded-full bg-amber-600 hover:bg-amber-700"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Product
+              </Button>
+            }
+          />
+        );
       default:
         return <Dashboard />;
     }
   };
 
   return (
-    <VendorProvider>
+    <>
       <Layout currentView={currentView} onViewChange={handleViewChange}>
         {renderCurrentView()}
       </Layout>
       <Toaster />
-    </VendorProvider>
+    </>
   );
 }
 
