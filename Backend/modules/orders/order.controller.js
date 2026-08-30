@@ -408,7 +408,9 @@ export const stripeWebhook = catchAsyncErrors(async (req, res) => {
 
 // get single order details -- owner or ADMIN
 export const getSingleOrder = catchAsyncErrors(async (req, res) => {
-  const order = await Order.findById(req.params.id).populate('user', 'name email');
+  const order = await Order.findById(req.params.id)
+    .populate('user', 'name email')
+    .populate('orderItems.product', 'name images');
 
   if (!order) {
     return res.status(404).json({
