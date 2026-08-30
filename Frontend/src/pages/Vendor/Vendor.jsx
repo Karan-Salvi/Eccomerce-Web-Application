@@ -34,7 +34,7 @@ function Vendor() {
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onAddProduct={handleAddProduct} />;
       case 'products':
         return (
           <ProductsPage
