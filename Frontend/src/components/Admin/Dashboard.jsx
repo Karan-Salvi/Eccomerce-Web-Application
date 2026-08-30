@@ -1,10 +1,14 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatCard } from '@/components/ui/stat-card';
+import { Badge } from '@/components/ui/badge';
 import { useGetAllUsersQuery } from '../../store/api/adminApi';
 import { useGetAllProductsQuery } from '../../store/api/productApi';
 import { useGetAllOrdersQuery } from '../../store/api/orderApi';
-import { Users, Package, ShoppingCart, DollarSign } from 'lucide-react';
+import { Users, Package, ShoppingCart, IndianRupee, UserRound } from 'lucide-react';
 import { USER_ROLES } from '../../constants/roles.constants';
+
+const formatCurrency = (value) => `₹${new Intl.NumberFormat('en-US').format(Math.round(value))}`;
 
 const Dashboard = () => {
   const { data: usersData, isLoading: usersLoading } = useGetAllUsersQuery();
@@ -12,7 +16,11 @@ const Dashboard = () => {
   const { data: ordersData, isLoading: ordersLoading } = useGetAllOrdersQuery();
 
   if (usersLoading || productsLoading || ordersLoading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading dashboard metrics...</div>;
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-amber-600" />
+      </div>
+    );
   }
 
   const users = usersData?.data || [];
@@ -34,69 +42,70 @@ const Dashboard = () => {
   const stats = [
     {
       title: 'Total Users',
-      value: totalUsers.toString(),
+      value: totalUsers,
       description: `${vendorsCount} registered vendors`,
       icon: Users,
     },
     {
       title: 'Total Products',
-      value: totalProducts.toString(),
-      description: 'Active products in catalog',
+      value: totalProducts,
+      description: 'Across all vendors',
       icon: Package,
     },
     {
       title: 'Total Orders',
-      value: totalOrders.toString(),
-      description: 'Across all vendors',
+      value: totalOrders,
+      description: 'Placed storewide',
       icon: ShoppingCart,
     },
     {
       title: 'Total Revenue',
-      value: `$${totalRevenue.toFixed(2)}`,
+      value: formatCurrency(totalRevenue),
       description: 'Excludes cancelled orders',
-      icon: DollarSign,
+      icon: IndianRupee,
     },
   ];
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">{stat.description}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {stats.map((stat) => (
+          <StatCard
+            key={stat.title}
+            title={stat.title}
+            value={stat.value}
+            change={stat.description}
+            icon={stat.icon}
+          />
+        ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Recent Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {users.slice(0, 5).map((u) => (
-                <div key={u._id} className="flex items-center justify-between border-b pb-2 last:border-0">
-                  <div>
-                    <p className="text-sm font-medium">{u.name}</p>
-                    <p className="text-xs text-muted-foreground">{u.email}</p>
+            {users.length === 0 ? (
+              <p className="text-muted-foreground py-6 text-center text-sm">No users yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {users.slice(0, 5).map((u) => (
+                  <div key={u._id} className="flex items-center gap-3 border-b pb-3 last:border-0 last:pb-0">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+                      <UserRound className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-zinc-900">{u.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                    </div>
+                    <Badge variant="outline" className="shrink-0 capitalize">
+                      {u.role === USER_ROLES.VENDER ? 'vendor' : u.role}
+                    </Badge>
                   </div>
-                  <div className="text-xs font-semibold capitalize bg-secondary px-2 py-1 rounded">
-                    {u.role === USER_ROLES.VENDER ? 'vendor' : u.role}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -105,26 +114,34 @@ const Dashboard = () => {
             <CardTitle>Recent Products</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {products.slice(0, 5).map((p) => (
-                <div key={p._id} className="flex items-center justify-between border-b pb-2 last:border-0">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 overflow-hidden rounded bg-secondary">
+            {products.length === 0 ? (
+              <p className="text-muted-foreground py-6 text-center text-sm">No products yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {products.slice(0, 5).map((p) => (
+                  <div key={p._id} className="flex items-center gap-3 border-b pb-3 last:border-0 last:pb-0">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
                       {p.images?.[0]?.url && (
-                        <img src={p.images[0].url} alt={p.name} className="h-full w-full object-cover" />
+                        <img
+                          src={p.images[0].url}
+                          alt={p.name}
+                          className="h-full w-full object-cover"
+                        />
                       )}
                     </div>
-                    <div>
-                      <p className="text-sm font-medium line-clamp-1">{p.name}</p>
-                      <p className="text-xs text-muted-foreground">${p.price}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-zinc-900">{p.name}</p>
+                      <p className="text-xs text-muted-foreground tabular-nums">
+                        {formatCurrency(p.price)}
+                      </p>
                     </div>
+                    <Badge className="shrink-0 border-none bg-amber-50 text-amber-700">
+                      {p.inStock} in stock
+                    </Badge>
                   </div>
-                  <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                    {p.inStock} in stock
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

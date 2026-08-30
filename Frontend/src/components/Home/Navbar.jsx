@@ -1,6 +1,5 @@
-import { Heart, LogOut, Menu, Package, ShoppingCart, User, X } from 'lucide-react';
+import { Heart, LogOut, Menu, Package, ShoppingCart, Store, User, X } from 'lucide-react';
 import { useState } from 'react';
-import { RiAdminLine } from 'react-icons/ri';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -132,14 +131,14 @@ const Navbar = () => {
             >
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-600 text-[10px] font-bold text-white">
+                <span className="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-amber-600 text-[10px] font-bold text-white ring-2 ring-white">
                   {cartCount}
                 </span>
               )}
             </Link>
             {user && isAuthenticated && user?.data?.role === 'vendor' && (
               <IconLink to="/vendor" label="Vendor dashboard">
-                <RiAdminLine className="h-5 w-5" />
+                <Store className="h-5 w-5" />
               </IconLink>
             )}
 

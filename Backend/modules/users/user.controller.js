@@ -7,6 +7,7 @@ import User from '#modules/users/user.model.js';
 import sendEmail from '#shared/utils/sendmail.js';
 import logger from '#infra/logger/logger.js';
 import Product from '#modules/products/product.model.js';
+import { ROLES } from '#shared/constants/roles.constants.js';
 
 // Register or Sign up new User
 export const registerUser = catchAsyncErrors(async (req, res) => {
@@ -347,6 +348,21 @@ export const getSingleUserDetail = catchAsyncErrors(async (req, res) => {
 // update user Role -- ADMIN
 export const updateUserRole = catchAsyncErrors(async (req, res) => {
   const { name, email, role } = req.body;
+
+  if (!Object.values(ROLES).includes(role)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid role',
+    });
+  }
+
+  if (req.params.id === String(req.user._id) && role !== ROLES.ADMIN) {
+    return res.status(400).json({
+      success: false,
+      message: 'You cannot remove your own admin role',
+    });
+  }
+
   const user = await User.findByIdAndUpdate(
     req.params.id,
     {
@@ -375,6 +391,13 @@ export const updateUserRole = catchAsyncErrors(async (req, res) => {
 
 // Delete user
 export const DeleteUser = catchAsyncErrors(async (req, res) => {
+  if (req.params.id === String(req.user._id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'You cannot delete your own account',
+    });
+  }
+
   const user = await User.findByIdAndDelete(req.params.id).select(
     '-password -resetPasswordToken -resetPasswordExpiry'
   );

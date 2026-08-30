@@ -1,77 +1,91 @@
 import React from 'react';
 import { useGetAllOrdersQuery } from '../../store/api/orderApi';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { ClipboardList } from 'lucide-react';
+
+const formatCurrency = (value) => `₹${new Intl.NumberFormat('en-US').format(Math.round(value || 0))}`;
+
+const STATUS_STYLES = {
+  delivered: 'bg-green-50 text-green-700',
+  processing: 'bg-blue-50 text-blue-700',
+  shipped: 'bg-amber-50 text-amber-700',
+  out_for_delivery: 'bg-amber-50 text-amber-700',
+  cancelled: 'bg-red-50 text-red-700',
+};
+
+const getStatusStyle = (status) => STATUS_STYLES[status] || 'bg-zinc-100 text-zinc-700';
 
 const OrdersPage = () => {
   const { data: ordersData, isLoading } = useGetAllOrdersQuery();
 
   if (isLoading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading orders...</div>;
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-amber-600" />
+      </div>
+    );
   }
 
   const orders = ordersData?.data || [];
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'delivered': return 'bg-green-100 text-green-800';
-      case 'processing': return 'bg-blue-100 text-blue-800';
-      case 'shipped':
-      case 'out_for_delivery': return 'bg-purple-100 text-purple-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Orders</h2>
+      <div>
+        <h2 className="text-2xl font-bold text-zinc-900">Orders</h2>
+        <p className="text-muted-foreground">Every order placed storewide</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Orders ({orders.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <div className="grid grid-cols-12 gap-4 border-b bg-muted/50 p-4 font-medium">
-              <div className="col-span-3">Order ID</div>
-              <div className="col-span-3">Date</div>
-              <div className="col-span-2">Total</div>
-              <div className="col-span-2">Status</div>
-              <div className="col-span-2">Payment</div>
-            </div>
-            <div className="divide-y">
-              {orders.map((order) => (
-                <div key={order._id} className="grid grid-cols-12 items-center gap-4 p-4 text-sm">
-                  <div className="col-span-3 font-mono text-muted-foreground">
-                    {order._id.slice(-8)}
-                  </div>
-                  <div className="col-span-3">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </div>
-                  <div className="col-span-2 font-medium">
-                    ${order.totalPrice?.toFixed(2)}
-                  </div>
-                  <div className="col-span-2">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(order.orderStatus)}`}>
-                      {order.orderStatus}
-                    </span>
-                  </div>
-                  <div className="col-span-2">
-                    {order.paymentInfo?.status || 'Unknown'}
-                  </div>
-                </div>
-              ))}
-              {orders.length === 0 && (
-                <div className="p-8 text-center text-muted-foreground">
-                  No orders found.
-                </div>
-              )}
-            </div>
+      {orders.length === 0 ? (
+        <div className="flex flex-col items-center rounded-2xl border border-dashed border-zinc-300 px-6 py-16 text-center">
+          <ClipboardList className="h-10 w-10 text-zinc-300" strokeWidth={1.5} />
+          <h3 className="mt-4 text-lg font-semibold text-zinc-900">No orders yet</h3>
+          <p className="text-muted-foreground mt-1">Orders will show up here once placed.</p>
+        </div>
+      ) : (
+        <Card className="overflow-hidden py-0">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead>
+                <tr className="border-b bg-zinc-50 text-left text-xs font-medium text-zinc-500 uppercase">
+                  <th className="px-6 py-3">Order ID</th>
+                  <th className="px-6 py-3">Date</th>
+                  <th className="px-6 py-3">Total</th>
+                  <th className="px-6 py-3">Status</th>
+                  <th className="px-6 py-3">Payment</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {orders.map((order) => (
+                  <tr key={order._id}>
+                    <td className="text-muted-foreground px-6 py-4 font-mono text-xs">
+                      #{order._id.slice(-8)}
+                    </td>
+                    <td className="px-6 py-4">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-zinc-900 tabular-nums">
+                      {formatCurrency(order.totalPrice)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge className={cn('border-none capitalize', getStatusStyle(order.orderStatus))}>
+                        {order.orderStatus?.replace(/_/g, ' ')}
+                      </Badge>
+                    </td>
+                    <td className="text-muted-foreground px-6 py-4 capitalize">
+                      {order.paymentInfo?.status || 'Unknown'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </CardContent>
-      </Card>
+          <CardContent className="border-t px-6 py-3">
+            <p className="text-muted-foreground text-sm">{orders.length} orders</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
