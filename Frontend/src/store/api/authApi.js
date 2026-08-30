@@ -170,7 +170,7 @@ export const authApi = createApi({
         method: 'POST',
         body: product,
       }),
-      invalidatesTags: ['User'], // or use "Cart"
+      onQueryStarted: syncUserFromResponse,
     }),
 
     removeFromCart: builder.mutation({
@@ -179,7 +179,7 @@ export const authApi = createApi({
         method: 'DELETE',
         body: product,
       }),
-      invalidatesTags: ['User'],
+      onQueryStarted: syncUserFromResponse,
     }),
 
     // Shipping address

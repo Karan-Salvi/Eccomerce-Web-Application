@@ -755,9 +755,15 @@ export const addToCart = catchAsyncErrors(async (req, res) => {
 
   await user.save();
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
     message: 'Product added to cart successfully',
+    data: updatedUser,
   });
 });
 
@@ -790,8 +796,14 @@ export const removeFromCart = catchAsyncErrors(async (req, res) => {
 
   await user.save();
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
     message: 'Product removed from cart successfully',
+    data: updatedUser,
   });
 });
