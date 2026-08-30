@@ -43,10 +43,12 @@ const AddProductPage = ({ onBack, editProduct }) => {
     colors: [],
     featured: false,
   });
-  const [imageFiles, setImageFiles] = useState([]);
-  const [imagePreviewUrls, setImagePreviewUrls] = useState([]);
+  const [existingImages, setExistingImages] = useState([]); // urls already on the product (edit mode)
+  const [imageFiles, setImageFiles] = useState([]); // newly added local files
+  const [imagePreviewUrls, setImagePreviewUrls] = useState([]); // blob previews for imageFiles
 
   const [errors, setErrors] = useState({});
+  const totalImages = existingImages.length + imageFiles.length;
 
   useEffect(() => {
     if (editProduct) {
@@ -65,7 +67,9 @@ const AddProductPage = ({ onBack, editProduct }) => {
         colors: editProduct.colors || [],
         featured: !!editProduct.featured,
       });
-      setImagePreviewUrls((editProduct.images || []).map((img) => img.url));
+      setExistingImages((editProduct.images || []).map((img) => img.url));
+      setImageFiles([]);
+      setImagePreviewUrls([]);
     }
   }, [editProduct]);
 
@@ -93,7 +97,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
     if (!formData.stock || parseInt(formData.stock, 10) < 0) {
       newErrors.stock = 'Valid stock quantity is required';
     }
-    if (!editProduct && imageFiles.length === 0) {
+    if (totalImages === 0) {
       newErrors.image = 'At least one product image is required';
     }
 
@@ -112,37 +116,26 @@ const AddProductPage = ({ onBack, editProduct }) => {
     const originalPrice = formData.originalPrice ? parseFloat(formData.originalPrice) : price;
 
     try {
+      const body = new FormData();
+      body.append('name', formData.name.trim());
+      body.append('description', formData.description.trim());
+      body.append('price', price);
+      body.append('originalPrice', originalPrice);
+      body.append('category', formData.category);
+      body.append('inStock', formData.stock);
+      body.append('brand', formData.brand.trim());
+      body.append('featured', formData.featured);
+      splitToList(formData.sizes).forEach((size) => body.append('sizes', size));
+      formData.colors.forEach((color) => body.append('colors', color));
+      imageFiles.forEach((file) => body.append('image', file));
+
       if (editProduct) {
-        await updateProduct({
-          id: editProduct._id,
-          data: {
-            name: formData.name.trim(),
-            description: formData.description.trim(),
-            price,
-            originalPrice,
-            category: formData.category,
-            inStock: parseInt(formData.stock, 10),
-            brand: formData.brand.trim(),
-            sizes: splitToList(formData.sizes),
-            colors: formData.colors,
-            featured: formData.featured,
-          },
-        }).unwrap();
+        body.append('manageImages', 'true');
+        existingImages.forEach((url) => body.append('existingImages', url));
+
+        await updateProduct({ id: editProduct._id, data: body }).unwrap();
         toast.success('Product updated successfully');
       } else {
-        const body = new FormData();
-        body.append('name', formData.name.trim());
-        body.append('description', formData.description.trim());
-        body.append('price', price);
-        body.append('originalPrice', originalPrice);
-        body.append('category', formData.category);
-        body.append('inStock', formData.stock);
-        body.append('brand', formData.brand.trim());
-        body.append('featured', formData.featured);
-        splitToList(formData.sizes).forEach((size) => body.append('sizes', size));
-        formData.colors.forEach((color) => body.append('colors', color));
-        imageFiles.forEach((file) => body.append('image', file));
-
         await createProduct(body).unwrap();
         toast.success('Product added successfully');
       }
@@ -188,9 +181,10 @@ const AddProductPage = ({ onBack, editProduct }) => {
   const handleImageFilesChange = (e) => {
     const newFiles = Array.from(e.target.files || []);
     e.target.value = ''; // allow re-selecting the same file after removal
+    const remainingSlots = 5 - existingImages.length - imageFiles.length;
 
     setImageFiles((prev) => {
-      const combined = [...prev, ...newFiles].slice(0, 5);
+      const combined = [...prev, ...newFiles.slice(0, remainingSlots)];
       setImagePreviewUrls(combined.map((file) => URL.createObjectURL(file)));
       return combined;
     });
@@ -199,12 +193,16 @@ const AddProductPage = ({ onBack, editProduct }) => {
     }
   };
 
-  const handleRemoveImage = (index) => {
+  const handleRemoveNewImage = (index) => {
     setImageFiles((prev) => {
       const next = prev.filter((_, i) => i !== index);
       setImagePreviewUrls(next.map((file) => URL.createObjectURL(file)));
       return next;
     });
+  };
+
+  const handleRemoveExistingImage = (index) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const previewHasDiscount =
@@ -503,11 +501,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
                 {/* Image Upload */}
                 <div className="space-y-4">
                   <Label htmlFor="images">Product Images (up to 5)</Label>
-                  {editProduct ? (
-                    <p className="text-muted-foreground text-sm">
-                      Images can&apos;t be changed when editing yet — the current images stay as-is.
-                    </p>
-                  ) : imageFiles.length < 5 ? (
+                  {totalImages < 5 ? (
                     <label
                       htmlFor="images"
                       className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-zinc-300 px-6 py-8 text-center hover:border-amber-400 hover:bg-amber-50/40"
@@ -517,7 +511,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
                         Click to choose images
                       </span>
                       <span className="text-muted-foreground text-xs">
-                        {5 - imageFiles.length} more allowed — JPG or PNG
+                        {5 - totalImages} more allowed — JPG or PNG
                       </span>
                       <Input
                         id="images"
@@ -534,20 +528,37 @@ const AddProductPage = ({ onBack, editProduct }) => {
                     </p>
                   )}
                   {errors.image && <p className="mt-1 text-sm text-red-500">{errors.image}</p>}
-                  {imagePreviewUrls.length > 0 && (
+                  {totalImages > 0 && (
                     <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
-                      {imagePreviewUrls.map((url, index) => (
-                        <div key={index} className="group relative">
+                      {existingImages.map((url, index) => (
+                        <div key={url} className="group relative">
                           <img
                             src={url}
-                            alt={`Preview ${index + 1}`}
+                            alt={`Product image ${index + 1}`}
                             className="h-20 w-full rounded-lg border object-cover"
                           />
                           <button
                             type="button"
-                            onClick={() => handleRemoveImage(index)}
+                            onClick={() => handleRemoveExistingImage(index)}
                             className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-white opacity-0 transition-opacity group-hover:opacity-100"
                             aria-label={`Remove image ${index + 1}`}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                      {imagePreviewUrls.map((url, index) => (
+                        <div key={url} className="group relative">
+                          <img
+                            src={url}
+                            alt={`New image ${index + 1}`}
+                            className="h-20 w-full rounded-lg border object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveNewImage(index)}
+                            className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                            aria-label={`Remove new image ${index + 1}`}
                           >
                             <X className="h-3 w-3" />
                           </button>
@@ -590,9 +601,9 @@ const AddProductPage = ({ onBack, editProduct }) => {
             </CardHeader>
             <CardContent className="space-y-4 p-6">
               <div className="flex h-40 w-full items-center justify-center overflow-hidden rounded-xl bg-zinc-100">
-                {imagePreviewUrls[0] ? (
+                {existingImages[0] || imagePreviewUrls[0] ? (
                   <img
-                    src={imagePreviewUrls[0]}
+                    src={existingImages[0] || imagePreviewUrls[0]}
                     alt="Product preview"
                     className="h-full w-full object-cover"
                   />

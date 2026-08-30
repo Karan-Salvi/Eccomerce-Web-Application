@@ -1,6 +1,6 @@
 import Product from '#modules/products/product.model.js';
 import catchAsyncErrors from '#shared/middlewares/catchAsyncErrors.js';
-import { uploadOnCloudinary } from '#shared/utils/cloudinary.js';
+import { uploadOnCloudinary, deleteFromCloudinary } from '#shared/utils/cloudinary.js';
 import redisClient from '#config/redis.js';
 import logger from '#infra/logger/logger.js';
 import updateUserPreferences from '#shared/utils/updateUserPreferences.js';
@@ -436,7 +436,32 @@ export const updateProduct = catchAsyncErrors(async (req, res) => {
     return res.status(404).json({ success: false, message: 'Product not found' });
   }
 
-  product = await Product.findByIdAndUpdate(productId, req.body, {
+  const newFiles = req.files?.['image'] || [];
+  const { manageImages, existingImages, ...updateData } = req.body;
+
+  if (manageImages) {
+    const keepUrls = existingImages || [];
+    const removedImages = product.images.filter((img) => !keepUrls.includes(img.url));
+    await Promise.all(removedImages.map((img) => deleteFromCloudinary(img.url)));
+
+    const uploadedUrls = await Promise.all(
+      newFiles.map((file) => uploadOnCloudinary(file.path))
+    );
+
+    updateData.images = [
+      ...product.images.filter((img) => keepUrls.includes(img.url)),
+      ...uploadedUrls.filter(Boolean).map((url) => ({ url })),
+    ];
+
+    if (updateData.images.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'A product needs at least one image',
+      });
+    }
+  }
+
+  product = await Product.findByIdAndUpdate(productId, updateData, {
     new: true,
     runValidators: true,
   });
@@ -460,6 +485,8 @@ export const deleteProduct = catchAsyncErrors(async (req, res) => {
   }
 
   await Product.findByIdAndDelete(req.params.id);
+
+  await Promise.all((product.images || []).map((image) => deleteFromCloudinary(image.url)));
 
   await invalidateProductCache(['all_products', `product_${req.params.id}`]);
 

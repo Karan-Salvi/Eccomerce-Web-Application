@@ -46,6 +46,7 @@ router
   .put(
     checkAuthenticated(),
     authorizeRoles(ROLES.VENDOR, ROLES.ADMIN),
+    upload.fields([{ name: 'image', maxCount: 5 }]),
     validate(updateProductSchema),
     updateProduct
   )

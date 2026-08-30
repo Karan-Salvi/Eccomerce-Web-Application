@@ -72,7 +72,20 @@ export const updateProductSchema = z.object({
     category: z.string().optional(),
 
     inStock: stockSchema.optional(),
-    featured: z.boolean().optional(),
+    featured: z
+      .union([z.boolean(), z.enum(['true', 'false'])])
+      .transform((v) => v === true || v === 'true')
+      .optional(),
+
+    // manageImages is an explicit flag (not just existingImages' presence)
+    // because a multipart submit that removes every image sends zero
+    // `existingImages` entries — indistinguishable from "field absent"
+    // otherwise. See updateProduct's handling of these two fields.
+    manageImages: z
+      .union([z.boolean(), z.enum(['true', 'false'])])
+      .transform((v) => v === true || v === 'true')
+      .optional(),
+    existingImages: stringListSchema.optional(),
   }),
 });
 
