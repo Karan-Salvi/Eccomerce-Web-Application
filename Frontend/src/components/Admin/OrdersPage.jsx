@@ -1,8 +1,16 @@
 import React from 'react';
-import { useGetAllOrdersQuery } from '../../store/api/orderApi';
+import { useGetAllOrdersQuery, useUpdateOrderStatusMutation } from '../../store/api/orderApi';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { ClipboardList } from 'lucide-react';
 
 const formatCurrency = (value) => `₹${new Intl.NumberFormat('en-US').format(Math.round(value || 0))}`;
@@ -15,10 +23,13 @@ const STATUS_STYLES = {
   cancelled: 'bg-red-50 text-red-700',
 };
 
+const ORDER_STATUSES = ['processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'];
+
 const getStatusStyle = (status) => STATUS_STYLES[status] || 'bg-zinc-100 text-zinc-700';
 
 const OrdersPage = () => {
   const { data: ordersData, isLoading } = useGetAllOrdersQuery();
+  const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
 
   if (isLoading) {
     return (
@@ -29,6 +40,15 @@ const OrdersPage = () => {
   }
 
   const orders = ordersData?.data || [];
+
+  const handleStatusChange = async (orderId, status) => {
+    try {
+      await updateOrderStatus({ id: orderId, statusData: { status } }).unwrap();
+      toast.success('Order status updated');
+    } catch (err) {
+      toast.error(err?.data?.message || 'Failed to update order status');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -57,27 +77,53 @@ const OrdersPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {orders.map((order) => (
-                  <tr key={order._id}>
-                    <td className="text-muted-foreground px-6 py-4 font-mono text-xs">
-                      #{order._id.slice(-8)}
-                    </td>
-                    <td className="px-6 py-4">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 font-medium text-zinc-900 tabular-nums">
-                      {formatCurrency(order.totalPrice)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge className={cn('border-none capitalize', getStatusStyle(order.orderStatus))}>
-                        {order.orderStatus?.replace(/_/g, ' ')}
-                      </Badge>
-                    </td>
-                    <td className="text-muted-foreground px-6 py-4 capitalize">
-                      {order.paymentInfo?.status || 'Unknown'}
-                    </td>
-                  </tr>
-                ))}
+                {orders.map((order) => {
+                  const isDelivered = order.orderStatus === 'delivered';
+                  return (
+                    <tr key={order._id}>
+                      <td className="text-muted-foreground px-6 py-4 font-mono text-xs">
+                        #{order._id.slice(-8)}
+                      </td>
+                      <td className="px-6 py-4">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-zinc-900 tabular-nums">
+                        {formatCurrency(order.totalPrice)}
+                      </td>
+                      <td className="px-6 py-4">
+                        {isDelivered ? (
+                          <Badge
+                            className={cn('border-none capitalize', getStatusStyle(order.orderStatus))}
+                          >
+                            {order.orderStatus.replace(/_/g, ' ')}
+                          </Badge>
+                        ) : (
+                          <Select
+                            value={order.orderStatus}
+                            disabled={isUpdating}
+                            onValueChange={(status) => handleStatusChange(order._id, status)}
+                          >
+                            <SelectTrigger className="h-8 w-[160px] capitalize">
+                              <SelectValue>
+                                {order.orderStatus?.replace(/_/g, ' ')}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ORDER_STATUSES.map((status) => (
+                                <SelectItem key={status} value={status} className="capitalize">
+                                  {status.replace(/_/g, ' ')}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </td>
+                      <td className="text-muted-foreground px-6 py-4 capitalize">
+                        {order.paymentInfo?.status || 'Unknown'}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
