@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "validate": "npm run lint && npm run build"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.14",

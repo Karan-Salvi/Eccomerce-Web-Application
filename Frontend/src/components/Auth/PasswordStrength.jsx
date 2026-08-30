@@ -1,6 +1,9 @@
 import { Check } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 
+const MotionDiv = motion.div;
+const MotionSpan = motion.span;
+
 // Score is a UX suggestion, not an enforced rule — the only real backend
 // requirement is length >= 6, tracked separately below as an honest checklist.
 function getStrength(password) {
@@ -32,7 +35,7 @@ const PasswordStrength = ({ password }) => {
       <div className="flex gap-1.5">
         {[0, 1, 2, 3].map((segment) => (
           <div key={segment} className="h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-200">
-            <motion.div
+            <MotionDiv
               className={`h-full rounded-full ${segment < score ? level.color : 'bg-zinc-200'}`}
               initial={false}
               animate={{ scaleX: segment < score ? 1 : 0 }}
@@ -52,14 +55,14 @@ const PasswordStrength = ({ password }) => {
           >
             <AnimatePresence>
               {meetsMinLength && (
-                <motion.span
+                <MotionSpan
                   initial={reduce ? false : { scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={reduce ? {} : { scale: 0, opacity: 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
                   <Check className="h-3 w-3" strokeWidth={3} />
-                </motion.span>
+                </MotionSpan>
               )}
             </AnimatePresence>
           </span>
@@ -68,7 +71,7 @@ const PasswordStrength = ({ password }) => {
 
         <AnimatePresence mode="wait">
           {password && (
-            <motion.span
+            <MotionSpan
               key={level.label}
               initial={reduce ? false : { opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -77,7 +80,7 @@ const PasswordStrength = ({ password }) => {
               className="font-medium text-zinc-500"
             >
               {level.label}
-            </motion.span>
+            </MotionSpan>
           )}
         </AnimatePresence>
       </div>

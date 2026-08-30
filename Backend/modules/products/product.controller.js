@@ -444,9 +444,7 @@ export const updateProduct = catchAsyncErrors(async (req, res) => {
     const removedImages = product.images.filter((img) => !keepUrls.includes(img.url));
     await Promise.all(removedImages.map((img) => deleteFromCloudinary(img.url)));
 
-    const uploadedUrls = await Promise.all(
-      newFiles.map((file) => uploadOnCloudinary(file.path))
-    );
+    const uploadedUrls = await Promise.all(newFiles.map((file) => uploadOnCloudinary(file.path)));
 
     updateData.images = [
       ...product.images.filter((img) => keepUrls.includes(img.url)),

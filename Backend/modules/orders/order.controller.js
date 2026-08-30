@@ -169,7 +169,8 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
   let { shippingInfo, orderItems, itemsPrice, taxPrice, shippingPrice, paymentMethod } = req.body;
   const userId = req.user._id;
 
-  const hasValidNumber = (value) => value !== undefined && value !== null && !Number.isNaN(Number(value));
+  const hasValidNumber = (value) =>
+    value !== undefined && value !== null && !Number.isNaN(Number(value));
 
   if (
     !shippingInfo ||
@@ -208,7 +209,9 @@ export const createNewOrder = catchAsyncErrors(async (req, res) => {
   // of reserving stock, calling Stripe, and surfacing a raw API crash.
   const MINIMUM_STRIPE_CHECKOUT_INR = 50;
   if (paymentMethod === 'stripe' && totalPrice < MINIMUM_STRIPE_CHECKOUT_INR) {
-    logger.warn(`Stripe checkout rejected: order total ₹${totalPrice} is below the ₹${MINIMUM_STRIPE_CHECKOUT_INR} minimum`);
+    logger.warn(
+      `Stripe checkout rejected: order total ₹${totalPrice} is below the ₹${MINIMUM_STRIPE_CHECKOUT_INR} minimum`
+    );
     return res.status(400).json({
       success: false,
       message: `Card checkout requires a minimum order of ₹${MINIMUM_STRIPE_CHECKOUT_INR}. Increase the quantity or pay on delivery instead.`,

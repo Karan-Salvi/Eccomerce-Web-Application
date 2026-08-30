@@ -20,6 +20,7 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "fix:all": "npm run lint:fix && npm run format:fix",
+    "validate": "npm run lint && npm test",
     "seed": "node scripts/seed.js",
     "seed:clear": "node scripts/clear-seed-data.js"
   },
