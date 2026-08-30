@@ -239,7 +239,19 @@ const AddProductPage = ({ onBack, editProduct }) => {
               <CardTitle>Product Information</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              {/*
+                Deliberately a <div>, not a <form>: Radix's <Select> mounts a
+                hidden native <select> to bubble form events ONLY when it
+                detects a <form> ancestor. That hidden select starts with no
+                <option>s (they only register once the dropdown has been
+                opened at least once), so when we set its value
+                programmatically here (editing a product), the browser can't
+                match it, and Radix's own change-event sync bounces the
+                controlled value back to "" — wiping the category we just
+                set. Submission is handled entirely through handleSubmit via
+                the button below; no native form serialization is used.
+              */}
+              <div className="space-y-6">
                 {/* Basic Information */}
                 <div className="space-y-4">
                   <div>
@@ -337,7 +349,10 @@ const AddProductPage = ({ onBack, editProduct }) => {
                         onValueChange={(value) => handleInputChange('category', value)}
                       >
                         <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
-                          <SelectValue placeholder="Select category" />
+                          <SelectValue placeholder="Select category">
+                            {PRODUCT_CATEGORY_OPTIONS.find((c) => c.value === formData.category)
+                              ?.label}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {PRODUCT_CATEGORY_OPTIONS.map((category) => (
@@ -571,7 +586,8 @@ const AddProductPage = ({ onBack, editProduct }) => {
                 {/* Submit Button */}
                 <div className="flex gap-3">
                   <Button
-                    type="submit"
+                    type="button"
+                    onClick={handleSubmit}
                     disabled={isSubmitting}
                     className="flex-1 rounded-full bg-amber-600 hover:bg-amber-700"
                   >
@@ -585,7 +601,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
                     Cancel
                   </Button>
                 </div>
-              </form>
+              </div>
             </CardContent>
           </Card>
         </div>
