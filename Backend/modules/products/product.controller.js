@@ -1,23 +1,12 @@
 import Product from '#modules/products/product.model.js';
 import catchAsyncErrors from '#shared/middlewares/catchAsyncErrors.js';
-import { uploadOnCloudinary, deleteFromCloudinary } from '#shared/utils/cloudinary.js';
+import { uploadOnCloudinary } from '#shared/utils/cloudinary.js';
 import redisClient from '#config/redis.js';
 import logger from '#infra/logger/logger.js';
 import updateUserPreferences from '#shared/utils/updateUserPreferences.js';
 import { PRODUCT_SORT, PRODUCT_SORT_OPTIONS } from '#shared/constants/productSort.constants.js';
-import { getCacheVersion, bumpCacheVersion } from '#shared/utils/productCacheVersion.js';
-
-// Best-effort cache invalidation: the DB write already succeeded, so a Redis
-// outage here must not fail the request — cached data just goes stale until
-// the version bump/TTL catches up.
-async function invalidateProductCache(keys = []) {
-  try {
-    await Promise.all(keys.map((key) => redisClient.del(key)));
-    await bumpCacheVersion(redisClient);
-  } catch (err) {
-    logger.error(`Product cache invalidation failed: ${err.message}`);
-  }
-}
+import { getCacheVersion } from '#shared/utils/productCacheVersion.js';
+import { afterProductWrite } from '#modules/products/product.lifecycle.js';
 
 // Create Product -- Admin
 export const createProduct = catchAsyncErrors(async (req, res) => {
@@ -67,8 +56,7 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
 
   logger.info(`Product created: ${product._id}`);
 
-  // Clear cache for product list
-  await invalidateProductCache(['all_products']);
+  await afterProductWrite({ productId: product._id });
 
   return res.status(201).json({
     success: true,
@@ -438,11 +426,13 @@ export const updateProduct = catchAsyncErrors(async (req, res) => {
 
   const newFiles = req.files?.['image'] || [];
   const { manageImages, existingImages, ...updateData } = req.body;
+  let removedImageUrls = [];
 
   if (manageImages) {
     const keepUrls = existingImages || [];
-    const removedImages = product.images.filter((img) => !keepUrls.includes(img.url));
-    await Promise.all(removedImages.map((img) => deleteFromCloudinary(img.url)));
+    removedImageUrls = product.images
+      .filter((img) => !keepUrls.includes(img.url))
+      .map((img) => img.url);
 
     const uploadedUrls = await Promise.all(newFiles.map((file) => uploadOnCloudinary(file.path)));
 
@@ -464,7 +454,7 @@ export const updateProduct = catchAsyncErrors(async (req, res) => {
     runValidators: true,
   });
 
-  await invalidateProductCache(['all_products', `product_${productId}`]);
+  await afterProductWrite({ productId, removedImageUrls });
 
   logger.info(`Product ${productId} updated`);
 
@@ -484,9 +474,10 @@ export const deleteProduct = catchAsyncErrors(async (req, res) => {
 
   await Product.findByIdAndDelete(req.params.id);
 
-  await Promise.all((product.images || []).map((image) => deleteFromCloudinary(image.url)));
-
-  await invalidateProductCache(['all_products', `product_${req.params.id}`]);
+  await afterProductWrite({
+    productId: req.params.id,
+    removedImageUrls: (product.images || []).map((image) => image.url),
+  });
 
   logger.info(`Product ${req.params.id} deleted`);
 
@@ -637,7 +628,7 @@ export const createProductReview = catchAsyncErrors(async (req, res) => {
 
   await product.save({ validateBeforeSave: false });
 
-  await invalidateProductCache([`product_${productId}`]);
+  await afterProductWrite({ productId });
 
   logger.info(`Review added/updated for product ${productId}`);
 
@@ -674,7 +665,7 @@ export const deleteProductReview = catchAsyncErrors(async (req, res) => {
   product.numOfReviews = product.reviews.length;
 
   await product.save({ validateBeforeSave: false });
-  await invalidateProductCache([`product_${productId}`]);
+  await afterProductWrite({ productId });
 
   logger.info(`Review deleted from product ${productId}`);
 
