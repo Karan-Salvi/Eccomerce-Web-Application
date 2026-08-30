@@ -39,7 +39,7 @@ const PlaceOrderButton = ({ order }) => {
     <Button
       disabled={isLoading}
       onClick={purchaseCourseHandler}
-      className="w-full"
+      className="h-12 w-full rounded-full bg-amber-600 text-base font-semibold text-white hover:bg-amber-700"
     >
       {isLoading ? (
         <>
@@ -47,7 +47,7 @@ const PlaceOrderButton = ({ order }) => {
           Please wait
         </>
       ) : (
-        'Purchase Course'
+        'Buy Now'
       )}
     </Button>
   );
