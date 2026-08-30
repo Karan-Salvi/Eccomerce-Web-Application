@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -13,7 +13,7 @@ import {
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
-import { useAddAddressMutation } from '../../store/api/authApi';
+import { useAddAddressMutation, useUpdateAddressMutation } from '../../store/api/authApi';
 
 const EMPTY_FORM = {
   address: '',
@@ -24,9 +24,29 @@ const EMPTY_FORM = {
   phoneNo: '',
 };
 
-const AddAddressDialog = ({ open, onOpenChange, onSaved }) => {
+const AddAddressDialog = ({ open, onOpenChange, onSaved, addressId, initialValues }) => {
+  const isEditing = Boolean(addressId);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [addAddress, { isLoading }] = useAddAddressMutation();
+  const [addAddress, { isLoading: isAdding }] = useAddAddressMutation();
+  const [updateAddress, { isLoading: isUpdating }] = useUpdateAddressMutation();
+  const isLoading = isAdding || isUpdating;
+
+  useEffect(() => {
+    if (open) {
+      setForm(
+        initialValues
+          ? {
+              address: initialValues.address ?? '',
+              city: initialValues.city ?? '',
+              state: initialValues.state ?? '',
+              country: initialValues.country ?? '',
+              pinCode: initialValues.pinCode ?? '',
+              phoneNo: initialValues.phoneNo ?? '',
+            }
+          : EMPTY_FORM
+      );
+    }
+  }, [open, initialValues]);
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -42,10 +62,14 @@ const AddAddressDialog = ({ open, onOpenChange, onSaved }) => {
     };
 
     try {
-      await addAddress(payload).unwrap();
-      toast.success('Address saved');
-      onSaved(payload);
-      setForm(EMPTY_FORM);
+      if (isEditing) {
+        await updateAddress({ ...payload, addressId }).unwrap();
+        toast.success('Address updated');
+      } else {
+        await addAddress(payload).unwrap();
+        toast.success('Address saved');
+      }
+      onSaved?.(payload);
     } catch (error) {
       toast.error(error?.data?.message || 'Failed to save address');
     }
@@ -55,7 +79,7 @@ const AddAddressDialog = ({ open, onOpenChange, onSaved }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add a shipping address</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit shipping address' : 'Add a shipping address'}</DialogTitle>
           <DialogDescription>
             We need this to deliver your order.
           </DialogDescription>
@@ -100,6 +124,8 @@ const AddAddressDialog = ({ open, onOpenChange, onSaved }) => {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving
                 </>
+              ) : isEditing ? (
+                'Save changes'
               ) : (
                 'Save and continue'
               )}

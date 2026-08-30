@@ -434,7 +434,9 @@ export const getSingleOrder = catchAsyncErrors(async (req, res) => {
 
 // get my orders
 export const myOrders = catchAsyncErrors(async (req, res) => {
-  const orders = await Order.find({ user: req.user._id });
+  const orders = await Order.find({ user: req.user._id })
+    .sort({ createdAt: -1 })
+    .populate('orderItems.product', 'name images');
   if (!orders) {
     return res.status(404).json({
       success: false,

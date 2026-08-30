@@ -427,9 +427,15 @@ export const addAddress = catchAsyncErrors(async (req, res) => {
 
   await user.save();
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
     message: 'Address added successfully',
+    data: updatedUser,
   });
 });
 
@@ -469,9 +475,15 @@ export const deleteAddress = catchAsyncErrors(async (req, res) => {
 
   logger.info(`Address ${addressId} deleted for user ${userId}`);
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
     message: 'Address deleted successfully',
+    data: updatedUser,
   });
 });
 
@@ -520,10 +532,15 @@ export const updateAddress = catchAsyncErrors(async (req, res) => {
 
   logger.info(`Address ${addressId} updated for user ${userId}`);
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
     message: 'Address updated successfully',
-    data: existingAddress,
+    data: updatedUser,
   });
 });
 

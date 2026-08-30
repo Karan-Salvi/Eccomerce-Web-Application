@@ -1,6 +1,20 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { userLoggedIn, userLoggedOut } from '../features/authSlice';
 
+// Several mutations (personal details, address CRUD) return the full updated
+// user in `data`. Nothing subscribes to the `loadUser` query to pick that up
+// automatically, so sync redux + localStorage directly from the mutation's
+// own response instead of relying on tag invalidation that nothing refetches.
+const syncUserFromResponse = async (_, { queryFulfilled, dispatch }) => {
+  try {
+    const result = await queryFulfilled;
+    localStorage.setItem('user', JSON.stringify(result.data));
+    dispatch(userLoggedIn({ user: result.data }));
+  } catch {
+    // mutation failed — nothing to sync
+  }
+};
+
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const USER_API = `${BASE_URL}/api/v1/`;
@@ -100,6 +114,7 @@ export const authApi = createApi({
         method: 'PUT',
         body: data,
       }),
+      onQueryStarted: syncUserFromResponse,
     }),
 
     updateUserDetails: builder.mutation({
@@ -174,7 +189,25 @@ export const authApi = createApi({
         method: 'POST',
         body: addressData,
       }),
-      invalidatesTags: ['User'],
+      onQueryStarted: syncUserFromResponse,
+    }),
+
+    updateAddress: builder.mutation({
+      query: (addressData) => ({
+        url: 'address',
+        method: 'PUT',
+        body: addressData,
+      }),
+      onQueryStarted: syncUserFromResponse,
+    }),
+
+    deleteAddress: builder.mutation({
+      query: (addressId) => ({
+        url: 'address',
+        method: 'DELETE',
+        body: { addressId },
+      }),
+      onQueryStarted: syncUserFromResponse,
     }),
   }),
 });
@@ -196,4 +229,6 @@ export const {
   useAddToCartMutation,
   useRemoveFromCartMutation,
   useAddAddressMutation,
+  useUpdateAddressMutation,
+  useDeleteAddressMutation,
 } = authApi;
