@@ -8,6 +8,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Reveal } from '../../components/Home/Reveal';
+import PasswordStrength from '../../components/Auth/PasswordStrength';
 import { useRegisterUserMutation } from '../../store/api/authApi';
 
 export default function Register() {
@@ -106,6 +107,7 @@ export default function Register() {
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   autoComplete="new-password"
+                  placeholder="At least 6 characters"
                   required
                   minLength={6}
                   value={password}
@@ -121,7 +123,7 @@ export default function Register() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="text-xs text-zinc-500">At least 6 characters.</p>
+              <PasswordStrength password={password} />
             </div>
 
             <div className="flex items-start gap-3">
