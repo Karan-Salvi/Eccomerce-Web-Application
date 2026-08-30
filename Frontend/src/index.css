@@ -119,4 +119,16 @@
     @apply bg-background text-foreground;
     font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
   }
+
+  /* Chrome/Firefox default a <button> to cursor:default, not pointer — this
+     restores the expected hand cursor on every real clickable element site-wide
+     instead of patching cursor-pointer onto individual components. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  a[href],
+  summary,
+  select,
+  label[for] {
+    cursor: pointer;
+  }
 }
