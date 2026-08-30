@@ -6,10 +6,6 @@
   font-style: normal;
 }
 
-.font-display {
-  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
-}
-
 @keyframes scroll-cue {
   0% {
     transform: translateY(0);
@@ -88,7 +84,7 @@
   height: 16px;
   width: 16px;
   border-radius: 9999px;
-  background: #2563eb;
+  background: #d97706;
   cursor: pointer;
 }
 
@@ -97,7 +93,7 @@
   height: 16px;
   width: 16px;
   border-radius: 9999px;
-  background: #2563eb;
+  background: #d97706;
   cursor: pointer;
 } */
 
@@ -117,7 +113,7 @@
   width: 16px;
   height: 16px;
   border-radius: 9999px;
-  background: #2563eb;
+  background: #d97706;
   cursor: pointer;
 }
 
@@ -126,6 +122,6 @@
   width: 16px;
   height: 16px;
   border-radius: 9999px;
-  background: #2563eb;
+  background: #d97706;
   cursor: pointer;
 }

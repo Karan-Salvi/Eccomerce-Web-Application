@@ -18,7 +18,7 @@ function Home() {
   });
 
   return (
-    <div className="font-display min-h-screen bg-white text-zinc-900">
+    <div className="min-h-screen bg-white text-zinc-900">
       {/* Header */}
       <Navbar />
 

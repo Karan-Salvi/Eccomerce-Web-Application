@@ -116,5 +116,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
   }
 }

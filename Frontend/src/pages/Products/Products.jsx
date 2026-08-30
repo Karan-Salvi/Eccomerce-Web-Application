@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Grid, LayoutGrid, SlidersHorizontal } from 'lucide-react';
-import { SearchBar } from '@/components/Products/SearchBar';
+import { Search, SlidersHorizontal } from 'lucide-react';
 import { FilterSidebar } from '@/components/Products/FilterSidebar';
 import { ProductGrid } from '@/components/Products/ProductGrid';
 import { Pagination } from '@/components/Products/Pagination';
@@ -16,20 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search } from 'lucide-react';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '../../components/ui/input-group';
-import { Button } from '@/components/ui/button';
 import { PRODUCT_SORT } from '../../constants/productSort.constants';
-const PRODUCTS_PER_PAGE = 12;
+import { MAX_PRICE } from '../../constants/productFilters.constants';
 
 function Products() {
-  //const { data: productsData, isLoading, isError } = useGetAllProductsQuery();
-
-  // console.log("All the product data is : ", productsData);
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get('category');
 
@@ -39,10 +28,11 @@ function Products() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [filters, setFilters] = useState({
     categories: initialCategory ? [initialCategory] : [],
-    priceRange: [0, 100000],
+    priceRange: [0, MAX_PRICE],
     minRating: 0,
     inStockOnly: false,
   });
+
   const { data: productsData, isLoading } = useGetAllProductsByPageQuery({
     page: currentPage,
     limit: 12,
@@ -55,176 +45,67 @@ function Products() {
     search: searchTerm,
   });
 
-  console.log('Products Data in Product Page: ', productsData);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filters, sortBy]);
 
-  // useEffect(() => {
-  //   setProducts(productsData?.data);
-  // }, [productsData, currentPage]);
-
-  // // Filter and search products
-  // const filteredProducts = useMemo(() => {
-  //   let filtered = products?.filter((product) => {
-  //     // Search filter
-  //     const matchesSearch =
-  //       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       product.brand.toLowerCase().includes(searchTerm.toLowerCase());
-
-  //     // Category filter
-  //     const matchesCategory =
-  //       filters.categories.length === 0 ||
-  //       filters.categories.includes(product.category);
-
-  //     // Brand filter
-  //     const matchesBrand =
-  //       filters.brands.length === 0 || filters.brands.includes(product.brand);
-
-  //     // Price filter
-  //     const matchesPrice =
-  //       product.price >= filters.priceRange[0] &&
-  //       product.price <= filters.priceRange[1];
-
-  //     // Rating filter
-  //     const matchesRating = product.ratings >= filters.minRating;
-
-  //     // Stock filter
-  //     // const matchesStock = !filters.inStockOnly || product.inStock;
-  //     const matchesStock = !filters.inStockOnly || product.inStock > 0;
-  //     //   //matchesStock
-
-  //     return (
-  //       matchesSearch &&
-  //       matchesCategory &&
-  //       matchesBrand &&
-  //       matchesPrice &&
-  //       matchesRating &&
-  //       matchesStock
-  //     );
-  //   });
-
-  //   // Sort products
-  //   switch (sortBy) {
-  //     case 'price-low':
-  //       filtered.sort((a, b) => a.price - b.price);
-  //       break;
-  //     case 'price-high':
-  //       filtered.sort((a, b) => b.price - a.price);
-  //       break;
-  //     case 'rating':
-  //       filtered.sort((a, b) => b.rating - a.rating);
-  //       break;
-  //     case 'newest':
-  //       filtered.sort((a, b) => b._id - a._id);
-  //       break;
-  //     case 'featured':
-  //     default:
-  //       filtered?.sort((a, b) => {
-  //         if (a.featured && !b.featured) return -1;
-  //         if (!a.featured && b.featured) return 1;
-  //         return b.rating - a.rating;
-  //       });
-  //   }
-
-  //   return filtered;
-  // }, [searchTerm, filters, sortBy, products, currentPage]);
-
-  // Pagination
-  // const totalPages = Math.ceil(filteredProducts?.length / PRODUCTS_PER_PAGE);
-  // const paginatedProducts = filteredProducts;
-
-  // Reset to first page when filters change
-  // React.useEffect(() => {
-  //   setCurrentPage(1);
-  // }, [searchTerm, filters, sortBy]);
+  const products = productsData?.products || [];
+  const totalProducts =
+    productsData?.pagination?.totalProducts ?? products.length;
+  const totalPages = productsData?.pagination?.totalPages || 1;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+    <div className="min-h-screen bg-white text-zinc-900">
       <Navbar />
 
-      <div className="max-w-8xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
         <div className="flex gap-8">
-          {/* Sidebar */}
           <FilterSidebar
             filters={filters}
             onFilterChange={setFilters}
             isOpen={isSidebarOpen}
             onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+            resultCount={totalProducts}
           />
 
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Results Header */}
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="mb-1 text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900">
                   Products
-                </h2>
-                <p className="text-gray-600">
-                  Showing {productsData?.products?.length} of{' '}
-                  {productsData?.products?.length} products
+                </h1>
+                <p className="mt-1 text-zinc-600">
+                  {isLoading ? 'Loading...' : `${totalProducts} products`}
                 </p>
               </div>
 
-              <div className="flex items-center gap-4">
-                <InputGroup>
-                  <InputGroupInput
-                    placeholder="Search..."
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative">
+                  <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                  <input
+                    type="text"
+                    placeholder="Search products..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full min-w-0 rounded-lg border border-zinc-300 py-2 pr-3 pl-9 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-amber-600 focus:ring-1 focus:ring-amber-600 focus:outline-none sm:w-56"
                   />
-                  <InputGroupAddon>
-                    <Search />
-                  </InputGroupAddon>
-                  {/* <InputGroupAddon align="inline-end">
-                    12 results
-                  </InputGroupAddon> */}
-                </InputGroup>
+                </div>
 
-                {/* <SearchBar
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                /> */}
-                {/* Mobile Filter Toggle */}
-
-                <Button
+                <button
                   onClick={() => setIsSidebarOpen(true)}
-                  variant="outline"
-                  className="cursor-pointer lg:hidden"
+                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-300 px-3.5 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 lg:hidden"
                 >
-                  <SlidersHorizontal className="h-[100px] w-[100px]" />
-                  <span className="text-sm font-medium">Filters</span>
-                </Button>
-                {/* <button className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50 lg:hidden">
                   <SlidersHorizontal className="h-4 w-4" />
-                  <span className="text-sm font-medium">Filters</span>
-                </button> */}
+                  Filters
+                </button>
 
-                {/* Sort Dropdown */}
-                {/* <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="featured">Featured</option>
-                  <option value="newest">Newest</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
-                </select> */}
-
-                <Select
-                  className="cursor-pointer"
-                  defaultValue={PRODUCT_SORT.FEATURED}
-                  value={sortBy}
-                  onValueChange={setSortBy}
-                >
-                  <SelectTrigger className="w-[180px] cursor-pointer">
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[170px] cursor-pointer rounded-lg">
                     <SelectValue placeholder="Featured" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>Sort By</SelectLabel>
+                      <SelectLabel>Sort by</SelectLabel>
                       <SelectItem value={PRODUCT_SORT.FEATURED}>
                         Featured
                       </SelectItem>
@@ -243,31 +124,18 @@ function Products() {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-
-                {/* View Toggle */}
-                <div className="hidden items-center overflow-hidden rounded-lg border border-gray-300 sm:flex">
-                  <button className="bg-blue-50 p-2 text-orange-600">
-                    <LayoutGrid className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 text-gray-400 hover:bg-gray-50">
-                    <Grid className="h-4 w-4" />
-                  </button>
-                </div>
               </div>
             </div>
 
-            {/* Products Grid */}
-            <ProductGrid
-              products={productsData?.products || []}
-              loading={isLoading}
-            />
+            <ProductGrid products={products} loading={isLoading} />
 
-            {/* Pagination */}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={5}
-              setCurrentPage={setCurrentPage}
-            />
+            {!isLoading && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                setCurrentPage={setCurrentPage}
+              />
+            )}
           </div>
         </div>
       </div>
