@@ -15,8 +15,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCreateProductMutation, useUpdateProductMutation } from '@/store/api/productApi';
 import { PRODUCT_CATEGORY_OPTIONS } from '@/constants/productCategories.constants';
-import { ArrowLeft, Eye, ImagePlus, Star } from 'lucide-react';
+import { PRODUCT_COLOR_SWATCHES } from '@/constants/productColors.constants';
+import { ArrowLeft, Eye, ImagePlus, Star, X, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const splitToList = (value) =>
   value
@@ -38,7 +40,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
     stock: '',
     brand: '',
     sizes: '',
-    colors: '',
+    colors: [],
     featured: false,
   });
   const [imageFiles, setImageFiles] = useState([]);
@@ -60,7 +62,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
         stock: String(editProduct.inStock ?? ''),
         brand: editProduct.brand || '',
         sizes: (editProduct.sizes || []).join(', '),
-        colors: (editProduct.colors || []).join(', '),
+        colors: editProduct.colors || [],
         featured: !!editProduct.featured,
       });
       setImagePreviewUrls((editProduct.images || []).map((img) => img.url));
@@ -122,7 +124,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
             inStock: parseInt(formData.stock, 10),
             brand: formData.brand.trim(),
             sizes: splitToList(formData.sizes),
-            colors: splitToList(formData.colors),
+            colors: formData.colors,
             featured: formData.featured,
           },
         }).unwrap();
@@ -138,7 +140,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
         body.append('brand', formData.brand.trim());
         body.append('featured', formData.featured);
         splitToList(formData.sizes).forEach((size) => body.append('sizes', size));
-        splitToList(formData.colors).forEach((color) => body.append('colors', color));
+        formData.colors.forEach((color) => body.append('colors', color));
         imageFiles.forEach((file) => body.append('image', file));
 
         await createProduct(body).unwrap();
@@ -160,13 +162,35 @@ const AddProductPage = ({ onBack, editProduct }) => {
     }
   };
 
+  const toggleColor = (colorName) => {
+    setFormData((prev) => ({
+      ...prev,
+      colors: prev.colors.includes(colorName)
+        ? prev.colors.filter((c) => c !== colorName)
+        : [...prev.colors, colorName],
+    }));
+  };
+
   const handleImageFilesChange = (e) => {
-    const files = Array.from(e.target.files || []).slice(0, 5);
-    setImageFiles(files);
-    setImagePreviewUrls(files.map((file) => URL.createObjectURL(file)));
+    const newFiles = Array.from(e.target.files || []);
+    e.target.value = ''; // allow re-selecting the same file after removal
+
+    setImageFiles((prev) => {
+      const combined = [...prev, ...newFiles].slice(0, 5);
+      setImagePreviewUrls(combined.map((file) => URL.createObjectURL(file)));
+      return combined;
+    });
     if (errors.image) {
       setErrors((prev) => ({ ...prev, image: '' }));
     }
+  };
+
+  const handleRemoveImage = (index) => {
+    setImageFiles((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      setImagePreviewUrls(next.map((file) => URL.createObjectURL(file)));
+      return next;
+    });
   };
 
   const previewHasDiscount =
@@ -329,36 +353,69 @@ const AddProductPage = ({ onBack, editProduct }) => {
                     />
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <Label htmlFor="sizes" className="mb-2">
-                        Sizes{' '}
-                        <span className="text-muted-foreground font-normal">
-                          — optional, comma separated
-                        </span>
-                      </Label>
-                      <Input
-                        id="sizes"
-                        value={formData.sizes}
-                        onChange={(e) => handleInputChange('sizes', e.target.value)}
-                        placeholder="S, M, L, XL"
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="sizes" className="mb-2">
+                      Sizes{' '}
+                      <span className="text-muted-foreground font-normal">
+                        — optional, comma separated
+                      </span>
+                    </Label>
+                    <Input
+                      id="sizes"
+                      value={formData.sizes}
+                      onChange={(e) => handleInputChange('sizes', e.target.value)}
+                      placeholder="S, M, L, XL"
+                    />
+                  </div>
 
-                    <div>
-                      <Label htmlFor="colors" className="mb-2">
-                        Colors{' '}
-                        <span className="text-muted-foreground font-normal">
-                          — optional, comma separated
-                        </span>
-                      </Label>
-                      <Input
-                        id="colors"
-                        value={formData.colors}
-                        onChange={(e) => handleInputChange('colors', e.target.value)}
-                        placeholder="Black, Amber, White"
-                      />
+                  <div>
+                    <Label className="mb-2">
+                      Colors{' '}
+                      <span className="text-muted-foreground font-normal">— optional</span>
+                    </Label>
+                    <div className="flex flex-wrap gap-3">
+                      {PRODUCT_COLOR_SWATCHES.map((swatch) => {
+                        const isSelected = formData.colors.includes(swatch.name);
+                        return (
+                          <button
+                            key={swatch.name}
+                            type="button"
+                            onClick={() => toggleColor(swatch.name)}
+                            title={swatch.name}
+                            aria-label={swatch.name}
+                            aria-pressed={isSelected}
+                            className={cn(
+                              'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all',
+                              isSelected
+                                ? 'border-amber-600 ring-2 ring-amber-100'
+                                : 'border-zinc-300 hover:border-zinc-400'
+                            )}
+                            style={{ backgroundColor: swatch.hex }}
+                          >
+                            {swatch.name.toLowerCase() === 'white' && (
+                              <div className="h-full w-full rounded-full border border-zinc-200" />
+                            )}
+                            {isSelected && (
+                              <Check
+                                className={cn(
+                                  'h-4 w-4',
+                                  ['White', 'Silver', 'Gold', 'Rose Gold', 'Tan'].includes(
+                                    swatch.name
+                                  )
+                                    ? 'text-zinc-900'
+                                    : 'text-white'
+                                )}
+                              />
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
+                    {formData.colors.length > 0 && (
+                      <p className="text-muted-foreground mt-2 text-sm">
+                        Selected: {formData.colors.join(', ')}
+                      </p>
+                    )}
                   </div>
 
                   <label
@@ -388,7 +445,7 @@ const AddProductPage = ({ onBack, editProduct }) => {
                     <p className="text-muted-foreground text-sm">
                       Images can&apos;t be changed when editing yet — the current images stay as-is.
                     </p>
-                  ) : (
+                  ) : imageFiles.length < 5 ? (
                     <label
                       htmlFor="images"
                       className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-zinc-300 px-6 py-8 text-center hover:border-amber-400 hover:bg-amber-50/40"
@@ -397,7 +454,9 @@ const AddProductPage = ({ onBack, editProduct }) => {
                       <span className="text-sm font-medium text-zinc-700">
                         Click to choose images
                       </span>
-                      <span className="text-muted-foreground text-xs">Up to 5 images, JPG or PNG</span>
+                      <span className="text-muted-foreground text-xs">
+                        {5 - imageFiles.length} more allowed — JPG or PNG
+                      </span>
                       <Input
                         id="images"
                         type="file"
@@ -407,17 +466,30 @@ const AddProductPage = ({ onBack, editProduct }) => {
                         className="hidden"
                       />
                     </label>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">
+                      5 image limit reached — remove one below to add another.
+                    </p>
                   )}
                   {errors.image && <p className="mt-1 text-sm text-red-500">{errors.image}</p>}
                   {imagePreviewUrls.length > 0 && (
                     <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
                       {imagePreviewUrls.map((url, index) => (
-                        <img
-                          key={index}
-                          src={url}
-                          alt={`Preview ${index + 1}`}
-                          className="h-20 w-full rounded-lg border object-cover"
-                        />
+                        <div key={index} className="group relative">
+                          <img
+                            src={url}
+                            alt={`Preview ${index + 1}`}
+                            className="h-20 w-full rounded-lg border object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(index)}
+                            className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                            aria-label={`Remove image ${index + 1}`}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
                       ))}
                     </div>
                   )}

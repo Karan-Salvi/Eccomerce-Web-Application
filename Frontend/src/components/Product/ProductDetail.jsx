@@ -25,6 +25,7 @@ import AddAddressDialog from './AddAddressDialog';
 import ReviewDialog from './ReviewDialog';
 import { ProductCard } from '../Products/ProductCard';
 import { Reveal } from '../Home/Reveal';
+import { getProductColorHex } from '../../constants/productColors.constants';
 
 const TABS = ['description', 'specifications', 'reviews'];
 
@@ -110,20 +111,7 @@ const ProductDetail = ({ product }) => {
     setQuantity(Math.max(1, quantity + change));
   };
 
-  const getColorStyle = (color) =>
-    ({
-      white: '#ffffff',
-      black: '#000000',
-      blue: '#3b82f6',
-      red: '#ef4444',
-      gray: '#6b7280',
-      brown: '#92400e',
-      tan: '#d2b48c',
-      silver: '#c0c0c0',
-      gold: '#ffd700',
-      'rose gold': '#e8b4b8',
-      tortoise: '#8b4513',
-    })[color.toLowerCase()] || '#9ca3af';
+  const getColorStyle = getProductColorHex;
 
   const renderStars = (rating, size = 'md') => {
     const sizeClass = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
