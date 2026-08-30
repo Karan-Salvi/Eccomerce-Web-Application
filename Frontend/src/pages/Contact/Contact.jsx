@@ -10,15 +10,15 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useSendContactMessageMutation } from '../../store/api/contactApi';
 
-const CONTACT_CARDS = [
+const CONTACT_ROWS = [
   {
     icon: MapPin,
-    title: 'Our Location',
+    title: 'Our location',
     lines: ['123 Commerce Street', 'San Francisco, CA 94103'],
   },
   {
     icon: Phone,
-    title: 'Phone Support',
+    title: 'Phone support',
     lines: ['+1 (555) 123-4567', 'Mon-Fri: 9AM-6PM PST'],
   },
   {
@@ -28,7 +28,7 @@ const CONTACT_CARDS = [
   },
   {
     icon: Headset,
-    title: 'Live Chat',
+    title: 'Live chat',
     lines: ['Available 24/7', 'via our website'],
   },
 ];
@@ -62,10 +62,10 @@ const FAQItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="mb-4 overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200">
+    <div className="py-2">
       <button
         type="button"
-        className="flex w-full items-center justify-between p-6 text-left"
+        className="flex w-full items-center justify-between gap-4 py-4 text-left"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
       >
@@ -74,11 +74,7 @@ const FAQItem = ({ question, answer }) => {
           className={`h-5 w-5 flex-shrink-0 text-zinc-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
-      {isOpen && (
-        <div className="px-6 pb-6">
-          <p className="text-zinc-600">{answer}</p>
-        </div>
-      )}
+      {isOpen && <p className="pb-4 pr-8 text-zinc-600">{answer}</p>}
     </div>
   );
 };
@@ -108,45 +104,70 @@ const Contact = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      {/* Hero */}
-      <section className="bg-zinc-900 py-16 text-white">
-        <Reveal className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-5xl">Get in Touch</h1>
-          <p className="mx-auto text-lg text-zinc-300 md:text-xl">
-            We'd love to hear from you. Whether you have a question about our products, need
-            help with an order, or want to share feedback, our team is ready to help.
-          </p>
-        </Reveal>
-      </section>
+      {/* Split hero: brand panel + form, mirrors the Login/Register language */}
+      <section className="grid grid-cols-1 lg:grid-cols-5">
+        <div className="relative overflow-hidden bg-zinc-900 px-6 py-16 text-white sm:px-10 lg:col-span-2 lg:py-24">
+          <div
+            className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-amber-600/20 blur-3xl"
+            aria-hidden="true"
+          />
+          <Reveal className="relative">
+            <h1 className="text-4xl font-bold tracking-tight md:text-5xl">Get in touch</h1>
+            <p className="mt-4 max-w-sm text-lg text-zinc-300">
+              Whether it's a question about your order, a product, or just feedback, our team
+              reads every message.
+            </p>
+          </Reveal>
 
-      {/* Main content */}
-      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Contact form */}
-          <Reveal className="rounded-2xl bg-white p-8 ring-1 ring-zinc-200">
+          <Reveal delay={0.1} className="mt-12 space-y-6">
+            {CONTACT_ROWS.map(({ icon: Icon, title, lines }) => (
+              <div key={title} className="flex items-start gap-4">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/10 text-amber-500">
+                  <Icon className="h-4.5 w-4.5" strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="font-semibold text-white">{title}</p>
+                  <p className="text-sm text-zinc-400">
+                    {lines.map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        {i < lines.length - 1 && <br />}
+                      </span>
+                    ))}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </Reveal>
+        </div>
+
+        <div className="flex items-center bg-zinc-50 px-6 py-16 sm:px-10 lg:col-span-3 lg:py-24">
+          <Reveal delay={0.15} className="mx-auto w-full max-w-xl rounded-2xl bg-white p-8 ring-1 ring-zinc-200 sm:p-10">
             <h2 className="mb-6 text-2xl font-bold text-zinc-900">Send us a message</h2>
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="contact-name">Full name</Label>
-                <Input
-                  id="contact-name"
-                  required
-                  placeholder="Jordan Patel"
-                  value={form.name}
-                  onChange={handleChange('name')}
-                />
-              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="contact-name">Full name</Label>
+                  <Input
+                    id="contact-name"
+                    required
+                    placeholder="Jordan Patel"
+                    value={form.name}
+                    onChange={handleChange('name')}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="contact-email">Email address</Label>
-                <Input
-                  id="contact-email"
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  value={form.email}
-                  onChange={handleChange('email')}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="contact-email">Email address</Label>
+                  <Input
+                    id="contact-email"
+                    type="email"
+                    required
+                    placeholder="you@example.com"
+                    value={form.email}
+                    onChange={handleChange('email')}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -198,38 +219,17 @@ const Contact = () => {
               </Button>
             </form>
           </Reveal>
-
-          {/* Contact info */}
-          <Reveal delay={0.1} className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {CONTACT_CARDS.map(({ icon: Icon, title, lines }) => (
-              <div key={title} className="rounded-2xl bg-white p-6 ring-1 ring-zinc-200">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-600">
-                  <Icon className="h-5 w-5" strokeWidth={2} />
-                </div>
-                <h3 className="mb-2 font-bold text-zinc-900">{title}</h3>
-                <p className="text-zinc-600">
-                  {lines.map((line, i) => (
-                    <span key={i}>
-                      {line}
-                      {i < lines.length - 1 && <br />}
-                    </span>
-                  ))}
-                </p>
-              </div>
-            ))}
-          </Reveal>
         </div>
-      </main>
+      </section>
 
       {/* FAQs */}
-      <section className="bg-zinc-50 py-16">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <Reveal>
-            <h2 className="mb-8 text-center text-3xl font-bold text-zinc-900">
-              Frequently Asked Questions
-            </h2>
+            <h2 className="mb-2 text-3xl font-bold text-zinc-900">Frequently asked questions</h2>
+            <p className="mb-8 text-zinc-600">Can't find what you're looking for? Send us a message above.</p>
           </Reveal>
-          <Reveal delay={0.1}>
+          <Reveal delay={0.1} className="divide-y divide-zinc-200 border-t border-zinc-200">
             {FAQS.map((faq) => (
               <FAQItem key={faq.question} question={faq.question} answer={faq.answer} />
             ))}
