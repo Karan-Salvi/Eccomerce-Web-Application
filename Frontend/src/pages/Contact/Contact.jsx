@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { ChevronDown, Headset, Loader2, Mail, MapPin, Phone } from 'lucide-react';
+import {
+  ChevronDown,
+  Headset,
+  Loader2,
+  Mail,
+  MapPin,
+  MessageSquareText,
+  Package,
+  Phone,
+  Sparkles,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 import Navbar from '../../components/Home/Navbar';
@@ -9,6 +19,14 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useSendContactMessageMutation } from '../../store/api/contactApi';
+
+const SUBJECTS = [
+  { value: 'general', label: 'General', icon: MessageSquareText },
+  { value: 'order', label: 'Order support', icon: Package },
+  { value: 'returns', label: 'Returns & refunds', icon: Package },
+  { value: 'feedback', label: 'Feedback', icon: Sparkles },
+  { value: 'other', label: 'Something else', icon: MessageSquareText },
+];
 
 const CONTACT_ROWS = [
   {
@@ -54,6 +72,16 @@ const FAQS = [
     answer:
       'Our customer support team is available via phone, email, and live chat during business hours. You can find all contact options on this page.',
   },
+  {
+    question: 'Can I change or cancel an order?',
+    answer:
+      "If your order hasn't shipped yet, contact us right away and we'll do our best to change or cancel it. Once it ships, you'll need to use our returns process.",
+  },
+  {
+    question: 'What payment methods do you accept?',
+    answer:
+      'We accept all major credit and debit cards, along with the standard digital wallets your browser or device already supports.',
+  },
 ];
 
 const EMPTY_FORM = { name: '', email: '', subject: '', message: '' };
@@ -62,19 +90,19 @@ const FAQItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="py-2">
+    <div className="rounded-2xl bg-white p-6 ring-1 ring-zinc-200">
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-4 py-4 text-left"
+        className="flex w-full cursor-pointer items-center justify-between gap-4 text-left"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
       >
-        <span className="font-medium text-zinc-900">{question}</span>
+        <span className="font-semibold text-zinc-900">{question}</span>
         <ChevronDown
           className={`h-5 w-5 flex-shrink-0 text-zinc-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
-      {isOpen && <p className="pb-4 pr-8 text-zinc-600">{answer}</p>}
+      {isOpen && <p className="mt-3 text-zinc-600">{answer}</p>}
     </div>
   );
 };
@@ -90,6 +118,11 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!form.subject) {
+      toast.error('Pick a subject so we can route your message correctly.');
+      return;
+    }
+
     try {
       const response = await sendContactMessage(form).unwrap();
       toast.success(response.message || "Thanks for reaching out. We'll get back to you soon.");
@@ -104,50 +137,51 @@ const Contact = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      {/* Split hero: brand panel + form, mirrors the Login/Register language */}
-      <section className="grid grid-cols-1 lg:grid-cols-5 lg:items-stretch">
-        <div className="relative flex flex-col overflow-hidden bg-zinc-900 px-6 py-16 text-white sm:px-10 lg:col-span-2 lg:py-20">
-          <span
-            className="pointer-events-none absolute -bottom-16 -left-6 font-serif text-[220px] leading-none text-white/[0.05] select-none"
-            aria-hidden="true"
-          >
-            &ldquo;
-          </span>
-
-          <Reveal className="relative">
-            <h1 className="text-4xl font-bold tracking-tight md:text-5xl">Get in touch</h1>
-            <p className="mt-4 max-w-sm text-lg text-zinc-300">
-              Whether it's a question about your order, a product, or just feedback, our team
-              reads every message.
+      {/* Hero: asymmetric, left-set, no centered block */}
+      <section className="border-b border-zinc-100 bg-zinc-50">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+          <Reveal className="max-w-2xl">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 md:text-5xl">
+              How can we help?
+            </h1>
+            <p className="mt-4 text-lg text-zinc-600">
+              Pick what this is about, tell us what's going on, and a real person on our team
+              will get back to you, usually within one business day.
             </p>
           </Reveal>
+        </div>
+      </section>
 
-          <Reveal delay={0.1} className="relative mt-12 space-y-6 lg:mt-auto lg:pt-12">
-            {CONTACT_ROWS.map(({ icon: Icon, title, lines }) => (
-              <div key={title} className="flex items-start gap-4">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/10 text-amber-500 ring-1 ring-white/10">
-                  <Icon className="h-4.5 w-4.5" strokeWidth={2} />
-                </div>
-                <div>
-                  <p className="font-semibold text-white">{title}</p>
-                  <p className="text-sm text-zinc-400">
-                    {lines.map((line, i) => (
-                      <span key={i}>
-                        {line}
-                        {i < lines.length - 1 && <br />}
-                      </span>
-                    ))}
-                  </p>
+      {/* Form as the page's centerpiece, channels as a slim rail */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-5">
+          <Reveal className="lg:col-span-3">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-3">
+                <Label>What's this about?</Label>
+                <div className="flex flex-wrap gap-2">
+                  {SUBJECTS.map(({ value, label, icon: Icon }) => {
+                    const isSelected = form.subject === value;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setForm((prev) => ({ ...prev, subject: value }))}
+                        aria-pressed={isSelected}
+                        className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                          isSelected
+                            ? 'border-amber-600 bg-amber-600 text-white'
+                            : 'border-zinc-300 text-zinc-700 hover:border-zinc-400'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
-          </Reveal>
-        </div>
 
-        <div className="bg-zinc-50 px-6 py-16 sm:px-10 lg:col-span-3 lg:py-20">
-          <Reveal delay={0.15} className="mx-auto w-full max-w-xl rounded-2xl bg-white p-8 ring-1 ring-zinc-200 sm:p-10">
-            <h2 className="mb-6 text-2xl font-bold text-zinc-900">Send us a message</h2>
-            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="contact-name">Full name</Label>
@@ -174,30 +208,10 @@ const Contact = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contact-subject">Subject</Label>
-                <select
-                  id="contact-subject"
-                  required
-                  value={form.subject}
-                  onChange={handleChange('subject')}
-                  className="border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm"
-                >
-                  <option value="" disabled>
-                    Select a subject
-                  </option>
-                  <option value="general">General Inquiry</option>
-                  <option value="order">Order Support</option>
-                  <option value="returns">Returns &amp; Refunds</option>
-                  <option value="feedback">Feedback</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="contact-message">Message</Label>
                 <textarea
                   id="contact-message"
-                  rows={5}
+                  rows={6}
                   required
                   placeholder="Your message here..."
                   value={form.message}
@@ -206,34 +220,60 @@ const Contact = () => {
                 />
               </div>
 
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full rounded-full bg-zinc-900 py-2.5 font-semibold text-white hover:bg-zinc-800 sm:w-auto sm:px-8"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending
-                  </>
-                ) : (
-                  'Send message'
-                )}
-              </Button>
-              <p className="text-sm text-zinc-500">We typically reply within one business day.</p>
+              <div className="flex flex-wrap items-center gap-4">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="rounded-full bg-zinc-900 px-8 py-2.5 font-semibold text-white hover:bg-zinc-800"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending
+                    </>
+                  ) : (
+                    'Send message'
+                  )}
+                </Button>
+                <p className="text-sm text-zinc-500">We typically reply within one business day.</p>
+              </div>
             </form>
+          </Reveal>
+
+          {/* Channels rail */}
+          <Reveal delay={0.1} className="lg:col-span-2">
+            <div className="divide-y divide-zinc-200 rounded-2xl bg-zinc-50 ring-1 ring-zinc-200">
+              {CONTACT_ROWS.map(({ icon: Icon, title, lines }) => (
+                <div key={title} className="flex items-start gap-4 p-5">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-amber-600 ring-1 ring-zinc-200">
+                    <Icon className="h-4.5 w-4.5" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-zinc-900">{title}</p>
+                    <p className="text-sm text-zinc-500">
+                      {lines.map((line, i) => (
+                        <span key={i}>
+                          {line}
+                          {i < lines.length - 1 && <br />}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </Reveal>
         </div>
       </section>
 
-      {/* FAQs */}
-      <section className="bg-white py-16">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <h2 className="mb-2 text-3xl font-bold text-zinc-900">Frequently asked questions</h2>
-            <p className="mb-8 text-zinc-600">Can't find what you're looking for? Send us a message above.</p>
+      {/* FAQs: two-column bento instead of a single long list */}
+      <section className="bg-zinc-50 py-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <Reveal className="mb-10 max-w-xl">
+            <h2 className="text-3xl font-bold text-zinc-900">Frequently asked questions</h2>
+            <p className="mt-2 text-zinc-600">Can't find what you're looking for? Send us a message above.</p>
           </Reveal>
-          <Reveal delay={0.1} className="divide-y divide-zinc-200 border-t border-zinc-200">
+          <Reveal delay={0.1} className="grid gap-4 sm:grid-cols-2">
             {FAQS.map((faq) => (
               <FAQItem key={faq.question} question={faq.question} answer={faq.answer} />
             ))}
