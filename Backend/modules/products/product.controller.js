@@ -545,10 +545,24 @@ export const getProductDetails = catchAsyncErrors(async (req, res) => {
     const cachedProduct = await redisClient.get(cacheKey);
     if (cachedProduct) {
       logger.info(`Product ${productId} served from Redis`);
+      const parsedProduct = JSON.parse(cachedProduct);
+
+      // Preference tracking must run on every view, not just cache misses —
+      // this cache key is shared across all users, so without this a cache
+      // hit (the common case) silently skipped recording anyone's view.
+      if (req.user && req.user._id) {
+        await updateUserPreferences(req.user._id, {
+          productId: parsedProduct._id,
+          category: parsedProduct.category,
+          brand: parsedProduct.brand,
+          tags: parsedProduct.tags,
+        });
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Fetched from cache',
-        data: JSON.parse(cachedProduct),
+        data: parsedProduct,
       });
     }
   } catch (err) {
