@@ -34,7 +34,11 @@ const App = () => {
             path="/wishlist"
             element={
               <ProtectedRoute
-                allowedRoles={[USER_ROLES.USER, USER_ROLES.VENDER]}
+                allowedRoles={[
+                  USER_ROLES.USER,
+                  USER_ROLES.VENDER,
+                  USER_ROLES.ADMIN,
+                ]}
               >
                 <WishPage />
               </ProtectedRoute>
@@ -68,7 +72,11 @@ const App = () => {
             path="/cart"
             element={
               <ProtectedRoute
-                allowedRoles={[USER_ROLES.USER, USER_ROLES.VENDER]}
+                allowedRoles={[
+                  USER_ROLES.USER,
+                  USER_ROLES.VENDER,
+                  USER_ROLES.ADMIN,
+                ]}
               >
                 <Cart />
               </ProtectedRoute>
@@ -78,7 +86,11 @@ const App = () => {
             path="/profile"
             element={
               <ProtectedRoute
-                allowedRoles={[USER_ROLES.USER, USER_ROLES.VENDER]}
+                allowedRoles={[
+                  USER_ROLES.USER,
+                  USER_ROLES.VENDER,
+                  USER_ROLES.ADMIN,
+                ]}
               >
                 <Profile />
               </ProtectedRoute>

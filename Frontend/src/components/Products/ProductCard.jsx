@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   useAddToCartMutation,
   useAddToWishlistMutation,
+  useRemoveFromWishlistMutation,
 } from '../../store/api/authApi';
 import { useSelector } from 'react-redux';
 
@@ -30,7 +31,18 @@ export const ProductCard = ({ product }) => {
     : 0;
 
   const [addToWishlist] = useAddToWishlistMutation();
+  const [removeFromWishlist] = useRemoveFromWishlistMutation();
   const [addToCart] = useAddToCartMutation();
+
+  const handleToggleWishlist = () => {
+    const nextWishlisted = !isWishlisted;
+    setIsWishlisted(nextWishlisted);
+    if (nextWishlisted) {
+      addToWishlist({ productId: product._id });
+    } else {
+      removeFromWishlist(product._id);
+    }
+  };
 
   return (
     <div className="group relative overflow-hidden rounded-[20px] bg-white shadow-sm ring-1 ring-zinc-200 transition-shadow duration-300 hover:shadow-lg">
@@ -63,12 +75,7 @@ export const ProductCard = ({ product }) => {
 
         {/* Wishlist Button */}
         <button
-          onClick={() => {
-            setIsWishlisted(!isWishlisted);
-            addToWishlist({
-              productId: product._id,
-            });
-          }}
+          onClick={handleToggleWishlist}
           aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           className={`absolute top-3 right-3 cursor-pointer rounded-full p-2 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none ${
             isWishlisted
