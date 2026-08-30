@@ -22,6 +22,7 @@ import { useSelector } from 'react-redux';
 import Share from '../Share/Share';
 import PlaceOrderButton from './PlaceOrderButton';
 import AddAddressDialog from './AddAddressDialog';
+import ReviewDialog from './ReviewDialog';
 import { ProductCard } from '../Products/ProductCard';
 import { Reveal } from '../Home/Reveal';
 
@@ -35,7 +36,7 @@ const ProductDetail = ({ product }) => {
     location.search +
     location.hash;
 
-  const { user } = useSelector((state) => state.auth);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   const isInCart = user?.data?.cart?.some(
     (item) => item.productId?._id === product._id
@@ -58,6 +59,7 @@ const ProductDetail = ({ product }) => {
   // without waiting on a user-refetch that nothing in the app currently triggers.
   const [pendingAddress, setPendingAddress] = useState(null);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
   const savedAddress = user?.data?.addressInfo?.[0];
   const shippingAddress = pendingAddress || savedAddress;
 
@@ -497,7 +499,17 @@ const ProductDetail = ({ product }) => {
                       </span>
                     </div>
                   </div>
-                  <button className="cursor-pointer rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:border-amber-600 hover:text-amber-600">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        navigate('/login');
+                        return;
+                      }
+                      setShowReviewDialog(true);
+                    }}
+                    className="cursor-pointer rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:border-amber-600 hover:text-amber-600"
+                  >
                     Write a Review
                   </button>
                 </div>
@@ -588,6 +600,13 @@ const ProductDetail = ({ product }) => {
           setPendingAddress(address);
           setShowAddressDialog(false);
         }}
+      />
+
+      <ReviewDialog
+        open={showReviewDialog}
+        onOpenChange={setShowReviewDialog}
+        productId={product._id}
+        productName={product.name}
       />
     </div>
   );

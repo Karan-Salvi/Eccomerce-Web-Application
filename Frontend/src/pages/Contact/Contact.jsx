@@ -105,12 +105,15 @@ const Contact = () => {
       <Navbar />
 
       {/* Split hero: brand panel + form, mirrors the Login/Register language */}
-      <section className="grid grid-cols-1 lg:grid-cols-5">
-        <div className="relative overflow-hidden bg-zinc-900 px-6 py-16 text-white sm:px-10 lg:col-span-2 lg:py-24">
-          <div
-            className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-amber-600/20 blur-3xl"
+      <section className="grid grid-cols-1 lg:grid-cols-5 lg:items-stretch">
+        <div className="relative flex flex-col overflow-hidden bg-zinc-900 px-6 py-16 text-white sm:px-10 lg:col-span-2 lg:py-20">
+          <span
+            className="pointer-events-none absolute -bottom-16 -left-6 font-serif text-[220px] leading-none text-white/[0.05] select-none"
             aria-hidden="true"
-          />
+          >
+            &ldquo;
+          </span>
+
           <Reveal className="relative">
             <h1 className="text-4xl font-bold tracking-tight md:text-5xl">Get in touch</h1>
             <p className="mt-4 max-w-sm text-lg text-zinc-300">
@@ -119,10 +122,10 @@ const Contact = () => {
             </p>
           </Reveal>
 
-          <Reveal delay={0.1} className="mt-12 space-y-6">
+          <Reveal delay={0.1} className="relative mt-12 space-y-6 lg:mt-auto lg:pt-12">
             {CONTACT_ROWS.map(({ icon: Icon, title, lines }) => (
               <div key={title} className="flex items-start gap-4">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/10 text-amber-500">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/10 text-amber-500 ring-1 ring-white/10">
                   <Icon className="h-4.5 w-4.5" strokeWidth={2} />
                 </div>
                 <div>
@@ -141,7 +144,7 @@ const Contact = () => {
           </Reveal>
         </div>
 
-        <div className="flex items-center bg-zinc-50 px-6 py-16 sm:px-10 lg:col-span-3 lg:py-24">
+        <div className="bg-zinc-50 px-6 py-16 sm:px-10 lg:col-span-3 lg:py-20">
           <Reveal delay={0.15} className="mx-auto w-full max-w-xl rounded-2xl bg-white p-8 ring-1 ring-zinc-200 sm:p-10">
             <h2 className="mb-6 text-2xl font-bold text-zinc-900">Send us a message</h2>
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -217,6 +220,7 @@ const Contact = () => {
                   'Send message'
                 )}
               </Button>
+              <p className="text-sm text-zinc-500">We typically reply within one business day.</p>
             </form>
           </Reveal>
         </div>
