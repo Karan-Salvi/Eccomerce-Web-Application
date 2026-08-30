@@ -19,7 +19,7 @@ import { Trash2, Search, PackageSearch, Package } from 'lucide-react';
 
 const formatCurrency = (value) => `₹${new Intl.NumberFormat('en-US').format(Math.round(value))}`;
 
-const ProductsPage = () => {
+const ProductsPage = ({ onViewProduct }) => {
   const { data: productsData, isLoading } = useGetAllProductsQuery();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const [search, setSearch] = useState('');
@@ -93,7 +93,11 @@ const ProductsPage = () => {
               </thead>
               <tbody className="divide-y">
                 {filteredProducts.map((product) => (
-                  <tr key={product._id}>
+                  <tr
+                    key={product._id}
+                    onClick={() => onViewProduct(product)}
+                    className="cursor-pointer hover:bg-zinc-50"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-100">
@@ -122,7 +126,10 @@ const ProductsPage = () => {
                         variant="ghost"
                         size="sm"
                         className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                        onClick={() => setDeleteTargetId(product._id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteTargetId(product._id);
+                        }}
                         disabled={isDeleting}
                       >
                         <Trash2 className="h-4 w-4" />

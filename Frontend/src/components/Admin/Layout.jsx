@@ -103,7 +103,9 @@ const Layout = ({ children, currentView, onViewChange }) => {
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold capitalize">{currentView}</h1>
+            <h1 className="text-xl font-semibold capitalize">
+              {currentView.replace(/-/g, ' ')}
+            </h1>
           </div>
         </header>
 

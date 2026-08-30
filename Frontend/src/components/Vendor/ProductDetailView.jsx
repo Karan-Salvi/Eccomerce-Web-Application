@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit, Star, Package, Tag } from 'lucide-react';
+import { ArrowLeft, Star, Package, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const ProductDetailView = ({ product, onBack, onEdit }) => {
+const ProductDetailView = ({ product, onBack, actions }) => {
   const images = product.images?.length ? product.images : [{ url: null }];
   const [activeImage, setActiveImage] = useState(0);
 
@@ -28,13 +28,7 @@ const ProductDetailView = ({ product, onBack, onEdit }) => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Products
         </Button>
-        <Button
-          onClick={() => onEdit(product)}
-          className="rounded-full bg-amber-600 hover:bg-amber-700"
-        >
-          <Edit className="mr-2 h-4 w-4" />
-          Edit Product
-        </Button>
+        {actions}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

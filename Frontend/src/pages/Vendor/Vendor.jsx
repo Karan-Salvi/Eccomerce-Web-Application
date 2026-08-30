@@ -4,6 +4,8 @@ import Dashboard from '../../components/Vendor/Dashboard';
 import ProductsPage from '../../components/Vendor/ProductsPage';
 import AddProductPage from '../../components/Vendor/AddProductPage';
 import ProductDetailView from '../../components/Vendor/ProductDetailView';
+import { Button } from '@/components/ui/button';
+import { Edit } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
 
 function Vendor() {
@@ -67,7 +69,15 @@ function Vendor() {
           <ProductDetailView
             product={viewingProduct}
             onBack={handleBackToProducts}
-            onEdit={handleEditProduct}
+            actions={
+              <Button
+                onClick={() => handleEditProduct(viewingProduct)}
+                className="rounded-full bg-amber-600 hover:bg-amber-700"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Product
+              </Button>
+            }
           />
         );
       default:
