@@ -151,7 +151,7 @@ export const authApi = createApi({
         method: 'POST',
         body: productId,
       }),
-      invalidatesTags: ['User'],
+      onQueryStarted: syncUserFromResponse,
     }),
 
     removeFromWishlist: builder.mutation({
@@ -160,7 +160,7 @@ export const authApi = createApi({
         method: 'DELETE',
         body: { productId },
       }),
-      invalidatesTags: ['User'],
+      onQueryStarted: syncUserFromResponse,
     }),
 
     // Cart Section

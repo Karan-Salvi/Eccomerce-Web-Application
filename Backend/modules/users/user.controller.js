@@ -568,9 +568,15 @@ export const addToWishlist = catchAsyncErrors(async (req, res) => {
 
   // Check if the product is already in the wishlist
   if (user.wishlist.some((id) => id.equals(productId))) {
+    const currentUser = await User.findById(userId)
+      .select('-password -resetPasswordToken -resetPasswordExpiry')
+      .populate('wishlist')
+      .populate('cart.productId');
+
     return res.status(200).json({
       success: true,
       message: 'Product already in wishlist',
+      data: currentUser,
     });
   }
 
@@ -578,8 +584,14 @@ export const addToWishlist = catchAsyncErrors(async (req, res) => {
   user.wishlist.push(productId);
   await user.save();
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
+    data: updatedUser,
     message: 'Product added to wishlist successfully',
   });
 });
@@ -610,9 +622,15 @@ export const removeFromWishlist = catchAsyncErrors(async (req, res) => {
 
   await user.save();
 
+  const updatedUser = await User.findById(userId)
+    .select('-password -resetPasswordToken -resetPasswordExpiry')
+    .populate('wishlist')
+    .populate('cart.productId');
+
   return res.status(200).json({
     success: true,
     message: 'Product removed from wishlist successfully',
+    data: updatedUser,
   });
 });
 
