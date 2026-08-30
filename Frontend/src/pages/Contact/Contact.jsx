@@ -273,7 +273,7 @@ const Contact = () => {
             <h2 className="text-3xl font-bold text-zinc-900">Frequently asked questions</h2>
             <p className="mt-2 text-zinc-600">Can't find what you're looking for? Send us a message above.</p>
           </Reveal>
-          <Reveal delay={0.1} className="grid gap-4 sm:grid-cols-2">
+          <Reveal delay={0.1} className="grid items-start gap-4 sm:grid-cols-2">
             {FAQS.map((faq) => (
               <FAQItem key={faq.question} question={faq.question} answer={faq.answer} />
             ))}
