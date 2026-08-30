@@ -19,6 +19,14 @@ export const stockSchema = z.coerce
   .nonnegative()
   .max(9999, 'Stock cannot exceed 4 digits');
 
+// multipart/form-data collapses a single repeated field (e.g. one `sizes`
+// entry) down to a bare string instead of a 1-element array — normalize
+// before validating so both single- and multi-value submissions work.
+const stringListSchema = z.preprocess(
+  (v) => (v === undefined ? v : Array.isArray(v) ? v : [v]),
+  z.array(z.string())
+);
+
 export const createProductSchema = z.object({
   body: z.object({
     name: z.string().trim().min(1, 'Product name is required'),
@@ -29,15 +37,18 @@ export const createProductSchema = z.object({
 
     ratings: z.coerce.number().min(0).max(5).optional(),
 
-    sizes: z.array(z.string()).optional(),
-    colors: z.array(z.string()).optional(),
+    sizes: stringListSchema.optional(),
+    colors: stringListSchema.optional(),
 
     brand: z.string().optional(),
 
     category: z.string().min(1, 'Category is required'),
 
     inStock: stockSchema.optional(), // default exists in schema
-    featured: z.boolean().optional(),
+    featured: z
+      .union([z.boolean(), z.enum(['true', 'false'])])
+      .transform((v) => v === true || v === 'true')
+      .optional(),
   }),
 });
 
@@ -54,8 +65,8 @@ export const updateProductSchema = z.object({
 
     ratings: z.coerce.number().min(0).max(5).optional(),
 
-    sizes: z.array(z.string()).optional(),
-    colors: z.array(z.string()).optional(),
+    sizes: stringListSchema.optional(),
+    colors: stringListSchema.optional(),
 
     brand: z.string().optional(),
     category: z.string().optional(),

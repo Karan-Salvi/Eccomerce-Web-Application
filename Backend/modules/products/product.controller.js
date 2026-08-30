@@ -35,7 +35,19 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
 
   const images = uploadedImages.map((image) => ({ url: image }));
 
-  const { name, description, price, originalPrice, ratings, category, inStock } = req.body;
+  const {
+    name,
+    description,
+    price,
+    originalPrice,
+    ratings,
+    category,
+    inStock,
+    brand,
+    sizes,
+    colors,
+    featured,
+  } = req.body;
 
   const product = await Product.create({
     name,
@@ -45,6 +57,10 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
     ratings,
     category,
     inStock,
+    brand,
+    sizes,
+    colors,
+    featured,
     images,
     createdBy: req.user._id,
   });

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -14,24 +15,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCreateProductMutation, useUpdateProductMutation } from '@/store/api/productApi';
 import { PRODUCT_CATEGORY_OPTIONS } from '@/constants/productCategories.constants';
-import { ArrowLeft, Eye } from 'lucide-react';
+import { ArrowLeft, Eye, ImagePlus, Star } from 'lucide-react';
 import { toast } from 'sonner';
 
+const splitToList = (value) =>
+  value
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean);
+
 const AddProductPage = ({ onBack, editProduct }) => {
-  const [createProduct] = useCreateProductMutation();
-  const [updateProduct] = useUpdateProductMutation();
+  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
+  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
+  const isSubmitting = isCreating || isUpdating;
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
+    originalPrice: '',
     category: '',
     stock: '',
+    brand: '',
+    sizes: '',
+    colors: '',
+    featured: false,
   });
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState([]);
 
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (editProduct) {
@@ -39,8 +52,16 @@ const AddProductPage = ({ onBack, editProduct }) => {
         name: editProduct.name,
         description: editProduct.description,
         price: editProduct.price.toString(),
+        originalPrice:
+          editProduct.originalPrice && editProduct.originalPrice !== editProduct.price
+            ? editProduct.originalPrice.toString()
+            : '',
         category: editProduct.category,
         stock: String(editProduct.inStock ?? ''),
+        brand: editProduct.brand || '',
+        sizes: (editProduct.sizes || []).join(', '),
+        colors: (editProduct.colors || []).join(', '),
+        featured: !!editProduct.featured,
       });
       setImagePreviewUrls((editProduct.images || []).map((img) => img.url));
     }
@@ -58,10 +79,16 @@ const AddProductPage = ({ onBack, editProduct }) => {
     if (!formData.price || parseFloat(formData.price) <= 0) {
       newErrors.price = 'Valid price is required';
     }
+    if (
+      formData.originalPrice &&
+      parseFloat(formData.originalPrice) < parseFloat(formData.price || 0)
+    ) {
+      newErrors.originalPrice = 'Original price must be at or above the selling price';
+    }
     if (!formData.category) {
       newErrors.category = 'Category is required';
     }
-    if (!formData.stock || parseInt(formData.stock) < 0) {
+    if (!formData.stock || parseInt(formData.stock, 10) < 0) {
       newErrors.stock = 'Valid stock quantity is required';
     }
     if (!editProduct && imageFiles.length === 0) {
@@ -79,7 +106,8 @@ const AddProductPage = ({ onBack, editProduct }) => {
       return;
     }
 
-    setIsSubmitting(true);
+    const price = parseFloat(formData.price);
+    const originalPrice = formData.originalPrice ? parseFloat(formData.originalPrice) : price;
 
     try {
       if (editProduct) {
@@ -88,10 +116,14 @@ const AddProductPage = ({ onBack, editProduct }) => {
           data: {
             name: formData.name.trim(),
             description: formData.description.trim(),
-            price: parseFloat(formData.price),
-            originalPrice: parseFloat(formData.price),
+            price,
+            originalPrice,
             category: formData.category,
             inStock: parseInt(formData.stock, 10),
+            brand: formData.brand.trim(),
+            sizes: splitToList(formData.sizes),
+            colors: splitToList(formData.colors),
+            featured: formData.featured,
           },
         }).unwrap();
         toast.success('Product updated successfully');
@@ -99,10 +131,14 @@ const AddProductPage = ({ onBack, editProduct }) => {
         const body = new FormData();
         body.append('name', formData.name.trim());
         body.append('description', formData.description.trim());
-        body.append('price', formData.price);
-        body.append('originalPrice', formData.price);
+        body.append('price', price);
+        body.append('originalPrice', originalPrice);
         body.append('category', formData.category);
         body.append('inStock', formData.stock);
+        body.append('brand', formData.brand.trim());
+        body.append('featured', formData.featured);
+        splitToList(formData.sizes).forEach((size) => body.append('sizes', size));
+        splitToList(formData.colors).forEach((color) => body.append('colors', color));
         imageFiles.forEach((file) => body.append('image', file));
 
         await createProduct(body).unwrap();
@@ -111,9 +147,9 @@ const AddProductPage = ({ onBack, editProduct }) => {
 
       onBack();
     } catch (error) {
-      toast.error(error?.data?.message || 'There was an error saving your product. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+      toast.error(
+        error?.data?.message || 'There was an error saving your product. Please try again.'
+      );
     }
   };
 
@@ -133,24 +169,30 @@ const AddProductPage = ({ onBack, editProduct }) => {
     }
   };
 
+  const previewHasDiscount =
+    formData.originalPrice && parseFloat(formData.originalPrice) > parseFloat(formData.price || 0);
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={onBack}>
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          className="text-zinc-600 hover:text-amber-700"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Products
         </Button>
-        <div>
-          <h2 className="text-2xl font-bold">
-            {editProduct ? 'Edit Product' : 'Add New Product'}
-          </h2>
-          <p className="text-muted-foreground">
-            {editProduct
-              ? 'Update your product information'
-              : 'Create a new product for your store'}
-          </p>
-        </div>
+      </div>
+
+      <div>
+        <h2 className="text-2xl font-bold text-zinc-900">
+          {editProduct ? 'Edit Product' : 'Add New Product'}
+        </h2>
+        <p className="text-muted-foreground">
+          {editProduct ? 'Update your product information' : 'Create a new product for your store'}
+        </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -171,15 +213,11 @@ const AddProductPage = ({ onBack, editProduct }) => {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) =>
-                        handleInputChange('name', e.target.value)
-                      }
+                      onChange={(e) => handleInputChange('name', e.target.value)}
                       placeholder="Enter product name"
                       className={errors.name ? 'border-red-500' : ''}
                     />
-                    {errors.name && (
-                      <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-                    )}
+                    {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
                   </div>
 
                   <div>
@@ -189,17 +227,13 @@ const AddProductPage = ({ onBack, editProduct }) => {
                     <Textarea
                       id="description"
                       value={formData.description}
-                      onChange={(e) =>
-                        handleInputChange('description', e.target.value)
-                      }
+                      onChange={(e) => handleInputChange('description', e.target.value)}
                       placeholder="Enter product description"
                       rows={4}
                       className={errors.description ? 'border-red-500' : ''}
                     />
                     {errors.description && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.description}
-                      </p>
+                      <p className="mt-1 text-sm text-red-500">{errors.description}</p>
                     )}
                   </div>
 
@@ -213,19 +247,36 @@ const AddProductPage = ({ onBack, editProduct }) => {
                         type="number"
                         step="0.01"
                         value={formData.price}
-                        onChange={(e) =>
-                          handleInputChange('price', e.target.value)
-                        }
+                        onChange={(e) => handleInputChange('price', e.target.value)}
                         placeholder="0.00"
                         className={errors.price ? 'border-red-500' : ''}
                       />
-                      {errors.price && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {errors.price}
-                        </p>
-                      )}
+                      {errors.price && <p className="mt-1 text-sm text-red-500">{errors.price}</p>}
                     </div>
 
+                    <div>
+                      <Label htmlFor="originalPrice" className="mb-2">
+                        Original Price (₹){' '}
+                        <span className="text-muted-foreground font-normal">
+                          — optional, shows a discount
+                        </span>
+                      </Label>
+                      <Input
+                        id="originalPrice"
+                        type="number"
+                        step="0.01"
+                        value={formData.originalPrice}
+                        onChange={(e) => handleInputChange('originalPrice', e.target.value)}
+                        placeholder="Same as price"
+                        className={errors.originalPrice ? 'border-red-500' : ''}
+                      />
+                      {errors.originalPrice && (
+                        <p className="mt-1 text-sm text-red-500">{errors.originalPrice}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <Label htmlFor="stock" className="mb-2">
                         Stock Quantity
@@ -234,34 +285,22 @@ const AddProductPage = ({ onBack, editProduct }) => {
                         id="stock"
                         type="number"
                         value={formData.stock}
-                        onChange={(e) =>
-                          handleInputChange('stock', e.target.value)
-                        }
+                        onChange={(e) => handleInputChange('stock', e.target.value)}
                         placeholder="0"
                         className={errors.stock ? 'border-red-500' : ''}
                       />
-                      {errors.stock && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {errors.stock}
-                        </p>
-                      )}
+                      {errors.stock && <p className="mt-1 text-sm text-red-500">{errors.stock}</p>}
                     </div>
-                  </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <Label htmlFor="category" className="mb-2">
                         Category
                       </Label>
                       <Select
                         value={formData.category}
-                        onValueChange={(value) =>
-                          handleInputChange('category', value)
-                        }
+                        onValueChange={(value) => handleInputChange('category', value)}
                       >
-                        <SelectTrigger
-                          className={errors.category ? 'border-red-500' : ''}
-                        >
+                        <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -273,13 +312,73 @@ const AddProductPage = ({ onBack, editProduct }) => {
                         </SelectContent>
                       </Select>
                       {errors.category && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {errors.category}
-                        </p>
+                        <p className="mt-1 text-sm text-red-500">{errors.category}</p>
                       )}
                     </div>
-
                   </div>
+
+                  <div>
+                    <Label htmlFor="brand" className="mb-2">
+                      Brand <span className="text-muted-foreground font-normal">— optional</span>
+                    </Label>
+                    <Input
+                      id="brand"
+                      value={formData.brand}
+                      onChange={(e) => handleInputChange('brand', e.target.value)}
+                      placeholder="e.g. CartLoop Basics"
+                    />
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor="sizes" className="mb-2">
+                        Sizes{' '}
+                        <span className="text-muted-foreground font-normal">
+                          — optional, comma separated
+                        </span>
+                      </Label>
+                      <Input
+                        id="sizes"
+                        value={formData.sizes}
+                        onChange={(e) => handleInputChange('sizes', e.target.value)}
+                        placeholder="S, M, L, XL"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="colors" className="mb-2">
+                        Colors{' '}
+                        <span className="text-muted-foreground font-normal">
+                          — optional, comma separated
+                        </span>
+                      </Label>
+                      <Input
+                        id="colors"
+                        value={formData.colors}
+                        onChange={(e) => handleInputChange('colors', e.target.value)}
+                        placeholder="Black, Amber, White"
+                      />
+                    </div>
+                  </div>
+
+                  <label
+                    htmlFor="featured"
+                    className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-200 p-4"
+                  >
+                    <Checkbox
+                      id="featured"
+                      checked={formData.featured}
+                      onCheckedChange={(checked) => handleInputChange('featured', checked === true)}
+                    />
+                    <span>
+                      <span className="block text-sm font-medium text-zinc-900">
+                        Feature this product
+                      </span>
+                      <span className="text-muted-foreground text-sm">
+                        Featured products get priority placement on the storefront.
+                      </span>
+                    </span>
+                  </label>
                 </div>
 
                 {/* Image Upload */}
@@ -290,20 +389,28 @@ const AddProductPage = ({ onBack, editProduct }) => {
                       Images can&apos;t be changed when editing yet — the current images stay as-is.
                     </p>
                   ) : (
-                    <Input
-                      id="images"
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageFilesChange}
-                      className={errors.image ? 'border-red-500' : ''}
-                    />
+                    <label
+                      htmlFor="images"
+                      className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-zinc-300 px-6 py-8 text-center hover:border-amber-400 hover:bg-amber-50/40"
+                    >
+                      <ImagePlus className="h-6 w-6 text-zinc-400" />
+                      <span className="text-sm font-medium text-zinc-700">
+                        Click to choose images
+                      </span>
+                      <span className="text-muted-foreground text-xs">Up to 5 images, JPG or PNG</span>
+                      <Input
+                        id="images"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageFilesChange}
+                        className="hidden"
+                      />
+                    </label>
                   )}
-                  {errors.image && (
-                    <p className="mt-1 text-sm text-red-500">{errors.image}</p>
-                  )}
+                  {errors.image && <p className="mt-1 text-sm text-red-500">{errors.image}</p>}
                   {imagePreviewUrls.length > 0 && (
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
                       {imagePreviewUrls.map((url, index) => (
                         <img
                           key={index}
@@ -321,15 +428,15 @@ const AddProductPage = ({ onBack, editProduct }) => {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1"
+                    className="flex-1 rounded-full bg-amber-600 hover:bg-amber-700"
                   >
                     {isSubmitting
-                      ? 'Saving...'
+                      ? 'Saving…'
                       : editProduct
                         ? 'Update Product'
                         : 'Add Product'}
                   </Button>
-                  <Button type="button" variant="outline" onClick={onBack}>
+                  <Button type="button" variant="outline" className="rounded-full" onClick={onBack}>
                     Cancel
                   </Button>
                 </div>
@@ -340,45 +447,63 @@ const AddProductPage = ({ onBack, editProduct }) => {
 
         {/* Preview */}
         <div>
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="sticky top-6 overflow-hidden py-0">
+            <CardHeader className="px-6 pt-6">
+              <CardTitle className="flex items-center gap-2 text-base">
                 <Eye className="h-4 w-4" />
                 Product Preview
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {imagePreviewUrls[0] && (
+            <CardContent className="space-y-4 p-6">
+              <div className="flex h-40 w-full items-center justify-center overflow-hidden rounded-xl bg-zinc-100">
+                {imagePreviewUrls[0] ? (
                   <img
                     src={imagePreviewUrls[0]}
                     alt="Product preview"
-                    className="h-40 w-full rounded-lg object-cover"
+                    className="h-full w-full object-cover"
                   />
+                ) : (
+                  <ImagePlus className="h-8 w-8 text-zinc-300" />
                 )}
+              </div>
 
-                <div className="space-y-2">
-                  <h3 className="font-semibold">
-                    {formData.name || 'Product Name'}
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    {formData.description ||
-                      'Product description will appear here...'}
+              <div className="space-y-2">
+                {formData.brand && (
+                  <p className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+                    {formData.brand}
                   </p>
+                )}
+                <h3 className="font-semibold text-zinc-900">{formData.name || 'Product Name'}</h3>
+                <p className="text-muted-foreground line-clamp-2 text-sm">
+                  {formData.description || 'Product description will appear here...'}
+                </p>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-primary text-lg font-bold">
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-bold text-zinc-900 tabular-nums">
                       ₹{formData.price || '0.00'}
                     </span>
-                    {formData.category && (
-                      <Badge variant="outline">{formData.category}</Badge>
+                    {previewHasDiscount && (
+                      <span className="text-muted-foreground text-sm line-through tabular-nums">
+                        ₹{formData.originalPrice}
+                      </span>
                     )}
                   </div>
-
-                  <div className="text-muted-foreground text-sm">
-                    Stock: {formData.stock || '0'}
-                  </div>
+                  {formData.category && (
+                    <Badge variant="outline" className="text-xs">
+                      {formData.category}
+                    </Badge>
+                  )}
                 </div>
+
+                <div className="text-muted-foreground text-sm">Stock: {formData.stock || '0'}</div>
+
+                {formData.featured && (
+                  <div className="flex items-center gap-1 text-sm font-medium text-amber-600">
+                    <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                    Featured
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -20,12 +20,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ProductCard } from '@/components/ui/product-card';
+import { StatCard } from '@/components/ui/stat-card';
 import { useGetMyProductsQuery } from '@/store/api/vendorApi';
 import { useDeleteProductMutation } from '@/store/api/productApi';
-import { Search, Plus, Package } from 'lucide-react';
+import { Search, Plus, Package, PackageSearch } from 'lucide-react';
 import { toast } from 'sonner';
 
-const ProductsPage = ({ onAddProduct, onEditProduct }) => {
+const ProductsPage = ({ onAddProduct, onEditProduct, onViewProduct }) => {
   const { data, isLoading } = useGetMyProductsQuery(
     { page: 1, limit: 100 },
     { pollingInterval: 30000, refetchOnFocus: true, refetchOnReconnect: true }
@@ -61,6 +62,35 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
     );
   }
 
+  if (products.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold text-zinc-900">Product Management</h2>
+          <p className="text-muted-foreground">
+            Manage your product inventory and track performance
+          </p>
+        </div>
+        <div className="flex flex-col items-center rounded-2xl border border-dashed border-zinc-300 px-6 py-20 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+            <PackageSearch className="h-7 w-7" strokeWidth={2} />
+          </div>
+          <h3 className="mt-6 text-xl font-bold text-zinc-900">No products yet</h3>
+          <p className="mt-2 max-w-sm text-zinc-600">
+            Get started by listing your first product — it'll show up here for buyers to find.
+          </p>
+          <Button
+            onClick={onAddProduct}
+            className="mt-6 rounded-full bg-amber-600 hover:bg-amber-700"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add your first product
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const handleDeleteProduct = (product) => {
     setDeleteProductId(product._id);
   };
@@ -78,7 +108,7 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
   };
 
   const handleViewProduct = (product) => {
-    toast.info(`${product.name} — Price: ₹${product.price} | Stock: ${product.inStock}`);
+    onViewProduct(product);
   };
 
   return (
@@ -86,31 +116,27 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Product Management</h2>
+          <h2 className="text-2xl font-bold text-zinc-900">Product Management</h2>
           <p className="text-muted-foreground">
             Manage your product inventory and track performance
           </p>
         </div>
-        <Button onClick={onAddProduct} className="md:w-auto">
+        <Button
+          onClick={onAddProduct}
+          className="rounded-full bg-amber-600 hover:bg-amber-700 md:w-auto"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add New Product
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-1">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Products
-            </CardTitle>
-            <Package className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{products.length}</div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Stats */}
+      <StatCard
+        title="Total Products"
+        value={products.length}
+        icon={Package}
+        className="max-w-xs"
+      />
 
       {/* Filters */}
       <Card>
@@ -125,22 +151,19 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
                 className="pl-9"
               />
             </div>
-            <div className="flex gap-2">
-
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -159,23 +182,13 @@ const ProductsPage = ({ onAddProduct, onEditProduct }) => {
           ))}
         </div>
       ) : (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Package className="text-muted-foreground mb-4 h-12 w-12" />
-            <h3 className="mb-2 text-lg font-semibold">No products found</h3>
-            <p className="text-muted-foreground mb-4 text-center">
-              {searchTerm || categoryFilter !== 'all'
-                ? 'Try adjusting your search terms or filters.'
-                : 'Get started by adding your first product.'}
-            </p>
-            {!searchTerm && categoryFilter === 'all' && (
-              <Button onClick={onAddProduct}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Your First Product
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center rounded-2xl border border-dashed border-zinc-300 px-6 py-16 text-center">
+          <PackageSearch className="h-10 w-10 text-zinc-300" strokeWidth={1.5} />
+          <h3 className="mt-4 text-lg font-semibold text-zinc-900">No matches</h3>
+          <p className="text-muted-foreground mt-1">
+            Try adjusting your search or category filter.
+          </p>
+        </div>
       )}
 
       {/* Delete Confirmation Dialog */}
