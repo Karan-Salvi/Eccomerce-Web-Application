@@ -16,6 +16,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   useAddToCartMutation,
   useAddToWishlistMutation,
+  useRemoveFromWishlistMutation,
 } from '../../store/api/authApi';
 import { useGetSimilarProductsQuery } from '../../store/api/recommendationApi';
 import { useSelector } from 'react-redux';
@@ -132,7 +133,18 @@ const ProductDetail = ({ product }) => {
   };
 
   const [addToWishlist] = useAddToWishlistMutation();
+  const [removeFromWishlist] = useRemoveFromWishlistMutation();
   const [addToCart] = useAddToCartMutation();
+
+  const handleToggleWishlist = () => {
+    const nextWishlisted = !isWishlisted;
+    setIsWishlisted(nextWishlisted);
+    if (nextWishlisted) {
+      addToWishlist({ productId: product._id });
+    } else {
+      removeFromWishlist(product._id);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -334,12 +346,7 @@ const ProductDetail = ({ product }) => {
                   {isInCart ? 'Already Added to Cart' : 'Add to Cart'}
                 </button>
                 <button
-                  onClick={() => {
-                    setIsWishlisted(!isWishlisted);
-                    addToWishlist({
-                      productId: product._id,
-                    });
-                  }}
+                  onClick={handleToggleWishlist}
                   aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                   className={`cursor-pointer rounded-full border p-3 transition-all ${
                     isWishlisted
