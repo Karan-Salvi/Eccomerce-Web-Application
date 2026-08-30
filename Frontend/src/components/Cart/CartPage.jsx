@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 
 import {
@@ -10,6 +9,7 @@ import {
 import { Reveal } from '../Home/Reveal';
 import AddAddressDialog from '../Product/AddAddressDialog';
 import PlaceOrderButton from '../Product/PlaceOrderButton';
+import EmptyCart from './EmptyCart';
 
 const formatPrice = (amount) => `₹${Number(amount ?? 0).toFixed(2)}`;
 
@@ -77,21 +77,7 @@ const CartPage = () => {
   const isBusy = isUpdatingQuantity || isRemoving;
 
   if (cartItems.length === 0) {
-    return (
-      <div className="min-h-screen bg-zinc-50">
-        <div className="mx-auto flex max-w-md flex-col items-center px-4 py-24 text-center">
-          <ShoppingBag className="h-16 w-16 text-zinc-300" />
-          <h2 className="mt-6 text-2xl font-bold text-zinc-900">Your cart is empty</h2>
-          <p className="mt-2 text-zinc-600">Browse the catalog and add something you like.</p>
-          <Link
-            to="/products"
-            className="mt-6 rounded-full bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
-          >
-            Start shopping
-          </Link>
-        </div>
-      </div>
-    );
+    return <EmptyCart />;
   }
 
   return (
