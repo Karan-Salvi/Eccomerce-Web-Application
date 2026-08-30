@@ -15,6 +15,7 @@ import userRoute from './modules/users/user.routes.js';
 import orderRoute from './modules/orders/order.routes.js';
 import vendorRoute from './modules/vendor/vendor.routes.js';
 import recommendationRoute from './modules/recommendations/recommendation.routes.js';
+import contactRoute from './modules/contact/contact.routes.js';
 
 import dbConnect from '#database/dbConnect.js';
 
@@ -69,6 +70,7 @@ app.use('/api/v1', userRoute);
 app.use('/api/v1', orderRoute);
 app.use('/api/v1', vendorRoute);
 app.use('/api/v1', recommendationRoute);
+app.use('/api/v1', contactRoute);
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {

@@ -8,6 +8,7 @@ import { purchaseApi } from './api/purchaseApi';
 import { vendorApi } from './api/vendorApi';
 import { recommendationApi } from './api/recommendationApi';
 import { adminApi } from './api/adminApi';
+import { contactApi } from './api/contactApi';
 
 export const appStore = configureStore({
   reducer: rootRedcuer,
@@ -19,7 +20,8 @@ export const appStore = configureStore({
       purchaseApi.middleware,
       vendorApi.middleware,
       recommendationApi.middleware,
-      adminApi.middleware
+      adminApi.middleware,
+      contactApi.middleware
     ),
 });
 
