@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://eccomerce-web-application.onrender.com/api/$1"
+      "destination": "https://eccomerce-web-application-yg7g.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
